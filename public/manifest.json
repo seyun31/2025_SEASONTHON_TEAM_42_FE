@@ -1,0 +1,33 @@
+{
+    "name": "Next Career App",
+    "short_name": "Next-Career",
+    "description": "제 2의 직업을 찾고자 하는 중장년층을 위한 ‘맞춤형 길잡이’ 구직 서비스",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "categories": ["education", "career", "job", "career-advice", "career-development", "career-guidance", "career-planning", "career-coaching", "career-development-tools", "career-development-resources", "career-development-services", "career-development-programs", "career-development-opportunities", "career-development-opportunities-in-india", "career-development-opportunities-in-india-for-students", "career-development-opportunities-in-india-for-students-in-2025", "career-development-opportunities-in-india-for-students-in-2025-2026", "career-development-opportunities-in-india-for-students-in-2025-2026-2027", "career-development-opportunities-in-india-for-students-in-2025-2026-2027-2028", "career-development-opportunities-in-india-for-students-in-2025-2026-2027-2028-2029", "career-development-opportunities-in-india-for-students-in-2025-2026-2027-2028-2029-2030"],
+    "lang": "ko",
+    "scope": "/",
+    "orientation": "portrait",
+    "prefer_related_applications": false,
+    "related_applications": [],
+    "shortcuts": [],
+    "screenshots": [],
+    "share_target": {},
+    "icons": [
+      {
+        "src": "/icons/logo-192.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/icons/logo-512.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }
+  
