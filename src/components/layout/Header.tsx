@@ -12,8 +12,8 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 flex flex-col items-center justify-center h-auto text--black bg-white z-50">
-      <div className="mx-auto flex h-16 w-full items-center justify-around px-4 md:px-8 lg:w-[70%]">
+    <header className="fixed inset-x-0 top-0 flex flex-col items-center justify-center h-auto text--black bg-white z-50 py-[24px]">
+      <div className="mx-auto flex h-20 w-full items-center justify-around px-4 md:px-8 lg:w-[70%]">
         {/* 로고 */}
         <Link
           href="/"
