@@ -72,7 +72,7 @@ import { Text } from '../components/ui/Text';
 
 ```
 src/
-├── app/                    # Next.js App Router
+├── app/                   # Next.js App Router
 │   ├── globals.css        # 글로벌 스타일 및 Typography 클래스
 │   ├── layout.tsx         # 루트 레이아웃
 │   └── page.tsx           # 홈페이지
@@ -94,9 +94,66 @@ src/
 3. **스타일링**: Tailwind CSS 클래스와 Typography 시스템 활용
 4. **상태 관리**: React Query (서버 상태) + Zustand (클라이언트 상태)
 
-## 🔀 Git 워크플로우
+## 📄 네이밍 컨벤션
 
-팀 협업을 위한 Git 사용 규칙입니다.
+### 페이지 파일 (src/app/)
+
+- **kebab-case**: 모든 페이지 디렉토리
+  - `ai-job-recommendation/page.tsx`
+  - `ai-job-posting-recommendation/page.tsx`
+  - `ai-education-recommendation/page.tsx`
+  - `home/page.tsx`
+  - `test/page.tsx`
+
+### 컴포넌트 파일 (src/components/)
+
+- **PascalCase**: 모든 React 컴포넌트
+  - `Header.tsx`
+  - `Text.tsx`
+  - `SplashScreen.tsx`
+
+### 유틸리티/라이브러리 파일 (src/lib/)
+
+- **camelCase**: 유틸리티 함수
+  - `cn.ts`
+
+### 설정 파일 (루트)
+
+- **kebab-case**: 설정 관련 파일
+  - `next.config.ts`
+  - `next-env.d.ts`
+
+### 이미지/에셋 파일 저장 위치
+
+**정적 이미지 파일**
+
+- **저장 위치**: `public/assets/images/`
+- **네이밍**: kebab-case 사용
+- **구조**:
+  ```
+  public/assets/
+  ├── images/
+  │   ├── icons/          # 아이콘 파일들
+  │   ├── logos/          # 로고 파일들
+  │   ├── illustrations/  # 일러스트
+  │   └── backgrounds/    # 배경 이미지들
+  └── fonts/              # 폰트 파일들
+  ```
+
+**동적/개발용 이미지 파일**
+
+- **저장 위치**: `src/assets/images/`
+- **사용 목적**: 개발 과정에서 사용되는 임시 이미지, 컴포넌트와 함께 번들되는 이미지
+
+**예시**:
+
+```
+public/assets/images/icons/menu-icon.svg
+public/assets/images/logos/company-logo.png
+src/assets/images/placeholder-image.jpg
+```
+
+## 🔀 Git 워크플로우
 
 ### 커밋 컨벤션
 
@@ -135,7 +192,7 @@ docs/789-update-readme
 - **제목**: `[Type] 간단한 설명 (#issue-number)`
 - **본문**: 변경사항과 테스트 방법 명시
 - **연결**: 관련 이슈 번호 연결
-- **리뷰**: 최소 1명 승인 후 머지
+- **리뷰**: 최소 1명 승인 후 머지 권장
 - **머지**: Squash and merge 권장
 
 ## 📝 라이선스
