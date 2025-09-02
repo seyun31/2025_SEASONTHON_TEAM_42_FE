@@ -20,7 +20,7 @@ export default function Header() {
           className="flex justify-center items-center relative h-12 w-28 shrink-0"
         >
           <Image
-            src="/assets/logo.svg"
+            src="/assets/logos/logo.svg"
             alt="nextcareer 로고"
             width={120}
             height={40}
