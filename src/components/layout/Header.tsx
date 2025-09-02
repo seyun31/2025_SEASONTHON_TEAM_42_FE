@@ -74,7 +74,7 @@ export default function Header() {
             </svg>
           </div>
           <Link
-            href="/login"
+            href="/member/login"
             className="text-gray-600 hover:!text-green-600 px-4 py-2 text-sm font-medium transition-colors duration-200"
           >
             로그인
@@ -156,7 +156,7 @@ export default function Header() {
 
           {/* 모바일 로그인 버튼 */}
           <Link
-            href="/login"
+            href="/member/login"
             className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
             onClick={() => setIsMobileMenuOpen(false)}
           >
