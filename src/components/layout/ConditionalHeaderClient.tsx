@@ -5,7 +5,8 @@ import Header from './Header';
 
 export default function ConditionalHeaderClient() {
   const pathname = usePathname();
-  const hideHeader = pathname === '/member/login' || 'member/signup';
+  const hideHeader =
+    pathname === '/member/login' || pathname === '/member/signup';
 
   console.log('Current pathname:', pathname);
 
