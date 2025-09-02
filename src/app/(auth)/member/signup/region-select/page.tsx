@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { REGIONS, CITIES } from '@/data/location';
 
@@ -9,7 +9,6 @@ type RegionType = (typeof REGIONS)[number];
 
 export default function RegionSelectPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [region, setRegion] = useState<RegionType>(REGIONS[0]);
   const [city, setCity] = useState<string>('');
 
