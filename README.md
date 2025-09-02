@@ -162,7 +162,6 @@ src/assets/images/placeholder-image.jpg
 
 예시:
 feat(auth) : 로그인 기능 구현 (#123)
-fix(header) : 모바일 메뉴 버그 수정 (#456)
 docs(readme) : 설치 가이드 업데이트 (#789)
 ```
 
