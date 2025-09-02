@@ -418,3 +418,17 @@ a {
   animation: bounce-slow 2s infinite;
   animation-delay: 1s;
 }
+
+/* Input placeholder 및 Input 들여쓰기 */
+.my-input {
+  padding-left: 20px;
+}
+
+.my-input::placeholder {
+  color: #869f8e;
+}
+
+/* Address 버튼 placeholder 스타일 */
+.my-input.text-gray-400 {
+  color: #869f8e !important;
+}
