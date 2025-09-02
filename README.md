@@ -158,11 +158,11 @@ src/assets/images/placeholder-image.jpg
 ### 커밋 컨벤션
 
 ```
-<type>(<scope>): <subject> (#issue-number)
+<type>(<scope>): <subject>
 
 예시:
-feat(auth): 로그인 기능 구현 (#123)
-docs(readme): 설치 가이드 업데이트 (#789)
+feat(auth): 로그인 기능 구현
+docs(readme): 설치 가이드 업데이트
 ```
 
 **Type:**
