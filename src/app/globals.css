@@ -437,6 +437,27 @@ a {
   padding-left: 32px;
 }
 
+.search-input {
+  padding-left: 120px;
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: -0.5px;
+  color: black;
+}
+
+.search-input::placeholder {
+  color: var(--gray-50);
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: -0.5px;
+}
+
 /* 스크롤바 숨기기 */
 .scrollbar-hide {
   -ms-overflow-style: none; /* Internet Explorer 10+ */

@@ -1,10 +1,16 @@
 import Text from '@/components/ui/Text';
+import SearchBar from '@/components/ui/SearchBar';
 
 export default function test() {
   return (
     <div className="min-h-screen bg-white">
       <main className="container mx-auto px-4 py-16">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-8">
+          {/* SearchBar 컴포넌트 테스트 */}
+          <div className="items-center justify-center w-full lg:w-[70%] h-[9.26vh]">
+            <SearchBar />
+          </div>
+
           <Text variant="header-large" as="h1">
             NextCareer
           </Text>
