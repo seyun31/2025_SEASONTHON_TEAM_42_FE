@@ -18,7 +18,9 @@ export default function AddressButton({
       onMouseEnter={onHover}
       className="w-full h-[9.26vh] rounded-[12px] border-2 border-primary-90 bg-white flex items-center justify-between"
     >
-      <span className={`my-input ${value ? 'text-gray-900' : 'text-gray-400'}`}>
+      <span
+        className={`my-input text-body-large-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}
+      >
         {value || placeholder}
       </span>
       <Image

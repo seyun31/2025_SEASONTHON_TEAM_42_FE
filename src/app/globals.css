@@ -432,3 +432,17 @@ a {
 .my-input.text-gray-400 {
   color: #869f8e !important;
 }
+
+.city-indent {
+  padding-left: 32px;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}

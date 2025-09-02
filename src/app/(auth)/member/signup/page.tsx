@@ -1,20 +1,29 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
-import RegionCityPicker from '@/components/location/RegionCityPicker';
-import AddressButton from '@/components/location/Address';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import AddressButton from '@/components/ui/AddressButton';
 
 export default function Signup() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedGender, setSelectedGender] = useState<string>('');
   const [address, setAddress] = useState<string>('');
-  const [showRegionPicker, setShowRegionPicker] = useState<boolean>(false);
+
+  // URL 쿼리 파라미터에서 주소 정보 받아오기
+  useEffect(() => {
+    const addressFromQuery = searchParams.get('address');
+    if (addressFromQuery) {
+      setAddress(addressFromQuery);
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         {/* 사용자 정보 박스 */}
-        <div className="relative w-[30.5vw] h-[65vh] border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+        <div className="relative w-[30.5vw] h-[67vh] border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           <div className="absolute inset-0 rounded-[32px] bg-primary-20 opacity-50 pointer-events-none" />
 
           {/* 로고 이미지 */}
@@ -88,24 +97,12 @@ export default function Signup() {
               <label className="block text-body-large-medium mb-4">
                 거주지 (선택)
               </label>
-              {!showRegionPicker ? (
-                <AddressButton
-                  value={address}
-                  onClick={() => {
-                    setShowRegionPicker(true);
-                  }}
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center z-30">
-                  <RegionCityPicker
-                    onSelect={(region, city) => {
-                      setAddress(`${region} ${city}`);
-                      setShowRegionPicker(false);
-                    }}
-                    minHeightClass="min-h-[200px]"
-                  />
-                </div>
-              )}
+              <AddressButton
+                value={address}
+                onClick={() => {
+                  router.push('/member/signup/region-select');
+                }}
+              />
             </div>
           </div>
         </div>
