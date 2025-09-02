@@ -47,7 +47,7 @@ export default function Signup() {
           <div className="absolute inset-0 rounded-[32px] bg-primary-20 opacity-50 pointer-events-none" />
 
           {/* 로고 이미지 */}
-          <div className="absolute top-[24px] left-1/2 transform -translate-x-1/2 z-20">
+          <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
             <Image
               src="/assets/logos/name-logo.svg"
               alt="nextcareer 메인 로고"
@@ -58,12 +58,10 @@ export default function Signup() {
           </div>
 
           {/* 사용자 정보 영역 */}
-          <div className="absolute top-[85px] left-1/2 transform -translate-x-1/2 z-10 flex flex-col gap-4 w-[calc(30.5vw-48px)]">
+          <div className="absolute top-[16%] left-[8%] right-[8%] bottom-[12%] z-10 flex flex-col gap-4">
             {/* 이름 입력 */}
-            <div className="relative top-[12px]">
-              <label className="block text-body-large-medium mb-4">
-                이름 *
-              </label>
+            <div>
+              <label className="block text-body-large-medium">이름 *</label>
               <input
                 type="text"
                 value={name}
@@ -72,15 +70,13 @@ export default function Signup() {
                   localStorage.setItem('signup-name', e.target.value);
                 }}
                 placeholder="이름을 입력해주세요"
-                className="my-input relative top-[12px] w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
               />
             </div>
 
             {/* 생년월일 입력 */}
-            <div className="relative top-[24px]">
-              <label className="block text-body-large-medium mb-4">
-                생년월일 *
-              </label>
+            <div>
+              <label className="block text-body-large-medium">생년월일 *</label>
               <input
                 type="text"
                 value={birthDate}
@@ -89,22 +85,20 @@ export default function Signup() {
                   localStorage.setItem('signup-birthDate', e.target.value);
                 }}
                 placeholder="1972 / 01 / 20"
-                className="my-input relative top-[12px] w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
               />
             </div>
 
             {/* 성별 선택 */}
-            <div className="relative top-[36px]">
-              <label className="block text-body-large-medium mb-4">
-                성별 *
-              </label>
-              <div className="flex gap-[1.5vw]">
+            <div>
+              <label className="block text-body-large-medium">성별 *</label>
+              <div className="flex gap-[1.5vw] relative top-2">
                 <button
                   onClick={() => {
                     setSelectedGender('남자');
                     localStorage.setItem('signup-gender', '남자');
                   }}
-                  className={`relative top-[12px] flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                  className={`flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
                     selectedGender === '남자'
                       ? 'bg-primary-90 text-white'
                       : 'bg-white text-black hover:border-primary-300'
@@ -117,7 +111,7 @@ export default function Signup() {
                     setSelectedGender('여자');
                     localStorage.setItem('signup-gender', '여자');
                   }}
-                  className={`relative top-[12px] flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                  className={`flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
                     selectedGender === '여자'
                       ? 'bg-primary-90 text-white'
                       : 'bg-white text-black hover:border-primary-300'
@@ -129,11 +123,11 @@ export default function Signup() {
             </div>
 
             {/* 거주지 선택 */}
-            <div className="relative top-[48px]">
-              <label className="block text-body-large-medium mb-4">
+            <div>
+              <label className="block text-body-large-medium">
                 거주지 (선택)
               </label>
-              <div className="relative top-[12px]">
+              <div className="relative top-2">
                 <AddressButton
                   value={address}
                   onClick={() => {
