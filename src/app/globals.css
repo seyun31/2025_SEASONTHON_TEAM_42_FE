@@ -1,11 +1,12 @@
 @import 'tailwindcss';
 
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} */
+@font-face {
+  font-family: 'Pretendard Variable';
+  src: url('/fonts/PretendardVariable.ttf') format('truetype');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   --background: #ffffff;
@@ -39,33 +40,159 @@
   --secondary4: #5786da;
 }
 
-/* 다크 모드 비활성화 - 라이트 모드 고정 */
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 
-@theme {
-  --font-PThin: Pretendard-Thin;
-  --color-background: #ffffff;
-  --color-foreground: #171717;
-  --color-point: #0077ff;
-  --color-sublight: #daebff;
-  --color-semilight: #bedcff;
-}
-@font-face {
-  font-family: 'Pretendard';
-  src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
-  font-weight: 45 920;
-  font-display: swap;
+  /* Primary 컬러 팔레트 */
+  --color-black: var(--black);
+  --color-primary-600: var(--primary-600);
+  --color-primary-300: var(--primary-300);
+  --color-primary-90: var(--primary-90);
+  --color-primary-60: var(--primary-60);
+  --color-primary-40: var(--primary-40);
+  --color-primary-30: var(--primary-30);
+  --color-primary-20: var(--primary-20);
+  --color-white: var(--white);
+
+  /* Gray 컬러 팔레트 */
+  --color-gray-20: var(--gray-20);
+  --color-gray-50: var(--gray-50);
+  --color-gray-70: var(--gray-70);
+  --color-gray-80: var(--gray-80);
+
+  /* Gray Blue 컬러 팔레트 */
+  --color-gray-blue-20: var(--gray-blue-20);
+  --color-gray-blue-50: var(--gray-blue-50);
+  --color-gray-blue-70: var(--gray-blue-70);
+
+  /* Secondary 컬러 팔레트 */
+  --color-secondary1: var(--secondary1);
+  --color-secondary2: var(--secondary2);
+  --color-secondary3: var(--secondary3);
+  --color-secondary4: var(--secondary4);
+
+  --font-sans:
+    'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
 }
 
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
 body {
+  max-width: 100vw;
+  overflow-x: hidden;
   background: var(--background);
-  color: var(--point);
-  font-family: Pretendard;
+  color: #171717;
+  font-family:
+    'Pretendard Variable',
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    Roboto,
+    'Helvetica Neue',
+    'Segoe UI',
+    'Apple SD Gothic Neo',
+    'Noto Sans KR',
+    'Malgun Gothic',
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol',
+    sans-serif;
+}
+
+/* 모바일 반응형 설정 */
+@media (max-width: 430px) {
+  html,
+  body {
+    max-width: 430px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: var(--background);
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 모바일에서 텍스트 크기 조정 */
+  .text-header-large {
+    font-size: 40px;
+    letter-spacing: -1px;
+  }
+
+  .text-header-medium {
+    font-size: 32px;
+    letter-spacing: -0.8px;
+  }
+
+  .text-header-small {
+    font-size: 28px;
+    letter-spacing: -0.7px;
+  }
+
+  .text-title-xlarge {
+    font-size: 32px;
+    letter-spacing: -0.8px;
+  }
+
+  .text-title-large {
+    font-size: 28px;
+    letter-spacing: -0.7px;
+  }
+
+  .text-title-medium {
+    font-size: 22px;
+    letter-spacing: -0.55px;
+  }
+
+  .text-title-small {
+    font-size: 18px;
+    letter-spacing: -0.45px;
+  }
+
+  .text-title-xsmall {
+    font-size: 16px;
+    letter-spacing: -0.4px;
+  }
+
+  .text-body-large-medium,
+  .text-body-large-regular {
+    font-size: 18px;
+    letter-spacing: -0.45px;
+  }
+
+  .text-body-medium-medium,
+  .text-body-medium-regular {
+    font-size: 16px;
+    letter-spacing: -0.4px;
+  }
+
+  .text-body-small-medium,
+  .text-body-small-regular {
+    font-size: 14px;
+    letter-spacing: -0.35px;
+  }
+
+  .text-caption-large {
+    font-size: 13px;
+    letter-spacing: -0.325px;
+  }
+
+  .text-caption-small {
+    font-size: 11px;
+    letter-spacing: -0.275px;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* Typography System */
