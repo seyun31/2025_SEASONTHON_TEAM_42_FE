@@ -1,8 +1,10 @@
-import Image from 'next/image';
+'use client';
 
+import Image from 'next/image';
 interface MessageItemProps {
   message: string;
   isBot?: boolean;
+  options?: string[];
 }
 
 export default function MessageItem({
@@ -10,25 +12,28 @@ export default function MessageItem({
   isBot = false,
 }: MessageItemProps) {
   return (
-    <div
-      className={`flex items-start gap-[1.25vw] ${isBot ? 'mt-[2.4vh]' : 'mr-[4.8vh]'}`}
-    >
+    <div className={`${isBot ? 'mt-[2.4vh]' : 'mr-[4.8vh]'}`}>
       {isBot && (
-        <Image
-          src="/assets/Icons/ai-chat-profile.svg"
-          alt="AI 프로필"
-          width={0}
-          height={0}
-          className="flex-shrink-0 w-[2.71vw] h-[4.81vh]"
-        />
+        <div className="text-chat-message-option mb-2 ml-[4.5vw]">캐릭터명</div>
       )}
-      <div
-        className={`max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 ${
-          isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
-        }`}
-        style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
-      >
-        {message}
+      <div className={`flex items-start gap-[1.25vw]`}>
+        {isBot && (
+          <Image
+            src="/assets/Icons/ai-chat-profile.svg"
+            alt="AI 프로필"
+            width={0}
+            height={0}
+            className="flex-shrink-0 w-[2.71vw] h-[4.81vh]"
+          />
+        )}
+        <div
+          className={`max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 ${
+            isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
+          }`}
+          style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
+        >
+          {message}
+        </div>
       </div>
     </div>
   );

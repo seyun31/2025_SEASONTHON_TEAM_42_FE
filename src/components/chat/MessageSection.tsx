@@ -1,4 +1,7 @@
+'use client';
+
 import MessageItem from '@/components/chat/MessageItem';
+import MessageOption from '@/components/chat/MessageOption';
 
 export default function MessageSection() {
   return (
@@ -10,11 +13,62 @@ export default function MessageSection() {
         />
       </div>
       <div className="flex justify-end">
-        <MessageItem
-          message="모든 국민은 주거의 자유를 침해받지 아니한다. 주거에 대한 압수나 수색을 할 때에는 검사의 신청에 의하여 법관이 발부한 영장을 제시하여야 한다. 국회에서 의결된 법률안은 정부에 이송되어 15일 이내에 대통령이 공포한다.
-                              대법원장은 국회의 동의를 얻어 대통령이 임명한다. 대통령은 제1항과 제2항의 처분 또는 명령을 한 때에는 지체없이 국회에 보고하여 그 승인을 얻어야 한다."
-          isBot={false}
-        />
+        <div className="flex flex-col items-end gap-2">
+          <MessageItem message="마음에 드는 선택지가 없다면 아래 채팅에 편하게 적어주세요!" />
+          <div
+            className="max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5"
+            style={{ backgroundColor: '#9FC2FF66' }}
+          >
+            <div className="flex flex-wrap gap-2 justify-center">
+              <MessageOption
+                onClick={(selected) => console.log(`혼자서: ${selected}`)}
+              >
+                혼자서
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) => console.log(`여럿이서: ${selected}`)}
+              >
+                여럿이서
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) =>
+                  console.log(`책상에 앉아서: ${selected}`)
+                }
+              >
+                책상에 앉아서
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) =>
+                  console.log(`몸을 움직이며: ${selected}`)
+                }
+              >
+                몸을 움직이며
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) => console.log(`차분한: ${selected}`)}
+              >
+                차분한
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) => console.log(`선택지1: ${selected}`)}
+              >
+                선택지1
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) => console.log(`선택지2: ${selected}`)}
+              >
+                선택지2
+              </MessageOption>
+              <MessageOption
+                onClick={(selected) =>
+                  console.log(`엄청나게긴선택지예시: ${selected}`)
+                }
+              >
+                엄청나게긴선택지예시
+              </MessageOption>
+            </div>
+          </div>
+        </div>
       </div>
       <div className="flex justify-start">
         <MessageItem
