@@ -77,6 +77,16 @@ export default function Header() {
           >
             커리어 로드맵
           </div>
+          <div
+            onClick={() => router.push('/mypage/pick')} // 페이지 미정
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/mypage/pick') // 페이지 미정
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
+          >
+            관심목록
+          </div>
         </nav>
 
         {/* 데스크톱 로그인 버튼 */}
@@ -199,6 +209,16 @@ export default function Header() {
             }`}
           >
             커리어 로드맵
+          </div>
+          <div
+            onClick={() => router.push('/mypage/pick')} // 페이지 미정
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/mypage/pick') // 페이지 미정
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
+          >
+            관심목록
           </div>
 
           {/* 모바일 로그인 버튼 */}
