@@ -10,7 +10,9 @@ export default function MessageItem({
   isBot = false,
 }: MessageItemProps) {
   return (
-    <div className="flex items-start gap-[1.25vw]">
+    <div
+      className={`flex items-start gap-[1.25vw] ${isBot ? 'mt-[2.4vh]' : 'mr-[4.8vh]'}`}
+    >
       {isBot && (
         <Image
           src="/assets/Icons/ai-chat-profile.svg"
