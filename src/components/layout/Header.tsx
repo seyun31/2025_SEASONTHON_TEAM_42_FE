@@ -45,7 +45,7 @@ export default function Header() {
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            채용공고
+            채용 공고
           </div>
           <div
             onClick={() => router.push('/education-programs')}
@@ -55,17 +55,17 @@ export default function Header() {
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            교육 프로그램 공고
+            교육 공고
           </div>
           <div
-            onClick={() => router.push('/ai-job-test')}
+            onClick={() => router.push('/ai-chat')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
-              isActive('/ai-job-test')
+              isActive('/ai-chat')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            AI 직업 적합도 검사
+            AI 직업 추천
           </div>
           <div
             onClick={() => router.push('/career-roadmap')}
@@ -159,7 +159,7 @@ export default function Header() {
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            채용공고
+            채용 공고
           </div>
           <div
             onClick={() => {
@@ -172,20 +172,20 @@ export default function Header() {
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            교육 프로그램 공고
+            교육 공고
           </div>
           <div
             onClick={() => {
-              router.push('/ai-job-test');
+              router.push('/ai-chat');
               setIsMobileMenuOpen(false);
             }}
             className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-job-test')
+              isActive('/ai-chat')
                 ? 'text-green-600 bg-green-50 border-green-600'
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            AI 직업 적합도 검사
+            AI 직업 추천
           </div>
           <div
             onClick={() => {
