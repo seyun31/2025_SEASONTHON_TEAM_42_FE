@@ -67,3 +67,148 @@ body {
   color: var(--point);
   font-family: Pretendard;
 }
+
+/* Typography System */
+.text-header-large {
+  font-family: 'Pretendard Variable';
+  font-size: 60px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -1.5px;
+}
+
+.text-header-medium {
+  font-family: 'Pretendard Variable';
+  font-size: 44px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -1.1px;
+}
+
+.text-header-small {
+  font-family: 'Pretendard Variable';
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 140%;
+  letter-spacing: -0.8px;
+}
+
+.text-title-xlarge {
+  font-family: 'Pretendard Variable';
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -1px;
+}
+
+.text-title-large {
+  font-family: 'Pretendard Variable';
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.8px;
+}
+
+.text-title-medium {
+  font-family: 'Pretendard Variable';
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.6px;
+}
+
+.text-title-small {
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.5px;
+}
+
+.text-title-xsmall {
+  font-family: 'Pretendard Variable';
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 140%;
+  letter-spacing: -0.45px;
+}
+
+.text-body-large-medium {
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.5px;
+}
+
+.text-body-large-regular {
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.5px;
+}
+
+.text-body-medium-medium {
+  font-family: 'Pretendard Variable';
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.45px;
+}
+
+.text-body-medium-regular {
+  font-family: 'Pretendard Variable';
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.45px;
+}
+
+.text-body-small-medium {
+  font-family: 'Pretendard Variable';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: -0.4px;
+}
+
+.text-body-small-regular {
+  font-family: 'Pretendard Variable';
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.4px;
+}
+
+.text-caption-large {
+  font-family: 'Pretendard Variable';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: -0.35px;
+}
+
+.text-caption-small {
+  font-family: 'Pretendard Variable';
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.3px;
+}
