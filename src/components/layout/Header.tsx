@@ -3,16 +3,23 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const isActive = (path: string) => {
+    return pathname === path;
+  };
+
   return (
-    <header className="fixed inset-x-0 top-0 flex flex-col items-center justify-center h-auto text--black bg-white z-50 py-[24px]">
+    <header className="fixed inset-x-0 top-0 flex flex-col items-center justify-center h-[80px] text--black bg-white z-50 py-[24px]">
       <div className="mx-auto flex h-20 w-full items-center justify-around px-4 md:px-8 lg:w-[70%]">
         {/* 로고 */}
         <Link
@@ -20,7 +27,7 @@ export default function Header() {
           className="flex justify-center items-center relative h-12 w-28 shrink-0"
         >
           <Image
-            src="/assets/logo.svg"
+            src="/assets/logos/logo.svg"
             alt="nextcareer 로고"
             width={120}
             height={40}
@@ -30,30 +37,46 @@ export default function Header() {
 
         {/* 데스크톱 네비게이션 */}
         <nav className="hidden md:flex flex-1 justify-center gap-8">
-          <Link
-            href="/job-postings"
-            className="text-gray-700 hover:!text-green-600 transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium"
+          <div
+            onClick={() => router.push('/job-postings')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/job-postings')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
           >
             채용공고
-          </Link>
-          <Link
-            href="/education-programs"
-            className="text-gray-700 hover:!text-green-600 transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium"
+          </div>
+          <div
+            onClick={() => router.push('/education-programs')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/education-programs')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
           >
             교육 프로그램 공고
-          </Link>
-          <Link
-            href="/ai-job-test"
-            className="text-gray-700 hover:!text-green-600 transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium"
+          </div>
+          <div
+            onClick={() => router.push('/ai-job-test')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/ai-job-test')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
           >
             AI 직업 적합도 검사
-          </Link>
-          <Link
-            href="/career-roadmap"
-            className="text-gray-700 hover:!text-green-600 transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium"
+          </div>
+          <div
+            onClick={() => router.push('/career-roadmap')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/career-roadmap')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
           >
             커리어 로드맵
-          </Link>
+          </div>
         </nav>
 
         {/* 데스크톱 로그인 버튼 */}
@@ -74,7 +97,7 @@ export default function Header() {
             </svg>
           </div>
           <Link
-            href="/login"
+            href="/member/login"
             className="text-gray-600 hover:!text-green-600 px-4 py-2 text-sm font-medium transition-colors duration-200"
           >
             로그인
@@ -125,38 +148,62 @@ export default function Header() {
         }`}
       >
         <div className="px-4 pt-4 pb-12 space-y-2 border-t border-gray-200 bg-white shadow-md rounded-b-2xl">
-          <Link
-            href="/job-postings"
-            className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-            onClick={() => setIsMobileMenuOpen(false)}
+          <div
+            onClick={() => {
+              router.push('/job-postings');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+              isActive('/job-postings')
+                ? 'text-green-600 bg-green-50 border-green-600'
+                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+            }`}
           >
             채용공고
-          </Link>
-          <Link
-            href="/education-programs"
-            className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-            onClick={() => setIsMobileMenuOpen(false)}
+          </div>
+          <div
+            onClick={() => {
+              router.push('/education-programs');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+              isActive('/education-programs')
+                ? 'text-green-600 bg-green-50 border-green-600'
+                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+            }`}
           >
             교육 프로그램 공고
-          </Link>
-          <Link
-            href="/ai-job-test"
-            className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-            onClick={() => setIsMobileMenuOpen(false)}
+          </div>
+          <div
+            onClick={() => {
+              router.push('/ai-job-test');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+              isActive('/ai-job-test')
+                ? 'text-green-600 bg-green-50 border-green-600'
+                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+            }`}
           >
             AI 직업 적합도 검사
-          </Link>
-          <Link
-            href="/career-roadmap"
-            className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-            onClick={() => setIsMobileMenuOpen(false)}
+          </div>
+          <div
+            onClick={() => {
+              router.push('/career-roadmap');
+              setIsMobileMenuOpen(false);
+            }}
+            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+              isActive('/career-roadmap')
+                ? 'text-green-600 bg-green-50 border-green-600'
+                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+            }`}
           >
             커리어 로드맵
-          </Link>
+          </div>
 
           {/* 모바일 로그인 버튼 */}
           <Link
-            href="/login"
+            href="/member/login"
             className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
             onClick={() => setIsMobileMenuOpen(false)}
           >

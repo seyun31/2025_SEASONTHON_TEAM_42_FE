@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Header from '@/components/layout/Header';
+import ConditionalHeaderClient from '@/components/layout/ConditionalHeaderClient';
 
 export const metadata: Metadata = {
   title: 'NextCareer',
   description:
-    'NextCareer - 제 2의 직업을 찾고자 하는 중장년층을 위한 ‘맞춤형 길잡이’ 구직 서비스',
+    'NextCareer - 제 2의 직업을 찾고자 하는 중장년층을 위한 맞춤형 길잡이 구직 서비스',
   manifest: '/manifest.json',
   icons: {
     apple: '/icons/apple-touch-icon.png',
@@ -39,8 +39,12 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body>
-        <Header />
-        {children}
+        <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-32">
+          <div className="w-full max-w-5xl mx-auto px-8 text-lg font-medium">
+            <ConditionalHeaderClient />
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

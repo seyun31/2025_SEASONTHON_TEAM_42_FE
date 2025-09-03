@@ -1,5 +1,9 @@
-'use client';
+import Main from './main/page';
 
 export default function Home() {
-  return <div className="min-h-screen bg-white">home</div>;
+  return (
+    <>
+      <Main />
+    </>
+  );
 }
