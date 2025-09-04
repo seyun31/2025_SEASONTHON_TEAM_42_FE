@@ -2,13 +2,33 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { getUserData, clearAuthData } from '@/lib/auth';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userData, setUserData] = useState<{
+    userId: number;
+    name: string;
+    socialProvider: string;
+    socialId: string;
+    email: string;
+    profileImage: string;
+  } | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const user = getUserData();
+    if (user) {
+      setUserData(user);
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [pathname]); // pathname이 변경될 때마다 사용자 상태 확인
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -16,6 +36,13 @@ export default function Header() {
 
   const isActive = (path: string) => {
     return pathname === path;
+  };
+
+  const handleLogout = () => {
+    clearAuthData();
+    setUserData(null);
+    setIsLoggedIn(false);
+    router.push('/');
   };
 
   return (
@@ -91,27 +118,74 @@ export default function Header() {
 
         {/* 데스크톱 로그인 버튼 */}
         <div className="hidden md:flex justify-center items-center w-32 gap-3">
-          {/* 사용자 프로필 아이콘 */}
-          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-gray-600"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <Link
-            href="/member/login"
-            className="text-gray-600 hover:!text-green-600 px-4 py-2 text-sm font-medium transition-colors duration-200"
-          >
-            로그인
-          </Link>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+              {/* 사용자 프로필 이미지 */}
+              <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                {userData?.profileImage ? (
+                  <Image
+                    src={userData.profileImage}
+                    alt="프로필 이미지"
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/default-profile.png';
+                    }}
+                  />
+                ) : (
+                  <svg
+                    className="w-5 h-5 text-gray-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-gray-800">
+                  {userData?.name || '사용자'}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="text-xs text-gray-500 hover:text-red-600 transition-colors duration-200"
+                >
+                  로그아웃
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* 사용자 프로필 아이콘 */}
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <Link
+                href="/member/login"
+                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-sm font-medium transition-colors duration-200"
+              >
+                로그인
+              </Link>
+            </>
+          )}
         </div>
 
         {/* 모바일 메뉴 버튼 */}
@@ -221,14 +295,61 @@ export default function Header() {
             관심목록
           </div>
 
-          {/* 모바일 로그인 버튼 */}
-          <Link
-            href="/member/login"
-            className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            로그인
-          </Link>
+          {/* 모바일 로그인/로그아웃 버튼 */}
+          {isLoggedIn ? (
+            <div className="px-4 py-3">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
+                  {userData?.profileImage ? (
+                    <Image
+                      src={userData.profileImage}
+                      alt="프로필 이미지"
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/default-profile.png';
+                      }}
+                    />
+                  ) : (
+                    <svg
+                      className="w-5 h-5 text-gray-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-base font-semibold text-gray-800">
+                  {userData?.name || '사용자'}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full text-left text-sm text-gray-500 hover:text-red-600 transition-colors duration-200"
+              >
+                로그아웃
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/member/login"
+              className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              로그인
+            </Link>
+          )}
         </div>
       </div>
     </header>
