@@ -1,11 +1,20 @@
 'use client';
 
 import { jobRecommendations } from '@/mock/jobData';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import JobCard from '@/components/ui/JobCard';
+import { getUserData } from '@/lib/auth';
 
 export default function JobRecommendationsSection() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.name) {
+      setUserName(userData.name);
+    }
+  }, []);
 
   const toggleFavorite = (id: string) => {
     const newFavorites = new Set(favorites);
@@ -21,7 +30,11 @@ export default function JobRecommendationsSection() {
     <section className="w-full px-4 py-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-title-xlarge text-gray-80">오늘의 일자리 추천</h2>
+          <h2 className="text-title-xlarge text-gray-80">
+            {userName
+              ? `${userName}님을 위한 오늘의 맞춤 일자리 추천`
+              : '오늘의 일자리 추천'}
+          </h2>
           <a
             href="/job-postings"
             className="text-primary-300 hover:text-primary-600 transition-colors"
