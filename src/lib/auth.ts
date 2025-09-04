@@ -62,7 +62,15 @@ export async function fetchUserData(): Promise<{
 
   try {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    const response = await fetch(`${backendUrl}/v1/user`, {
+
+    if (!backendUrl) {
+      throw new Error('백엔드 URL이 설정되지 않았습니다.');
+    }
+
+    // URL 끝에 슬래시가 있으면 제거
+    const cleanBackendUrl = backendUrl.replace(/\/$/, '');
+
+    const response = await fetch(`${cleanBackendUrl}/v1/user`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,

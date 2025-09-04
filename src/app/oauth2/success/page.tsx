@@ -41,15 +41,22 @@ export default function OAuth2SuccessPage() {
         document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=strict`;
 
         // 사용자 정보 가져오기 (직접 백엔드로 요청)
-        const backendUrl =
-          process.env.NEXT_PUBLIC_BACKEND_URL || 'https://api.ilhaeng.cloud';
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+        if (!backendUrl) {
+          throw new Error('백엔드 URL이 설정되지 않았습니다.');
+        }
+
+        // URL 끝에 슬래시가 있으면 제거
+        const cleanBackendUrl = backendUrl.replace(/\/$/, '');
+
         console.log(
           'Making request to backend with token:',
           accessToken.substring(0, 20) + '...'
         );
-        console.log('Backend URL:', backendUrl);
+        console.log('Backend URL:', cleanBackendUrl);
 
-        const response = await fetch(`${backendUrl}/v1/user`, {
+        const response = await fetch(`${cleanBackendUrl}/v1/user`, {
           method: 'GET',
           headers: {
             Authorization: `Bearer ${accessToken}`,
