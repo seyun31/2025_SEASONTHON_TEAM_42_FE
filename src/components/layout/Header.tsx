@@ -56,9 +56,9 @@ export default function Header() {
           <Image
             src="/assets/logos/logo.svg"
             alt="nextcareer 로고"
-            width={120}
-            height={40}
-            className="h-8 w-auto"
+            width={148}
+            height={80}
+            className="h-10 w-auto"
           />
         </Link>
 
@@ -66,17 +66,17 @@ export default function Header() {
         <nav className="hidden md:flex flex-1 justify-center gap-8">
           <div
             onClick={() => router.push('/job-postings')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
               isActive('/job-postings')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            채용공고
+            채용 공고
           </div>
           <div
             onClick={() => router.push('/education-programs')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
               isActive('/education-programs')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
@@ -85,9 +85,9 @@ export default function Header() {
             교육 공고
           </div>
           <div
-            onClick={() => router.push('/ai-job-test')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
-              isActive('/ai-job-test')
+            onClick={() => router.push('/ai-chat')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/ai-chat')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
@@ -96,7 +96,7 @@ export default function Header() {
           </div>
           <div
             onClick={() => router.push('/career-roadmap')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
               isActive('/career-roadmap')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
@@ -106,8 +106,8 @@ export default function Header() {
           </div>
           <div
             onClick={() => router.push('/heart-list')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
-              isActive('/career-roadmap')
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/heart-list')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
@@ -150,12 +150,12 @@ export default function Header() {
                 )}
               </div>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-800">
+                <span className="text-m font-medium text-gray-800">
                   {userData?.name || '사용자'}
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="text-xs text-gray-500 hover:text-red-600 transition-colors duration-200"
+                  className="text-s text-gray-500 hover:text-red-600 transition-colors duration-200"
                 >
                   로그아웃
                 </button>
@@ -180,7 +180,7 @@ export default function Header() {
               </div>
               <Link
                 href="/member/login"
-                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-sm font-medium transition-colors duration-200"
+                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-m font-medium transition-colors duration-200"
               >
                 로그인
               </Link>
@@ -243,7 +243,7 @@ export default function Header() {
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            채용공고
+            채용 공고
           </div>
           <div
             onClick={() => {
@@ -256,20 +256,20 @@ export default function Header() {
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            교육 프로그램 공고
+            교육 공고
           </div>
           <div
             onClick={() => {
-              router.push('/ai-job-test');
+              router.push('/ai-chat');
               setIsMobileMenuOpen(false);
             }}
             className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-job-test')
+              isActive('/ai-chat')
                 ? 'text-green-600 bg-green-50 border-green-600'
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
           >
-            AI 직업 적합도 검사
+            AI 직업 추천
           </div>
           <div
             onClick={() => {
@@ -283,6 +283,16 @@ export default function Header() {
             }`}
           >
             커리어 로드맵
+          </div>
+          <div
+            onClick={() => router.push('/heart-list')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
+              isActive('/heart-list')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
+          >
+            관심목록
           </div>
 
           {/* 모바일 로그인/로그아웃 버튼 */}
