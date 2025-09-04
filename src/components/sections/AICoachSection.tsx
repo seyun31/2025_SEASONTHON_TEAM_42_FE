@@ -9,9 +9,9 @@ export default function AICoachSection() {
 
   const handleStartClick = (cardId: string) => {
     if (cardId === 'second-career') {
-      router.push('/ai-chat/job');
+      router.push('/ai-chat?chapter=job');
     } else {
-      router.push('/ai-chat/roadmap');
+      router.push('/ai-chat?chapter=roadmap');
     }
   };
   return (

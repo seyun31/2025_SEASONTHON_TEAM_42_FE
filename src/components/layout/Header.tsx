@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { getUserData, clearAuthData } from '@/lib/auth';
 
 export default function Header() {
@@ -19,6 +19,7 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const user = getUserData();
@@ -35,6 +36,9 @@ export default function Header() {
   };
 
   const isActive = (path: string) => {
+    if (path === '/ai-chat?chapter=job') {
+      return pathname === '/ai-chat' && searchParams.get('chapter') === 'job';
+    }
     return pathname === path;
   };
 
@@ -85,9 +89,9 @@ export default function Header() {
             교육 공고
           </div>
           <div
-            onClick={() => router.push('/ai-chat/job')}
+            onClick={() => router.push('/ai-chat?chapter=job')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
-              isActive('/ai-chat/job')
+              isActive('/ai-chat?chapter=job')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
@@ -260,11 +264,11 @@ export default function Header() {
           </div>
           <div
             onClick={() => {
-              router.push('/ai-chat/job');
+              router.push('/ai-chat?chapter=job');
               setIsMobileMenuOpen(false);
             }}
             className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-chat/job')
+              isActive('/ai-chat?chapter=job')
                 ? 'text-green-600 bg-green-50 border-green-600'
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
