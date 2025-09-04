@@ -21,10 +21,10 @@ export default function MessageOption({
 
   return (
     <div
-      className={`flex items-center justify-center border-2 border-secondary4 rounded-[100px] overflow-hidden max-w-[30vw] px-4 py-2 cursor-pointer transition-colors text-chat-message-option ${
-        isSelected ? 'bg-secondary4 text-white' : 'text-black'
+      className={`flex items-center justify-center border-2 border-secondary1 rounded-[100px] overflow-hidden max-w-[30vw] px-4 py-2 cursor-pointer transition-colors text-chat-message ${
+        isSelected ? 'bg-secondary1 text-black' : 'text-black'
       }`}
-      style={!isSelected ? { backgroundColor: '#9FC2FFB2' } : {}}
+      style={!isSelected ? { backgroundColor: 'white' } : {}}
       onClick={handleClick}
     >
       {children}

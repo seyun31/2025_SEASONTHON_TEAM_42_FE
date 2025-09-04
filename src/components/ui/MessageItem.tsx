@@ -14,7 +14,7 @@ export default function MessageItem({
   return (
     <div className={`${isBot ? 'mt-[2.4vh]' : 'mr-[4.8vh]'}`}>
       {isBot && (
-        <div className="text-chat-message-option mb-2 ml-[4.5vw]">캐릭터명</div>
+        <div className="text-chat-message mb-2 ml-[4.5vw]">캐릭터명</div>
       )}
       <div className={`flex items-start gap-[1.25vw]`}>
         {isBot && (

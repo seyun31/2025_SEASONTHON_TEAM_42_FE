@@ -311,15 +311,6 @@ body {
 
 .chat-message {
   font-family: 'Pretendard Variable';
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
-  letter-spacing: -2.5px;
-}
-
-.chat-message-option {
-  font-family: 'Pretendard Variable';
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
