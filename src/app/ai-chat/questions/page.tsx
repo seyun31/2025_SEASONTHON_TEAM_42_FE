@@ -49,13 +49,13 @@ export default function AiChatQuestions() {
     }
   };
 
-  const handleSkip = () => {
-    if (currentQuestion.canSkip) {
-      if (step < aiChatFlow.questions.length) {
-        router.push(`/ai-chat/questions?step=${step + 1}`);
-      } else {
-        router.push('/ai-chat/result');
-      }
+  // 건너뛰기 로직
+  const handleSkipClick = () => {
+    console.log('건너뛰기');
+
+    // 다음 질문 페이지로 이동
+    if (step < aiChatFlow.questions.length) {
+      router.push(`/ai-chat/questions?step=${step + 1}`);
     }
   };
 
@@ -76,20 +76,9 @@ export default function AiChatQuestions() {
             options={currentQuestion.options}
             onOptionClick={handleOptionClick}
             onCompleteClick={handleCompleteClick}
+            onSkipClick={currentQuestion.canSkip ? handleSkipClick : undefined}
             placeholder="선택완료"
           />
-        </div>
-      )}
-
-      {/* 건너뛰기 버튼 (필요한 경우) */}
-      {currentQuestion.canSkip && (
-        <div className="flex justify-end">
-          <button
-            onClick={handleSkip}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            건너뛰기
-          </button>
         </div>
       )}
 

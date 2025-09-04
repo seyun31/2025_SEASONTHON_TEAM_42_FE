@@ -2,12 +2,14 @@
 
 import MessageOption from './MessageOption';
 import MessageOptionComplete from './MessageOptionComplete';
+import MessageOptionSkip from './MessageOptionSkip';
 
 interface MessageOptionItemProps {
   options: string[];
   selectedOptions?: string[];
   onOptionClick?: (option: string) => void;
   onCompleteClick?: () => void;
+  onSkipClick?: () => void;
   placeholder?: string;
 }
 
@@ -16,7 +18,7 @@ export default function MessageOptionItem({
   selectedOptions = [],
   onOptionClick,
   onCompleteClick,
-  placeholder = '선택완료',
+  onSkipClick,
 }: MessageOptionItemProps) {
   return (
     <div
@@ -30,12 +32,17 @@ export default function MessageOptionItem({
           </MessageOption>
         ))}
       </div>
-      <div className="flex justify-center">
-        <MessageOptionComplete onClick={onCompleteClick}>
-          {placeholder}
-        </MessageOptionComplete>
+      <div className="flex justify-center gap-2">
+        {onSkipClick && (
+          <MessageOptionSkip onClick={onSkipClick}>건너뛰기</MessageOptionSkip>
+        )}
+        {onCompleteClick && (
+          <MessageOptionComplete onClick={onCompleteClick}>
+            선택완료
+          </MessageOptionComplete>
+        )}
       </div>
-      <div className="text-center mt-4">
+      <div className="text-center mt-8">
         <p className="text-chat-message">
           마음에 드는 선택지가 없다면 아래 채팅에 편하게 적어주세요!
         </p>
