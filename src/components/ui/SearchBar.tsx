@@ -2,7 +2,7 @@ import Image from 'next/image';
 
 export default function SearchBar() {
   return (
-    <div className="flex border-4 border-primary-90 rounded-[100px] overflow-hidden w-full lg:w-[70%] h-[9.26vh] relative">
+    <div className="flex border-4 border-primary-90 rounded-[100px] overflow-hidden w-full h-[9.26vh] relative">
       <button
         type="button"
         className="absolute left-4 top-1/2 transform -translate-y-1/2 w-[2.81vw] h-[5vh] flex items-center justify-center"
