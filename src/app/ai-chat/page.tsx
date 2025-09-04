@@ -1,13 +1,14 @@
-import ChatInput from '@/components/ui/ChatInput';
-import MessageSection from '@/components/sections/MessageSection';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function AiChat() {
-  return (
-    <div className="h-screen flex flex-col relative">
-      <MessageSection />
-      <div className="absolute bottom-[4.8vh] w-full flex justify-center">
-        <ChatInput />
-      </div>
-    </div>
-  );
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/ai-chat/intro');
+  }, [router]);
+
+  return null;
 }
