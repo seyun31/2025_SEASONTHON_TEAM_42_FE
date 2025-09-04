@@ -66,63 +66,78 @@ export default function CareerRoadmapSection() {
             <div className="flex items-center justify-between mb-8">
               <div className="bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3 ">
                 <span className="text-black text-title-medium">
-                  {userName
-                    ? `${userName}님의 취업 로드맵`
-                    : 'OOO님의 취업 로드맵'}
+                  {userName ? `${userName}님의 취업 로드맵` : '취업 로드맵'}
                 </span>
-                <span className="text-black text-body-medium-medium">
-                  자세히보기 &gt;
-                </span>
+                {userName && (
+                  <span className="text-black text-body-medium-medium">
+                    자세히보기 &gt;
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* 로드맵 차트 */}
-            <div className="flex-1 relative">
-              <svg
-                className="absolute inset-0 w-full h-full"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                {/* 연결선들 */}
-                <path
-                  d="M 15 60 Q 25 70 35 75"
-                  stroke="#FFD700"
-                  strokeWidth="0.8"
-                  fill="none"
-                />
-                <path
-                  d="M 35 75 Q 45 60 55 50"
-                  stroke="white"
-                  strokeWidth="0.8"
-                  fill="none"
-                />
-                <path
-                  d="M 55 50 Q 65 35 75 25"
-                  stroke="white"
-                  strokeWidth="0.8"
-                  fill="none"
-                />
-              </svg>
+            {/* 로드맵 차트 또는 로그인 안내 */}
+            <div className="flex-1 relative flex items-center justify-center">
+              {userName ? (
+                <>
+                  <svg
+                    className="absolute inset-0 w-full h-full"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                  >
+                    {/* 연결선들 */}
+                    <path
+                      d="M 15 60 Q 25 70 35 75"
+                      stroke="#FFD700"
+                      strokeWidth="0.8"
+                      fill="none"
+                    />
+                    <path
+                      d="M 35 75 Q 45 60 55 50"
+                      stroke="white"
+                      strokeWidth="0.8"
+                      fill="none"
+                    />
+                    <path
+                      d="M 55 50 Q 65 35 75 25"
+                      stroke="white"
+                      strokeWidth="0.8"
+                      fill="none"
+                    />
+                  </svg>
 
-              {/* 로드맵 단계들 */}
-              {roadmapSteps.map((step) => (
-                <div
-                  key={step.id}
-                  className="absolute flex flex-col items-center"
-                  style={{
-                    left: `${step.position.x}%`,
-                    top: `${step.position.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                  }}
-                >
-                  <div className="mb-2">
-                    <StarIcon filled={step.completed} className="w-6 h-6" />
-                  </div>
-                  <span className="text-white text-sm font-medium">
-                    {step.name}
-                  </span>
+                  {/* 로드맵 단계들 */}
+                  {roadmapSteps.map((step) => (
+                    <div
+                      key={step.id}
+                      className="absolute flex flex-col items-center"
+                      style={{
+                        left: `${step.position.x}%`,
+                        top: `${step.position.y}%`,
+                        transform: 'translate(-50%, -50%)',
+                      }}
+                    >
+                      <div className="mb-2">
+                        <StarIcon filled={step.completed} className="w-6 h-6" />
+                      </div>
+                      <span className="text-white text-sm font-medium">
+                        {step.name}
+                      </span>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                  <p className="text-black text-title-xlarge opacity-90">
+                    로그인 하시고
+                    <br />
+                    취업 로드맵 받아보세요!
+                  </p>
+                  {/* <button className="bg-white text-primary-600 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    로그인하기
+                  </button> */}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>
