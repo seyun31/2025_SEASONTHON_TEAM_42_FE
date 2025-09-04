@@ -30,15 +30,27 @@ export default function JobRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6">
-          {jobRecommendations.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              isFavorited={favorites.has(job.id)}
-              onToggleFavorite={toggleFavorite}
-            />
-          ))}
+        <div className="flex flex-row gap-6">
+          <div className="flex flex-col gap-6 flex-1">
+            {jobRecommendations.slice(0, 4).map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isFavorited={favorites.has(job.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col gap-6 flex-1">
+            {jobRecommendations.slice(4, 8).map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isFavorited={favorites.has(job.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

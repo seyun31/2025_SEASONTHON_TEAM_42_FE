@@ -2,7 +2,7 @@
 
 import { educationRecommendations } from '@/mock/educationData';
 import type { EducationRecommendation } from '@/mock/educationData';
-import type { JobRecommendation } from '@/mock/jobData';
+import { jobRecommendations, type JobRecommendation } from '@/mock/jobData';
 import { useState } from 'react';
 import JobCard from '@/components/ui/JobCard';
 
@@ -56,15 +56,27 @@ export default function EducationRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6">
-          {educationRecommendations.map((education) => (
-            <JobCard
-              key={education.id}
-              job={convertEducationToJob(education)}
-              isFavorited={favorites.has(education.id)}
-              onToggleFavorite={toggleFavorite}
-            />
-          ))}
+        <div className="flex flex-row gap-6">
+          <div className="flex flex-col gap-6 flex-1">
+            {jobRecommendations.slice(0, 4).map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isFavorited={favorites.has(job.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
+          <div className="flex flex-col gap-6 flex-1">
+            {jobRecommendations.slice(4, 8).map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                isFavorited={favorites.has(job.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>
