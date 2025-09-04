@@ -251,19 +251,23 @@ body {
 
 /* Input placeholder 및 Input 들여쓰기 */
 .my-input {
+  font-family: 'Pretendard Variable';
   padding-left: 20px;
 }
 
 .my-input::placeholder {
+  font-family: 'Pretendard Variable';
   color: #869f8e;
 }
 
 /* Address 버튼 placeholder 스타일 */
 .my-input.text-gray-400 {
+  font-family: 'Pretendard Variable';
   color: #869f8e !important;
 }
 
 .city-indent {
+  font-family: 'Pretendard Variable';
   padding-left: 32px;
 }
 

@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function AiChatRoadmap() {
+export default function AIChatRoadmap() {
   const router = useRouter();
 
   useEffect(() => {

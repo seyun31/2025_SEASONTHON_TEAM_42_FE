@@ -40,12 +40,10 @@ export default function Signup() {
     name.trim() !== '' && birthDate.trim() !== '' && selectedGender !== '';
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-8">
         {/* 사용자 정보 박스 */}
-        <div className="relative w-[30.5vw] h-[67vh] border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
-          <div className="absolute inset-0 rounded-[32px] bg-primary-20 opacity-50 pointer-events-none" />
-
+        <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           {/* 로고 이미지 */}
           <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
             <Image
@@ -70,7 +68,7 @@ export default function Signup() {
                   localStorage.setItem('signup-name', e.target.value);
                 }}
                 placeholder="이름을 입력해주세요"
-                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
               />
             </div>
 
@@ -85,7 +83,7 @@ export default function Signup() {
                   localStorage.setItem('signup-birthDate', e.target.value);
                 }}
                 placeholder="1972 / 01 / 20"
-                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-90 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
               />
             </div>
 
@@ -98,7 +96,7 @@ export default function Signup() {
                     setSelectedGender('남자');
                     localStorage.setItem('signup-gender', '남자');
                   }}
-                  className={`flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                  className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
                     selectedGender === '남자'
                       ? 'bg-primary-90 text-white'
                       : 'bg-white text-black hover:border-primary-300'
@@ -111,7 +109,7 @@ export default function Signup() {
                     setSelectedGender('여자');
                     localStorage.setItem('signup-gender', '여자');
                   }}
-                  className={`flex-1 h-[12.3vh] border-2 border-primary-90 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                  className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
                     selectedGender === '여자'
                       ? 'bg-primary-90 text-white'
                       : 'bg-white text-black hover:border-primary-300'
@@ -141,10 +139,10 @@ export default function Signup() {
 
         {/* 시작하기 버튼 */}
         <div className="relative">
-          <div className="absolute inset-0 rounded-[16px] bg-primary-20 opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 rounded-[16px] bg-primary-30 opacity-50 pointer-events-none" />
           <button
             disabled={!isFormValid}
-            className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] border-4 border-primary-90 text-title-medium transition-colors ${
+            className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium transition-colors ${
               isFormValid
                 ? 'bg-primary-90 text-white'
                 : 'bg-primary-20 text-black cursor-not-allowed'

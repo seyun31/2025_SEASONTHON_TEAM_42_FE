@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function AiChatJob() {
+export default function AIChatJob() {
   const router = useRouter();
 
   useEffect(() => {

@@ -11,8 +11,6 @@ import { aiChatFlow as roadmapFlow } from '@/data/ai-chat-roadmap-list';
 export default function AiChatPage() {
   const searchParams = useSearchParams();
   const chapter = searchParams.get('chapter') || 'job'; // job 또는 roadmap
-
-  // chapter에 따라 다른 데이터 사용
   const aiChatFlow = chapter === 'roadmap' ? roadmapFlow : jobFlow;
 
   const {
@@ -52,7 +50,6 @@ export default function AiChatPage() {
       }
       setShowCurrentQuestion(false);
     } else if (currentStep > aiChatFlow.questions.length && !isCompleted) {
-      // 모든 질문 완료 후 outro 메시지
       addBotMessage(aiChatFlow.outro.message.join('\n'));
       completeChat();
     }
