@@ -87,7 +87,7 @@ export default function Header() {
           <div
             onClick={() => router.push('/ai-chat')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
-              isActive('/education-programs')
+              isActive('/ai-chat')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
