@@ -1,8 +1,9 @@
 'use client';
 
 import { aiCoachCards } from '@/mock/aiCoachData';
+import { IoIosArrowForward } from 'react-icons/io';
 
-export default function AICoachSection() {
+export default function c() {
   return (
     <section className="w-full px-4 py-8">
       <div className="max-w-[1200px] mx-auto">
@@ -11,17 +12,37 @@ export default function AICoachSection() {
         </h2>
 
         <div className="flex flex-col xl:flex-row gap-6 justify-center items-center">
-          {aiCoachCards.map((card) => (
+          {aiCoachCards.map((card, index) => (
             <div
               key={card.id}
-              className="relative bg-orange-200 rounded-2xl p-8 text-gray-80 overflow-hidden h-[200px] w-[588px] flex-shrink-0"
+              className="relative bg-white rounded-3xl px-5 py-6 text-gray-80 overflow-hidden h-[200px] w-[588px] flex-shrink-0"
+              style={{
+                border: '4px solid #E1F5EC',
+                boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
+              }}
             >
-              <div className="relative z-10">
-                <h3 className="text-title-medium mb-3">{card.title}</h3>
-                <p className="text-body-medium-regular mb-6">{card.subtitle}</p>
-                <button className="bg-white text-gray-80 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+              <div className="relative z-10 ">
+                <h3 className="text-title-medium ">{card.title}</h3>
+                <p className="text-title-medium text-primary-90 mb-14">
+                  {card.subtitle}
+                </p>
+                <button className="bg-white text-gray-80 rounded-lg font-medium hover:bg-gray-50 transition-colors flex flex-row items-center gap-2">
                   시작하기
+                  <IoIosArrowForward className="w-4 h-4" />
                 </button>
+              </div>
+
+              {/* 캐릭터 이미지 - 오른쪽에 배치 */}
+              <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20">
+                <img
+                  src={
+                    index % 2 === 0
+                      ? '/assets/Icons/character_hi.png'
+                      : '/assets/Icons/character_running.png'
+                  }
+                  alt={`캐릭터 ${index % 2 === 0 ? 'hi' : 'running'}`}
+                  className="w-auto h-40 object-contain"
+                />
               </div>
             </div>
           ))}
