@@ -6,7 +6,7 @@ import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { aiChatFlow } from '@/data/ai-chat-list';
 
-export default function AiChatPage() {
+export default function AIChatJobPage() {
   const {
     messages,
     currentStep,
