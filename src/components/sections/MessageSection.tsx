@@ -45,10 +45,14 @@ export default function MessageSection({
   return (
     <div className="w-[53vw] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] flex flex-col gap-4 px-4">
       {/* 채팅 히스토리 */}
-      {messages.map((message) => (
+      {messages.map((message, index) => (
         <div
           key={message.id}
-          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'}`}
+          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp`}
+          style={{
+            animationDelay: `${index * 100}ms`,
+            animationFillMode: 'both',
+          }}
         >
           <MessageItem
             message={message.content}
