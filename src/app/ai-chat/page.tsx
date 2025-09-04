@@ -7,7 +7,7 @@ export default function AiChat() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/ai-chat/intro');
+    router.replace('/ai-chat/job');
   }, [router]);
 
   return null;

@@ -27,7 +27,11 @@ export default function MessageOptionItem({
     >
       <div className="flex flex-wrap gap-2 justify-center mb-8">
         {options.map((option, index) => (
-          <MessageOption key={index} onClick={() => onOptionClick?.(option)}>
+          <MessageOption
+            key={index}
+            isSelected={selectedOptions?.includes(option)}
+            onClick={() => onOptionClick?.(option)}
+          >
             {option}
           </MessageOption>
         ))}
