@@ -1,12 +1,5 @@
 @import 'tailwindcss';
 
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} */
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -47,14 +40,45 @@
   }
 } */
 
-@theme {
-  --font-PThin: Pretendard-Thin;
-  --color-background: #ffffff;
-  --color-foreground: #171717;
-  --color-point: #0077ff;
-  --color-sublight: #daebff;
-  --color-semilight: #bedcff;
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Primary 컬러 팔레트 */
+  --color-black: var(--black);
+  --color-primary-600: var(--primary-600);
+  --color-primary-300: var(--primary-300);
+  --color-primary-90: var(--primary-90);
+  --color-primary-60: var(--primary-60);
+  --color-primary-40: var(--primary-40);
+  --color-primary-30: var(--primary-30);
+  --color-primary-20: var(--primary-20);
+  --color-white: var(--white);
+
+  /* Gray 컬러 팔레트 */
+  --color-gray-20: var(--gray-20);
+  --color-gray-50: var(--gray-50);
+  --color-gray-70: var(--gray-70);
+  --color-gray-80: var(--gray-80);
+
+  /* Gray Blue 컬러 팔레트 */
+  --color-gray-blue-20: var(--gray-blue-20);
+  --color-gray-blue-50: var(--gray-blue-50);
+  --color-gray-blue-70: var(--gray-blue-70);
+
+  /* Secondary 컬러 팔레트 */
+  --color-secondary1: var(--secondary1);
+  --color-secondary2: var(--secondary2);
+  --color-secondary3: var(--secondary3);
+  --color-secondary4: var(--secondary4);
+
+  --font-sans:
+    'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
 }
+
 @font-face {
   font-family: 'Pretendard';
   src: url('/fonts/PretendardVariable.woff2') format('woff2-variations');
@@ -223,4 +247,53 @@ body {
 
 .hover\:scale-102:hover {
   transform: scale(1.02);
+}
+
+/* Input placeholder 및 Input 들여쓰기 */
+.my-input {
+  padding-left: 20px;
+}
+
+.my-input::placeholder {
+  color: #869f8e;
+}
+
+/* Address 버튼 placeholder 스타일 */
+.my-input.text-gray-400 {
+  color: #869f8e !important;
+}
+
+.city-indent {
+  padding-left: 32px;
+}
+
+.search-input {
+  padding-left: 120px;
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: -0.5px;
+  color: black;
+}
+
+.search-input::placeholder {
+  color: var(--gray-50);
+  font-family: 'Pretendard Variable';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 120%;
+  letter-spacing: -0.5px;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }

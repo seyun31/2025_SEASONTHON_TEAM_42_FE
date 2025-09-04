@@ -1,5 +1,8 @@
+'use client';
+
 import Text from '@/components/ui/Text';
 import SearchBar from '@/components/ui/SearchBar';
+import PageHeading from '@/components/layout/PageHeading';
 
 export default function test() {
   return (
@@ -10,6 +13,13 @@ export default function test() {
           <div className="items-center justify-center w-full lg:w-[70%] h-[9.26vh]">
             <SearchBar />
           </div>
+
+          {/* PageHeading 컴포넌트 테스트 */}
+          <PageHeading
+            title="AI 코치와 함께 넥스트 커리어를 준비해봐요!"
+            showMore={true}
+            onMoreClick={() => ''}
+          />
 
           <Text variant="header-large" as="h1">
             NextCareer
