@@ -55,7 +55,7 @@ export default function Header() {
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            교육 프로그램 공고
+            교육 공고
           </div>
           <div
             onClick={() => router.push('/ai-job-test')}
@@ -65,7 +65,7 @@ export default function Header() {
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            AI 직업 적합도 검사
+            AI 직업 추천
           </div>
           <div
             onClick={() => router.push('/career-roadmap')}
@@ -76,6 +76,16 @@ export default function Header() {
             }`}
           >
             커리어 로드맵
+          </div>
+          <div
+            onClick={() => router.push('/heart-list')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
+              isActive('/career-roadmap')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
+          >
+            관심목록
           </div>
         </nav>
 
