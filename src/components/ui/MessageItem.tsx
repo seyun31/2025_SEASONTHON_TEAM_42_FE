@@ -12,7 +12,7 @@ export default function MessageItem({
   isBot = false,
 }: MessageItemProps) {
   return (
-    <div className={`${isBot ? 'mt-[2.4vh]' : 'mr-[4.8vh]'}`}>
+    <div className={`${isBot ? 'mt-[2.4vh]' : ''}`}>
       {isBot && (
         <div className="text-chat-message mb-2 ml-[4.5vw]">캐릭터명</div>
       )}

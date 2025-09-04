@@ -23,7 +23,7 @@ export default function MessageOptionItem({
       className="max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5"
       style={{ backgroundColor: '#9FC2FF66' }}
     >
-      <div className="flex flex-wrap gap-2 justify-center mb-4">
+      <div className="flex flex-wrap gap-2 justify-center mb-8">
         {options.map((option, index) => (
           <MessageOption key={index} onClick={() => onOptionClick?.(option)}>
             {option}
