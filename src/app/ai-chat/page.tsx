@@ -1,5 +1,5 @@
-import ChatInput from '@/components/chat/ChatInput';
-import MessageSection from '@/components/chat/MessageSection';
+import ChatInput from '@/components/ui/ChatInput';
+import MessageSection from '@/components/sections/MessageSection';
 
 export default function AiChat() {
   return (

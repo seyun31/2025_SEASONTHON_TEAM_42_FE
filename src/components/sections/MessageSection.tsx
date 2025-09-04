@@ -1,7 +1,7 @@
 'use client';
 
-import MessageItem from '@/components/chat/MessageItem';
-import MessageOption from '@/components/chat/MessageOption';
+import MessageItem from '@/components/ui/MessageItem';
+import MessageOption from '@/components/ui/MessageOption';
 
 export default function MessageSection() {
   return (
