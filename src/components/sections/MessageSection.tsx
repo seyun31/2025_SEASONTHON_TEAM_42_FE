@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import MessageItem from '@/components/ui/MessageItem';
 import MessageOptionItem from '../ui/MessageOptionItem';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
@@ -32,6 +32,16 @@ export default function MessageSection({
   onSkipClick,
   children,
 }: MessageSectionProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
     <div className="w-[53vw] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] flex flex-col gap-4 px-4">
       {/* 채팅 히스토리 */}
@@ -79,6 +89,9 @@ export default function MessageSection({
 
       {/* 추가 콘텐츠 */}
       {children}
+
+      {/* 스크롤을 위한 빈 div */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
