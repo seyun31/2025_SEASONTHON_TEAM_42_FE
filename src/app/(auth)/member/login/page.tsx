@@ -1,6 +1,12 @@
+'use client';
+
 import Image from 'next/image';
 
 export default function Login() {
+  const handleKakaoLogin = () => {
+    window.location.href =
+      'https://api.ilhaeng.cloud/oauth2/authorization/kakao';
+  };
   return (
     <div className="flex items-center justify-center min-h-screen">
       {/* 박스 */}
@@ -20,7 +26,10 @@ export default function Login() {
         </div>
 
         {/* 카카오 로그인 버튼 */}
-        <div className="absolute top-[49%] left-1/2 transform -translate-x-1/2 z-10">
+        <button
+          onClick={handleKakaoLogin}
+          className="absolute top-[49%] left-1/2 transform -translate-x-1/2 z-10 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+        >
           <Image
             src="/assets/Icons/kakao-login-large-wide.svg"
             alt="카카오 로그인 버튼"
@@ -28,7 +37,7 @@ export default function Login() {
             height={0}
             className="w-[22.8vw] h-auto"
           />
-        </div>
+        </button>
 
         {/* 비회원 멘트 */}
         <div className="absolute z-10 bottom-[21%] left-1/2 transform -translate-x-1/2 text-[0.94vw]">
@@ -36,7 +45,10 @@ export default function Login() {
         </div>
 
         {/* 카카오로 시작하기 */}
-        <div className="absolute bottom-[8%] left-1/2 transform -translate-x-1/2 z-10">
+        <button
+          onClick={handleKakaoLogin}
+          className="absolute bottom-[8%] left-1/2 transform -translate-x-1/2 z-10 cursor-pointer hover:opacity-80 transition-opacity duration-200"
+        >
           <Image
             src="/assets/Icons/kakao-login-medium-narrow.svg"
             alt="카카오 시작하기 버튼"
@@ -44,7 +56,7 @@ export default function Login() {
             height={0}
             className="w-[9.5vw] h-auto"
           />
-        </div>
+        </button>
       </div>
     </div>
   );
