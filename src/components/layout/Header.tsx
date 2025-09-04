@@ -85,9 +85,9 @@ export default function Header() {
             교육 공고
           </div>
           <div
-            onClick={() => router.push('/ai-chat')}
+            onClick={() => router.push('/ai-chat/job')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
-              isActive('/ai-chat')
+              isActive('/ai-chat/job')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
@@ -260,11 +260,11 @@ export default function Header() {
           </div>
           <div
             onClick={() => {
-              router.push('/ai-chat');
+              router.push('/ai-chat/job');
               setIsMobileMenuOpen(false);
             }}
             className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-chat')
+              isActive('/ai-chat/job')
                 ? 'text-green-600 bg-green-50 border-green-600'
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}

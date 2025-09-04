@@ -1,61 +1,101 @@
 'use client';
 
+import React, { useEffect, useRef } from 'react';
 import MessageItem from '@/components/ui/MessageItem';
 import MessageOptionItem from '../ui/MessageOptionItem';
+import { ChatMessage } from '@/contexts/ChatHistoryContext';
 
-export default function MessageSection() {
+interface MessageSectionProps {
+  messages: ChatMessage[];
+  showStartButton?: boolean;
+  showQuestionOptions?: boolean;
+  currentQuestionOptions?: string[];
+  selectedOptions?: string[];
+  canSkip?: boolean;
+  onStartClick?: () => void;
+  onOptionClick?: (option: string) => void;
+  onCompleteClick?: () => void;
+  onSkipClick?: () => void;
+  children?: React.ReactNode;
+}
+
+export default function MessageSection({
+  messages,
+  showStartButton = false,
+  showQuestionOptions = false,
+  currentQuestionOptions = [],
+  selectedOptions = [],
+  canSkip = false,
+  onStartClick,
+  onOptionClick,
+  onCompleteClick,
+  onSkipClick,
+  children,
+}: MessageSectionProps) {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   return (
-    <div className="w-[53vw] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[15vh] mb-[20vh] flex flex-col gap-4 px-4">
-      <div className="flex justify-start">
-        <MessageItem
-          message="안녕하세요! AI 챗봇입니다. 어떤 도움이 필요하신가요?"
-          isBot={true}
-        />
-      </div>
-      <div className="flex justify-end">
-        <MessageOptionItem
-          options={[
-            '혼자서',
-            '여럿이서',
-            '책상에 앉아서',
-            '몸을 움직이며',
-            '차분한',
-            '선택지1',
-            '선택지2',
-            '엄청나게긴선택지예시',
-          ]}
-          onOptionClick={(option) => console.log(`옵션 선택: ${option}`)}
-          onCompleteClick={() => console.log('선택완료 버튼 클릭')} // 임시
-          placeholder="선택완료"
-        />
-      </div>
-      <div className="flex justify-end">
-        <div className="flex flex-col items-end">
-          <MessageItem message="사용자 메시지 예시입니다." isBot={false} />
+    <div className="w-[53vw] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] flex flex-col gap-4 px-4">
+      {/* 채팅 히스토리 */}
+      {messages.map((message, index) => (
+        <div
+          key={message.id}
+          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp`}
+          style={{
+            animationDelay: `${index * 100}ms`,
+            animationFillMode: 'both',
+          }}
+        >
+          <MessageItem
+            message={message.content}
+            isBot={message.type === 'bot'}
+          />
         </div>
-      </div>
-      <div className="flex justify-start">
-        <MessageItem
-          message="안녕하세요! AI 챗봇입니다. 어떤 도움이 필요하신가요?"
-          isBot={true}
-        />
-      </div>
-      <div className="flex justify-end">
-        <div className="flex flex-col items-end">
-          <MessageItem message="사용자 메시지 예시입니다." isBot={false} />
+      ))}
+
+      {/* 시작하기 버튼 */}
+      {showStartButton && (
+        <div className="flex justify-end">
+          <div
+            className={`max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5`}
+            style={{ backgroundColor: '#9FC2FF66' }}
+          >
+            <button
+              onClick={onStartClick}
+              className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] max-w-[30vw] px-4 py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white"
+            >
+              시작하기
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="flex justify-start">
-        <MessageItem
-          message="안녕하세요! AI 챗봇입니다. 어떤 도움이 필요하신가요?"
-          isBot={true}
-        />
-      </div>
-      <div className="flex justify-end">
-        <div className="flex flex-col items-end">
-          <MessageItem message="사용자 메시지 예시입니다." isBot={false} />
+      )}
+
+      {/* 선택지가 있는 경우 */}
+      {showQuestionOptions && (
+        <div className="flex justify-end">
+          <MessageOptionItem
+            options={currentQuestionOptions}
+            selectedOptions={selectedOptions}
+            onOptionClick={onOptionClick}
+            onCompleteClick={onCompleteClick}
+            onSkipClick={canSkip ? onSkipClick : undefined}
+          />
         </div>
-      </div>
+      )}
+
+      {/* 추가 콘텐츠 */}
+      {children}
+
+      {/* 스크롤을 위한 빈 div */}
+      <div ref={messagesEndRef} />
     </div>
   );
 }
