@@ -39,7 +39,7 @@ export default function Header() {
         <nav className="hidden md:flex flex-1 justify-center gap-8">
           <div
             onClick={() => router.push('/job-postings')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
               isActive('/job-postings')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
@@ -49,7 +49,7 @@ export default function Header() {
           </div>
           <div
             onClick={() => router.push('/education-programs')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
               isActive('/education-programs')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
@@ -59,7 +59,7 @@ export default function Header() {
           </div>
           <div
             onClick={() => router.push('/ai-job-test')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
               isActive('/ai-job-test')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
@@ -69,7 +69,7 @@ export default function Header() {
           </div>
           <div
             onClick={() => router.push('/career-roadmap')}
-            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-xsmall font-medium ${
               isActive('/career-roadmap')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'

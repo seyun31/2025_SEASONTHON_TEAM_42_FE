@@ -40,7 +40,7 @@ export default function RootLayout({
       </head>
       <body>
         <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-32">
-          <div className="w-full max-w-5xl mx-auto px-8 text-lg font-medium">
+          <div className="w-full  mx-auto px-8 text-lg font-medium">
             <ConditionalHeaderClient />
             {children}
           </div>
