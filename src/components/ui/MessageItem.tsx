@@ -5,19 +5,23 @@ interface MessageItemProps {
   message: string;
   isBot?: boolean;
   options?: string[];
+  hideProfile?: boolean; // roadmap -> result 부분
+  noTopMargin?: boolean; // roadmap -> result 부분
 }
 
 export default function MessageItem({
   message,
   isBot = false,
+  hideProfile = false,
+  noTopMargin = false,
 }: MessageItemProps) {
   return (
-    <div className={`${isBot ? 'mt-[2.4vh]' : ''}`}>
-      {isBot && (
+    <div className={`${isBot && !noTopMargin ? 'mt-[2.4vh]' : ''}`}>
+      {isBot && !hideProfile && (
         <div className="text-chat-message mb-2 ml-[4.5vw]">캐릭터명</div>
       )}
       <div className={`flex items-start gap-[1.25vw]`}>
-        {isBot && (
+        {isBot && !hideProfile && (
           <Image
             src="/assets/Icons/ai-chat-profile.svg"
             alt="AI 프로필"
