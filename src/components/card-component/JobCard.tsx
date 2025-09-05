@@ -142,40 +142,57 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </p>
 
             {/* 상세 정보 */}
-            <div className="space-y-3 transition-all duration-500 ease-out">
+            <div className="space-y-3 transition-all duration-500 ease-out text-body-large-medium">
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
-                <span className="text-gray-500">마감일</span>
-                <span className="text-gray-800">{job.closingDate}</span>
+                <span className="text-gray-50 text-body-large-medium">
+                  마감일
+                </span>
+                <span className="text-black text-body-large-medium">
+                  {job.closingDate}
+                </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
-                <span className="text-gray-500">경력</span>
-                <span className="text-gray-800 text-primary-90">
+                <span className="text-gray-50 text-body-large-medium">
+                  경력
+                </span>
+                <span className="text-primary-90 text-body-large-medium">
                   {job.experience}
                 </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
-                <span className="text-gray-500">급여</span>
-                <span className="text-gray-800 text-primary-90">
+                <span className="text-gray-50 text-body-large-medium">
+                  급여
+                </span>
+                <span className="text-primary-90 text-body-large-medium">
                   {job.salary}
                 </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
-                <span className="text-gray-500">근무기간</span>
-                <span className="text-gray-800">{job.workPeriod}</span>
+                <span className="text-gray-50 text-body-large-medium">
+                  근무기간
+                </span>
+                <span className="text-black text-body-large-medium">
+                  {job.workPeriod}
+                </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
-                <span className="text-gray-500">고용형태</span>
-                <span className="text-gray-800">{job.employmentType}</span>
+                <span className="text-gray-50 text-body-large-medium">
+                  고용형태
+                </span>
+                <span className="text-black text-body-large-medium">
+                  {job.employmentType}
+                </span>
               </div>
             </div>
 
             {/* 추천도 */}
             <div
-              className={`absolute bottom-20 right-5 flex gap-4 transition-all duration-500 ease-out items-center ${
-                isExpanded
-                  ? 'opacity-100 translate-x-0 translate-y-0'
-                  : 'opacity-0 translate-x-4 translate-y-4'
-              }`}
+              className={`absolute bottom-20 right-5 flex gap-4
+                 transition-all duration-500 ease-out items-center ${
+                   isExpanded
+                     ? 'opacity-100 translate-x-0 translate-y-0'
+                     : 'opacity-0 translate-x-4 translate-y-4'
+                 }`}
               style={{ transitionDelay: '500ms' }}
             >
               <span className="text-body-large-medium text-gray-500">
