@@ -33,7 +33,7 @@ export default function AiChatPage() {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
       setShowCurrentQuestion(true);
     }
-  }, [messages.length, aiChatFlow]);
+  }, [messages.length, aiChatFlow, addBotMessage]);
 
   // 현재 단계에 따른 질문 표시
   useEffect(() => {
@@ -53,7 +53,14 @@ export default function AiChatPage() {
       addBotMessage(aiChatFlow.outro.message.join('\n'));
       completeChat();
     }
-  }, [currentStep, showCurrentQuestion, isCompleted, aiChatFlow]);
+  }, [
+    currentStep,
+    showCurrentQuestion,
+    isCompleted,
+    aiChatFlow,
+    addBotMessage,
+    completeChat,
+  ]);
 
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;

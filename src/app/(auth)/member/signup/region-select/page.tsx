@@ -93,7 +93,7 @@ export default function RegionSelectPage() {
               {/* 우측: 도시 리스트 */}
               <div className="relative bg-white overflow-y-auto max-h-full scrollbar-hide border-l-2 border-primary-30">
                 <div className="h-full">
-                  {(CITIES[region] || []).map((c: string, i: number) => (
+                  {(CITIES[region] || []).map((c: string) => (
                     <button
                       key={c}
                       type="button"
