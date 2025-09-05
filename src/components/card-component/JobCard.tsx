@@ -5,6 +5,54 @@ import { useState } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 
+// 디데이 계산 함수
+const calculateDaysLeft = (closingDate: string): string => {
+  try {
+    // 다양한 날짜 형식 지원
+    const dateFormats = [
+      /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, // YYYY-MM-DD HH:MM:SS
+      /^\d{4}\/\d{2}\/\d{2}$/, // YYYY/MM/DD
+      /^\d{2}\/\d{2}\/\d{4}$/, // MM/DD/YYYY
+      /^\d{4}\.\d{2}\.\d{2}$/, // YYYY.MM.DD
+    ];
+
+    // 날짜 형식이 맞는지 확인
+    const isValidDate = dateFormats.some((format) => format.test(closingDate));
+
+    if (!isValidDate) {
+      return closingDate; // 날짜 형식이 아니면 원본 반환
+    }
+
+    const targetDate = new Date(closingDate);
+    const today = new Date();
+
+    // 날짜 유효성 검사
+    if (isNaN(targetDate.getTime())) {
+      return closingDate;
+    }
+
+    // 시간을 00:00:00으로 설정하여 정확한 일수 계산
+    today.setHours(0, 0, 0, 0);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const timeDiff = targetDate.getTime() - today.getTime();
+    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
+    if (daysLeft < 0) {
+      return '마감됨';
+    } else if (daysLeft === 0) {
+      return '오늘 마감';
+    } else if (daysLeft === 1) {
+      return '내일 마감';
+    } else {
+      return `D-${daysLeft}`;
+    }
+  } catch (error) {
+    return closingDate; // 에러 발생 시 원본 반환
+  }
+};
+
 interface JobCardProps {
   job: JobSummary;
   onToggleScrap: (jobId: string) => void;
@@ -78,7 +126,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-body-large-medium">{job.closingDate}</span>
+              <span className="text-body-large-medium">
+                {calculateDaysLeft(job.closingDate)}
+              </span>
             </div>
           </div>
         </div>
@@ -95,7 +145,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             }`}
           >
             {/* 기업명, 위치, 태그 */}
-            <div className="flex justify-between items-center my-4">
+            <div className="flex justify-between items-start my-6">
               <div className="flex flex-col gap-3">
                 <div className="flex flex-row items-center gap-3 transition-all duration-500 ease-out">
                   <span className="text-title-medium text-gray-800">
@@ -142,7 +192,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 직무 설명 */}
-            <p className="text-gray-800 text-title-large leading-relaxed mb-4 transition-all duration-500 ease-out">
+            <p className="text-gray-800 text-title-large leading-relaxed mb-12 transition-all duration-500 ease-out">
               {job.jobTitle}
             </p>
 
@@ -153,7 +203,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   마감일
                 </span>
                 <span className="text-black text-body-large-medium">
-                  {job.closingDate}
+                  {calculateDaysLeft(job.closingDate)}
                 </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
@@ -191,24 +241,24 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 추천도 */}
-            {job.jobRecommendScore !== null && job.jobRecommendScore > 0 && (
-              <div
-                className={`absolute bottom-20 right-5 flex gap-4
-                   transition-all duration-500 ease-out items-center ${
-                     isExpanded
-                       ? 'opacity-100 translate-x-0 translate-y-0'
-                       : 'opacity-0 translate-x-4 translate-y-4'
-                   }`}
-                style={{ transitionDelay: '500ms' }}
-              >
-                <span className="text-body-large-medium text-gray-500">
-                  직업 추천도
-                </span>
-                <span className="text-title-xlarge font-bold text-black">
-                  {job.jobRecommendScore}%
-                </span>
-              </div>
-            )}
+            <div
+              className={`flex justify-end items-center gap-4
+                 transition-all duration-500 ease-out ${
+                   isExpanded
+                     ? 'opacity-100 translate-x-0 translate-y-0'
+                     : 'opacity-0 translate-x-4 translate-y-4'
+                 }`}
+              style={{ transitionDelay: '500ms' }}
+            >
+              <span className="text-body-large-medium text-gray-500">
+                직업 추천도
+              </span>
+              <span className="text-title-xlarge font-bold text-black">
+                {job.jobRecommendScore !== null
+                  ? `${job.jobRecommendScore}%`
+                  : '??%'}
+              </span>
+            </div>
 
             {/* 버튼 */}
             <div className="mt-6 transition-all duration-500 ease-out">
@@ -216,7 +266,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                 href={job.applyLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full bg-primary-90 text-white py-3 rounded-lg font-medium hover:bg-green-600 transition-all duration-300 hover:scale-105 block text-center"
+                className="flex items-center justify-center w-full h-[78px] bg-primary-90 text-white py-3 rounded-3xl text-title-medium hover:bg-green-600 transition-all duration-300  block text-center"
                 onClick={(e) => e.stopPropagation()}
               >
                 자세히 보기
@@ -234,12 +284,12 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
               {job.requiredSkills.split(',').map((tag, i) => (
                 <span
                   key={i}
-                  className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 transition-all duration-400 ease-in-out ${
-                    isHovered ? 'bg-primary-30' : 'bg-primary-20'
-                  } ${
+                  className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-800 transition-all duration-400 ease-in-out ${
                     isExpanded
-                      ? 'opacity-0 translate-y-2 scale-95'
-                      : 'opacity-100 translate-y-0 scale-100'
+                      ? 'bg-primary-30'
+                      : isHovered
+                        ? 'bg-primary-30'
+                        : 'bg-primary-20'
                   }`}
                   style={{ transitionDelay: `${i * 50}ms` }}
                 >
@@ -263,22 +313,20 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
       </div>
 
       {/* Compact 추천도 */}
-      {job.jobRecommendScore !== null && job.jobRecommendScore > 0 && (
-        <div
-          className={`absolute bottom-5 right-5 flex flex-row items-center gap-4 transition-all duration-500 ease-in-out ${
-            isExpanded
-              ? 'opacity-0 translate-x-4 translate-y-4 scale-95'
-              : 'opacity-100 translate-x-0 translate-y-0 scale-100'
-          }`}
-        >
-          <span className="text-body-large-medium text-gray-500">
-            직업 추천도
-          </span>
-          <span className="text-title-xlarge font-bold text-black">
-            {job.jobRecommendScore}%
-          </span>
-        </div>
-      )}
+      <div
+        className={`absolute bottom-5 right-5 flex flex-row items-center gap-4 transition-all duration-500 ease-in-out ${
+          isExpanded
+            ? 'opacity-0 translate-x-4 translate-y-4 scale-95'
+            : 'opacity-100 translate-x-0 translate-y-0 scale-100'
+        }`}
+      >
+        <span className="text-body-large-medium text-gray-500">
+          직업 추천도
+        </span>
+        <span className="text-title-xlarge font-bold text-black">
+          {job.jobRecommendScore !== null ? `${job.jobRecommendScore}%` : '??%'}
+        </span>
+      </div>
     </div>
   );
 }
