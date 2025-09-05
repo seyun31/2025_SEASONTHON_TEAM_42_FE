@@ -3,6 +3,7 @@
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/card-component/JobCard';
+import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import { getRecommendedJobs, getAllJobs } from '@/apis/jobApi';
 import { AllResponse, JobResponse } from '@/types/job';
@@ -122,8 +123,22 @@ export default function JobRecommendationsSection() {
     return (
       <section className="w-full px-4 py-8">
         <div className="max-w-[1200px] mx-auto">
-          <div className="flex justify-center items-center h-64">
-            <div className="text-gray-500">로딩 중...</div>
+          <div className="flex justify-between items-center mb-8">
+            <div className="h-8 w-80 bg-gray-200 rounded animate-pulse"></div>
+            <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+          </div>
+
+          <div className="flex flex-row gap-6">
+            <div className="flex flex-col gap-6 flex-1">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <JobCardSkeleton key={index} />
+              ))}
+            </div>
+            <div className="flex flex-col gap-6 flex-1">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <JobCardSkeleton key={index + 4} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
