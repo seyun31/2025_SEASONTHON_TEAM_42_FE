@@ -156,29 +156,12 @@ export default function Header() {
               </div>
             </div>
           ) : (
-            <>
-              {/* 사용자 프로필 아이콘 */}
-              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 text-gray-600"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-              <Link
-                href="/member/login"
-                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-m font-medium transition-colors duration-200"
-              >
-                로그인
-              </Link>
-            </>
+            <button
+              onClick={() => router.push('/member/login')}
+              className="relative h-11 w-18 shrink-0 rounded-[12px] bg-primary-90 text-white text-body-small-medium cursor-pointer"
+            >
+              로그인
+            </button>
           )}
         </div>
 
