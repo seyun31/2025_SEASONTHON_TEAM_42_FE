@@ -5,10 +5,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { getUserData, clearAuthData } from '@/lib/auth';
-import { BsChevronDown, BsChevronUp, BsPerson } from 'react-icons/bs';
-import { FiEdit2 } from 'react-icons/fi';
-import { PiStarBold } from 'react-icons/pi';
-import { GoSignOut } from 'react-icons/go';
+import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
