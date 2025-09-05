@@ -92,7 +92,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             }`}
           >
             {/* 기업명, 위치, 태그 */}
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center my-4">
               <div className="flex flex-col gap-3">
                 <div className="flex flex-row items-center gap-3 transition-all duration-500 ease-out">
                   <span className="text-title-medium text-gray-800">
@@ -119,9 +119,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-body-large-medium text-gray-800">
+                {/* <span className="text-body-large-medium text-gray-800">
                   {job.closingDate}
-                </span>
+                </span> */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -171,7 +171,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
             {/* 추천도 */}
             <div
-              className={`absolute bottom-20 right-5 flex gap-2 transition-all duration-500 ease-out ${
+              className={`absolute bottom-20 right-5 flex gap-4 transition-all duration-500 ease-out items-center ${
                 isExpanded
                   ? 'opacity-100 translate-x-0 translate-y-0'
                   : 'opacity-0 translate-x-4 translate-y-4'
