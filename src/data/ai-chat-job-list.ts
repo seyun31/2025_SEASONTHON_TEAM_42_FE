@@ -25,13 +25,13 @@ export interface ChatFlow {
   };
 }
 
-export const aiChatFlow: ChatFlow = {
+export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
   intro: {
     speaker: 'AI 코치',
     messages: [
-      '안녕하세요 세윤님! 반가워요 🙌',
-      '저는 세윤님만의 맞춤형 AI 코치 (캐릭터 명)이에요!',
-      '저랑 잠깐 대화만 하시면, 세윤님께 딱 맞는 직업을 3개 추천해드릴게요.',
+      `안녕하세요 ${userName}! 반가워요 🙌`,
+      `저는 ${userName}만의 맞춤형 AI 코치 (캐릭터 명)이에요!`,
+      `저랑 잠깐 대화만 하시면, ${userName}께 딱 맞는 직업을 3개 추천해드릴게요.`,
       '질문은 총 9개입니다 (필수 질문 3개, 선택 질문 6개)',
       '그럼 시작해볼까요!',
     ],
@@ -224,9 +224,12 @@ export const aiChatFlow: ChatFlow = {
   outro: {
     speaker: 'AI 코치',
     message: [
-      '수고 많으셨어요 세윤님! 🙏',
-      '말씀해주신 내용을 토대로 세윤님께 딱 맞는',
+      `수고 많으셨어요 ${userName}! 🙏`,
+      `말씀해주신 내용을 토대로 ${userName}께 딱 맞는`,
       '직업 3개를 추천해드릴게요 🚀',
     ],
   },
-};
+});
+
+// 기본 export (기존 코드 호환성을 위해)
+export const aiChatFlow = createAiChatFlow('세윤님');
