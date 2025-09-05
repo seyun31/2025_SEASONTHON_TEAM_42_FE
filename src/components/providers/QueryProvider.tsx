@@ -13,7 +13,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000, // 데이터가 1분간 fresh 상태로 유지
+            staleTime: 10 * 60 * 1000, // 데이터가 10분간 fresh 상태로 유지
             gcTime: 10 * 60 * 1000, // 10분후 사용되지 않는 데이터는 가비지 컬렉션
           },
         },

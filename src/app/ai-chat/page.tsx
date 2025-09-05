@@ -6,14 +6,24 @@ import { useQuery } from '@tanstack/react-query';
 import { useChatHistory } from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
-import {
-  createAiChatFlow,
-  aiChatFlow as jobFlow,
-} from '@/data/ai-chat-job-list';
-import { aiChatFlow as roadmapFlow } from '@/data/ai-chat-roadmap-list';
+import { createAiChatFlow } from '@/data/ai-chat-job-list';
+import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import { roadmapResults } from '@/data/ai-chat-roadmap-results';
 import MessageItem from '@/components/ui/MessageItem';
 import { UserResponse } from '@/lib/types/user';
+
+interface Occupation {
+  imageUrl: string;
+  occupationName: string;
+  description: string;
+  score: string;
+}
+
+interface JobRecommendations {
+  first: Occupation;
+  second: Occupation;
+  third: Occupation;
+}
 
 export default function AiChatPage() {
   const searchParams = useSearchParams();
@@ -25,10 +35,10 @@ export default function AiChatPage() {
     queryKey: ['user', 'profile'],
     queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: 5 * 60 * 1000, // 데이터가 5분동안 fresh상태로 유지
   });
 
-  // 사용자 이름으로 동적 채팅 플로우 생성
+  // 사용자 이름으로 동적 채팅 플로우 생성 -> 추후 삭제
   console.log('Debug - userData:', userData);
   console.log('Debug - userData.data:', userData?.data);
   console.log('Debug - userData.data.name:', userData?.data?.name);
@@ -37,7 +47,9 @@ export default function AiChatPage() {
   console.log('Debug - userName:', userName);
 
   const dynamicJobFlow = createAiChatFlow(userName);
-  const aiChatFlow = chapter === 'roadmap' ? roadmapFlow : dynamicJobFlow;
+  const dynamicRoadmapFlow = createAiChatRoadmapFlow(userName);
+  const aiChatFlow =
+    chapter === 'roadmap' ? dynamicRoadmapFlow : dynamicJobFlow;
 
   const {
     messages,
@@ -52,6 +64,12 @@ export default function AiChatPage() {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [textInput, setTextInput] = useState('');
   const [showCurrentQuestion, setShowCurrentQuestion] = useState(false);
+  const [dynamicOptions, setDynamicOptions] = useState<string[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [jobRecommendations, setJobRecommendations] =
+    useState<JobRecommendations | null>(null);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false);
 
   // 초기 intro 메시지 추가 (사용자 데이터 로딩 후)
   useEffect(() => {
@@ -93,6 +111,104 @@ export default function AiChatPage() {
     addBotMessage,
     completeChat,
   ]);
+
+  // choice나 mixed 타입 질문에서 동적 옵션 조회
+  useEffect(() => {
+    if (currentStep <= 0) {
+      setDynamicOptions([]);
+      setIsLoadingOptions(false);
+      return;
+    }
+
+    const currentQuestion = aiChatFlow.questions.find(
+      (q) => q.step === currentStep
+    );
+
+    // 추후 삭제
+    console.log('현재 질문:', currentQuestion);
+    console.log('질문 타입:', currentQuestion?.type);
+    console.log('챕터:', chapter);
+    console.log('currentStep:', currentStep);
+
+    if (
+      currentQuestion &&
+      (currentQuestion.type === 'choice' || currentQuestion.type === 'mixed') &&
+      chapter === 'job'
+    ) {
+      const fetchOptions = async () => {
+        setIsLoadingOptions(true);
+        console.log('API 호출 시작 - sequence:', currentQuestion.step);
+
+        try {
+          const response = await fetch(
+            `/api/chat/jobs/options/${currentQuestion.step}`
+          );
+          console.log('API 응답 상태:', response.status);
+
+          const data = await response.json();
+          console.log('API 응답 데이터:', data);
+
+          if (data.result === 'SUCCESS' && data.data?.optionList) {
+            console.log('동적 옵션 설정:', data.data.optionList);
+            setDynamicOptions(data.data.optionList);
+          } else {
+            console.log('API 응답 실패, 에러:', data.error);
+            console.log('기본 옵션으로 폴백:', currentQuestion.options);
+            setDynamicOptions([]);
+          }
+        } catch (error) {
+          console.error('옵션 조회 실패:', error);
+          setDynamicOptions([]);
+        } finally {
+          setIsLoadingOptions(false);
+        }
+      };
+
+      fetchOptions();
+    } else {
+      console.log('조건 불만족 - 동적 옵션 사용 안함');
+      setDynamicOptions([]);
+      setIsLoadingOptions(false);
+    }
+  }, [currentStep, chapter]);
+
+  // AI 채팅 완료 후 결과 데이터 가져오기
+  const fetchJobRecommendations = async () => {
+    if (chapter !== 'job') return;
+
+    setIsLoadingRecommendations(true);
+
+    try {
+      // 1. 채팅 히스토리 조회
+      console.log('채팅 히스토리 조회 중...');
+      const historyResponse = await fetch('/api/chat/jobs/history');
+      const historyData = await historyResponse.json();
+      console.log('채팅 히스토리:', historyData);
+
+      // 2. 맞춤형 직업 추천 조회
+      console.log('맞춤형 직업 추천 조회 중...');
+      const recommendResponse = await fetch('/api/jobs/recommend/occupation');
+      const recommendData = await recommendResponse.json();
+      console.log('직업 추천 데이터:', recommendData);
+
+      if (recommendData.result === 'SUCCESS') {
+        setJobRecommendations(recommendData.data);
+      } else {
+        console.error('직업 추천 실패:', recommendData.error);
+      }
+    } catch (error) {
+      console.error('결과 데이터 가져오기 실패:', error);
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
+
+  // 채팅 완료 시 결과 데이터 가져오기
+  useEffect(() => {
+    if (isCompleted && chapter === 'job' && !jobRecommendations) {
+      fetchJobRecommendations();
+    }
+  }, [isCompleted, chapter, jobRecommendations]);
 
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;
@@ -197,10 +313,40 @@ export default function AiChatPage() {
 
   const currentQuestion = getCurrentQuestion();
   const showStartButton = currentStep === 0 && messages.length > 0;
+
+  // 동적 옵션이 있는 경우 사용, 없으면 기본 옵션 사용
+  const currentOptions = (() => {
+    if (!currentQuestion) return [];
+
+    const isChoiceOrMixed =
+      currentQuestion.type === 'choice' || currentQuestion.type === 'mixed';
+    const isJobChapter = chapter === 'job';
+
+    console.log('옵션 선택 로직:', {
+      isChoiceOrMixed,
+      isJobChapter,
+      dynamicOptionsLength: dynamicOptions.length,
+      basicOptionsLength: currentQuestion.options?.length || 0,
+      isLoadingOptions,
+    });
+
+    if (isChoiceOrMixed && isJobChapter) {
+      // choice/mixed + job 챕터인 경우
+      if (isLoadingOptions) {
+        return currentQuestion.options || [];
+      }
+      if (dynamicOptions.length > 0) {
+        console.log('동적 옵션 사용:', dynamicOptions);
+        return dynamicOptions;
+      }
+    }
+
+    console.log('기본 옵션 사용:', currentQuestion.options || []);
+    return currentQuestion.options || [];
+  })();
+
   const showQuestionOptions =
-    currentQuestion &&
-    currentQuestion.options &&
-    currentQuestion.options.length > 0;
+    currentQuestion && currentOptions && currentOptions.length > 0;
 
   // 로딩 상태 처리
   if (userLoading) {
@@ -219,7 +365,7 @@ export default function AiChatPage() {
         messages={messages}
         showStartButton={showStartButton}
         showQuestionOptions={showQuestionOptions || false}
-        currentQuestionOptions={currentQuestion?.options || []}
+        currentQuestionOptions={currentOptions}
         selectedOptions={selectedOptions}
         canSkip={currentQuestion?.canSkip || false}
         onStartClick={handleStartClick}
@@ -253,8 +399,107 @@ export default function AiChatPage() {
               </>
             ) : (
               // 맞춤형 직업 추천 부분
-              <div className="text-center p-4">
-                <p className="text-chat-message">결과가 준비되었습니다!</p>
+              <div className="space-y-4">
+                {isLoadingRecommendations ? (
+                  <div className="text-center p-4">
+                    <p className="text-chat-message">
+                      맞춤형 직업을 추천하는 중...
+                    </p>
+                  </div>
+                ) : jobRecommendations ? (
+                  <div className="space-y-4">
+                    <MessageItem
+                      message="🎉 맞춤형 직업 추천 결과입니다!"
+                      isBot={true}
+                      hideProfile={true}
+                      noTopMargin={true}
+                    />
+
+                    {/* 1순위 직업 */}
+                    {jobRecommendations.first && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          {jobRecommendations.first.imageUrl && (
+                            <img
+                              src={jobRecommendations.first.imageUrl}
+                              alt={jobRecommendations.first.occupationName}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-primary-90">
+                              1순위: {jobRecommendations.first.occupationName}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              적합도: {jobRecommendations.first.score}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-2">
+                              {jobRecommendations.first.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 2순위 직업 */}
+                    {jobRecommendations.second && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          {jobRecommendations.second.imageUrl && (
+                            <img
+                              src={jobRecommendations.second.imageUrl}
+                              alt={jobRecommendations.second.occupationName}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-primary-90">
+                              2순위: {jobRecommendations.second.occupationName}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              적합도: {jobRecommendations.second.score}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-2">
+                              {jobRecommendations.second.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 3순위 직업 */}
+                    {jobRecommendations.third && (
+                      <div className="bg-white rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center space-x-3">
+                          {jobRecommendations.third.imageUrl && (
+                            <img
+                              src={jobRecommendations.third.imageUrl}
+                              alt={jobRecommendations.third.occupationName}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <h3 className="font-bold text-lg text-primary-90">
+                              3순위: {jobRecommendations.third.occupationName}
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              적합도: {jobRecommendations.third.score}
+                            </p>
+                            <p className="text-sm text-gray-700 mt-2">
+                              {jobRecommendations.third.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center p-4">
+                    <p className="text-chat-message">
+                      추천 결과를 불러올 수 없습니다.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>

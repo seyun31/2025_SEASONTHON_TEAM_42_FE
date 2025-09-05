@@ -230,6 +230,3 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
     ],
   },
 });
-
-// 기본 export (기존 코드 호환성을 위해)
-export const aiChatFlow = createAiChatFlow('세윤님');

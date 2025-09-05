@@ -2,12 +2,10 @@ import { cookies } from 'next/headers';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function POST(request: Request): Promise<Response> {
+export async function GET(request: Request): Promise<Response> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
-
-    console.log('API 호출 시작 - accessToken 존재:', !!accessToken);
 
     if (!accessToken) {
       return Response.json(
@@ -20,17 +18,22 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const { sequence, answer } = await request.json();
-    console.log('요청 데이터:', { sequence, answer, backendUrl });
+    const { searchParams } = new URL(request.url);
+    const sequence = searchParams.get('sequence');
 
-    if (!sequence || answer === undefined || answer === null) {
+    if (
+      !sequence ||
+      isNaN(Number(sequence)) ||
+      Number(sequence) < 1 ||
+      Number(sequence) > 9
+    ) {
       return Response.json(
         {
           result: 'ERROR',
           data: null,
           error: {
             code: 'BAD_REQUEST',
-            message: 'sequence와 answer가 필요합니다.',
+            message: 'sequence는 1-9 범위의 숫자여야 합니다.',
           },
         },
         { status: 400 }
@@ -38,19 +41,14 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const url = new URL(`${backendUrl}/job/chat/${sequence}`);
-    url.searchParams.append('answer', answer);
-
-    console.log('백엔드 URL:', url.toString());
 
     const response = await fetch(url.toString(), {
-      method: 'POST',
+      method: 'GET',
       headers: {
         accept: 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
     });
-
-    console.log('백엔드 응답 상태:', response.status);
 
     if (!response.ok) {
       try {
@@ -63,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
             data: null,
             error: {
               code: 'FETCH_ERROR',
-              message: '사용자 정보를 가져올 수 없습니다.',
+              message: 'AI 채팅 옵션을 가져올 수 없습니다.',
             },
           },
           { status: response.status }
@@ -71,10 +69,10 @@ export async function POST(request: Request): Promise<Response> {
       }
     }
 
-    const responseData = await response.json();
-    return Response.json(responseData);
+    const optionsData = await response.json();
+    return Response.json(optionsData);
   } catch (error) {
-    console.error('User profile fetch error:', error);
+    console.error('AI chat options fetch error:', error);
 
     // 백엔드 API 에러 응답인 경우 그대로 전달
     if (error instanceof Error && error.message.includes('response')) {
