@@ -91,8 +91,8 @@ export default function JobRecommendationsSection() {
         postingDate: job.postingDate,
         closingDate: job.closingDate,
         applyLink: job.applyLink,
-        jobRecommendScore: job.jobRecommendScore,
-        isScrap: job.isScrap,
+        jobRecommendScore: job.jobRecommendScore || null,
+        isScrap: job.isBookmark,
       };
     } else {
       // JobResponse 타입 (맞춤형 일자리 추천)
@@ -113,8 +113,10 @@ export default function JobRecommendationsSection() {
         postingDate: '', // API에서 제공하지 않음
         closingDate: job.closingDate,
         applyLink: '', // API에서 제공하지 않음
-        jobRecommendScore: parseInt(job.jobRecommendScore) || 0,
-        isScrap: job.isScrap,
+        jobRecommendScore: job.jobRecommendScore
+          ? parseInt(job.jobRecommendScore)
+          : null,
+        isScrap: job.isBookmark,
       };
     }
   };

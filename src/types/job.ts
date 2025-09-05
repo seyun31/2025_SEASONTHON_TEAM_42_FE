@@ -16,7 +16,7 @@ export interface JobSummary {
   postingDate: string;
   closingDate: string;
   applyLink: string;
-  jobRecommendScore: number;
+  jobRecommendScore: number | null;
   isScrap: boolean;
 }
 
@@ -51,8 +51,8 @@ export interface AllResponse {
   closingDate: string;
   applyLink: string;
   imageUrl: string;
-  jobRecommendScore: number;
-  isScrap: boolean;
+  jobRecommendScore: number | null;
+  isBookmark: boolean;
 }
 
 export interface SearchAllResponse {
@@ -69,5 +69,5 @@ export interface JobResponse {
   jobRecommendScore: string;
   closingDate: string;
   workLocation: string;
-  isScrap: boolean;
+  isBookmark: boolean;
 }

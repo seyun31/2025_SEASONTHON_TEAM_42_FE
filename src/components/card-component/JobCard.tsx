@@ -186,24 +186,24 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 추천도 */}
-            <div
-              className={`absolute bottom-20 right-5 flex gap-4
-                 transition-all duration-500 ease-out items-center ${
-                   isExpanded
-                     ? 'opacity-100 translate-x-0 translate-y-0'
-                     : 'opacity-0 translate-x-4 translate-y-4'
-                 }`}
-              style={{ transitionDelay: '500ms' }}
-            >
-              <span className="text-body-large-medium text-gray-500">
-                직업 추천도
-              </span>
-              <span className="text-title-xlarge font-bold text-black">
-                {job.jobRecommendScore > 0
-                  ? `${job.jobRecommendScore}%`
-                  : '100%'}
-              </span>
-            </div>
+            {job.jobRecommendScore && job.jobRecommendScore > 0 && (
+              <div
+                className={`absolute bottom-20 right-5 flex gap-4
+                   transition-all duration-500 ease-out items-center ${
+                     isExpanded
+                       ? 'opacity-100 translate-x-0 translate-y-0'
+                       : 'opacity-0 translate-x-4 translate-y-4'
+                   }`}
+                style={{ transitionDelay: '500ms' }}
+              >
+                <span className="text-body-large-medium text-gray-500">
+                  직업 추천도
+                </span>
+                <span className="text-title-xlarge font-bold text-black">
+                  {job.jobRecommendScore}%
+                </span>
+              </div>
+            )}
 
             {/* 버튼 */}
             <div className="mt-6 transition-all duration-500 ease-out">
@@ -256,20 +256,22 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
       </div>
 
       {/* Compact 추천도 */}
-      <div
-        className={`absolute bottom-5 right-5 flex flex-row items-center gap-4 transition-all duration-500 ease-in-out ${
-          isExpanded
-            ? 'opacity-0 translate-x-4 translate-y-4 scale-95'
-            : 'opacity-100 translate-x-0 translate-y-0 scale-100'
-        }`}
-      >
-        <span className="text-body-large-medium text-gray-500">
-          직업 추천도
-        </span>
-        <span className="text-title-xlarge font-bold text-black">
-          {job.jobRecommendScore > 0 ? `${job.jobRecommendScore}%` : '??%'}
-        </span>
-      </div>
+      {job.jobRecommendScore && job.jobRecommendScore > 0 && (
+        <div
+          className={`absolute bottom-5 right-5 flex flex-row items-center gap-4 transition-all duration-500 ease-in-out ${
+            isExpanded
+              ? 'opacity-0 translate-x-4 translate-y-4 scale-95'
+              : 'opacity-100 translate-x-0 translate-y-0 scale-100'
+          }`}
+        >
+          <span className="text-body-large-medium text-gray-500">
+            직업 추천도
+          </span>
+          <span className="text-title-xlarge font-bold text-black">
+            {job.jobRecommendScore}%
+          </span>
+        </div>
+      )}
     </div>
   );
 }

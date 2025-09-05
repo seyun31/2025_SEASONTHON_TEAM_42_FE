@@ -63,16 +63,21 @@ export const getRecommendedJobs = async (): Promise<JobResponse[]> => {
 
     console.log('Token found, making API request to /job/recommend/job');
 
-    const response = await fetch(
-      'https://api.ilhaeng.cloud/job/recommend/job',
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const response = await fetch(`${backendUrl}/job/recommend/job`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -98,7 +103,17 @@ export const getRecommendedJobs = async (): Promise<JobResponse[]> => {
 // 전체 채용 조회 (비로그인 시)
 export const getAllJobs = async (): Promise<AllResponse[]> => {
   try {
-    const response = await fetch('https://api.ilhaeng.cloud/job/all', {
+    console.log('Making API request to /job/all/anonymous');
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const response = await fetch(`${backendUrl}/job/all/anonymous`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
