@@ -27,7 +27,7 @@ export default function MessageItem({
           />
         )}
         <div
-          className={`max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 whitespace-pre-line ${
+          className={`max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 whitespace-pre-line ${
             isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
           }`}
           style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
