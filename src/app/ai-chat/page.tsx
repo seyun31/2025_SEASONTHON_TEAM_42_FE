@@ -33,7 +33,7 @@ export default function AiChatPage() {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
       setShowCurrentQuestion(true);
     }
-  }, [messages.length, aiChatFlow, addBotMessage]);
+  }, [messages.length, aiChatFlow.intro.messages, addBotMessage]);
 
   // 현재 단계에 따른 질문 표시
   useEffect(() => {
