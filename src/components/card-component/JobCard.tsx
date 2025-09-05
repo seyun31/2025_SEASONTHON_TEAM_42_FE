@@ -14,6 +14,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isScrap, setIsScrap] = useState(job.isScrap);
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleToggleScrap = (jobId: string) => {
     setIsScrap(!isScrap);
@@ -44,6 +45,8 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           : 'max-h-[460px] opacity-100 hover:bg-[#E1F5EC]'
       } ${isAnimating ? 'pointer-events-none' : ''}`}
       onClick={isExpanded ? handleClose : handleCardClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* 상단 이미지 */}
       <div
@@ -106,7 +109,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   {job.requiredSkills.split(',').map((skill, i) => (
                     <span
                       key={i}
-                      className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 bg-primary-20 transition-all duration-500 ease-out ${
+                      className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 transition-all duration-500 ease-out ${
+                        isHovered ? 'bg-[B4E6CE]' : 'bg-primary-20'
+                      } ${
                         isExpanded
                           ? 'opacity-100 translate-y-0 scale-100'
                           : 'opacity-0 translate-y-2 scale-95'
@@ -186,7 +191,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 추천도 */}
-            {job.jobRecommendScore && job.jobRecommendScore > 0 && (
+            {job.jobRecommendScore !== null && job.jobRecommendScore > 0 && (
               <div
                 className={`absolute bottom-20 right-5 flex gap-4
                    transition-all duration-500 ease-out items-center ${
@@ -229,7 +234,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
               {job.requiredSkills.split(',').map((tag, i) => (
                 <span
                   key={i}
-                  className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 bg-primary-20 transition-all duration-400 ease-in-out ${
+                  className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 transition-all duration-400 ease-in-out ${
+                    isHovered ? 'bg-primary-30' : 'bg-primary-20'
+                  } ${
                     isExpanded
                       ? 'opacity-0 translate-y-2 scale-95'
                       : 'opacity-100 translate-y-0 scale-100'
@@ -256,7 +263,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
       </div>
 
       {/* Compact 추천도 */}
-      {job.jobRecommendScore && job.jobRecommendScore > 0 && (
+      {job.jobRecommendScore !== null && job.jobRecommendScore > 0 && (
         <div
           className={`absolute bottom-5 right-5 flex flex-row items-center gap-4 transition-all duration-500 ease-in-out ${
             isExpanded
