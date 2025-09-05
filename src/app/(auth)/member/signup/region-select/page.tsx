@@ -35,12 +35,10 @@ export default function RegionSelectPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div className="flex flex-col items-center justify-center gap-6">
         {/* 지역 선택 박스 */}
-        <div className="relative w-[30.5vw] h-[67vh] border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
-          <div className="absolute inset-0 rounded-[32px] bg-primary-20 opacity-50 pointer-events-none" />
-
+        <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           {/* 로고 이미지 */}
           <div className="absolute top-[32px] left-1/2 transform -translate-x-1/2 z-20">
             <Image
@@ -53,9 +51,9 @@ export default function RegionSelectPage() {
           </div>
 
           {/* 컨텐츠 영역 */}
-          <div className="absolute top-[90px] left-1/2 transform -translate-x-1/2 z-10 w-[calc(30.5vw-48px)] h-[calc(64vh-180px)] rounded-[16px] border-2 border-primary-90 flex flex-col overflow-hidden bg-white">
+          <div className="absolute top-[90px] left-1/2 transform -translate-x-1/2 z-10 w-[calc(30.5vw-48px)] h-[calc(64vh-180px)] rounded-[16px] border-2 border-primary-30 flex flex-col overflow-hidden bg-white">
             {/* 제목 바 */}
-            <div className="h-[7.41vh] flex items-center justify-center px-4 border-b-2 border-primary-90 relative">
+            <div className="h-[7.41vh] flex items-center justify-center px-4 border-b-2 border-primary-30 relative">
               <span className="text-body-large-medium">거주지 선택</span>
               <Image
                 src="/assets/Icons/cross.svg"
@@ -82,7 +80,7 @@ export default function RegionSelectPage() {
                     className={[
                       'w-full h-[5.46vh] text-center px-4 flex-shrink-0',
                       i === 0 ? 'border-t-0' : 'border-t',
-                      'border-primary-40',
+                      'border-primary-30',
                       'bg-white text-body-medium-medium hover:bg-primary-20/10',
                     ].join(' ')}
                     style={{ color: r === region ? undefined : '#869f8e' }}
@@ -93,16 +91,16 @@ export default function RegionSelectPage() {
               </div>
 
               {/* 우측: 도시 리스트 */}
-              <div className="relative bg-white overflow-y-auto max-h-full scrollbar-hide border-l-2 border-primary-90">
+              <div className="relative bg-white overflow-y-auto max-h-full scrollbar-hide border-l-2 border-primary-30">
                 <div className="h-full">
-                  {(CITIES[region] || []).map((c: string, i: number) => (
+                  {(CITIES[region] || []).map((c: string) => (
                     <button
                       key={c}
                       type="button"
                       onClick={() => setCity(c)}
                       className={[
                         'w-full h-[5.46vh] text-left city-indent pr-4 flex-shrink-0',
-                        'border-b border-primary-40',
+                        'border-b border-primary-30',
                         'bg-white text-body-medium-medium hover:bg-primary-20/10',
                       ].join(' ')}
                       style={{ color: city === c ? undefined : '#869f8e' }}
@@ -121,13 +119,21 @@ export default function RegionSelectPage() {
             onClick={handleConfirm}
             disabled={!region || ((CITIES[region] || []).length > 0 && !city)}
             className={[
-              'absolute bottom-6 left-6 right-6 z-10 w-[calc(30.5vw-48px)] h-[6.67vh] rounded-[12px] border-2 border-primary-90 text-title-medium',
+              'absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[calc(15.5vw-48px)] h-[7.5vh] rounded-[12px] text-title-medium',
               region && ((CITIES[region] || []).length === 0 || city)
                 ? 'bg-primary-90 text-white'
-                : 'bg-primary-20 text-title-medium cursor-not-allowed',
+                : 'bg-primary-30 text-title-medium cursor-not-allowed',
             ].join(' ')}
           >
             선택하기
+          </button>
+        </div>
+
+        {/* 시작하기 버튼 */}
+        <div className="relative">
+          <div className="absolute inset-0 rounded-[16px] bg-primary-30 opacity-50 pointer-events-none" />
+          <button className="relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium bg-primary-90 text-white">
+            넥스트 커리어 시작하기
           </button>
         </div>
       </div>
