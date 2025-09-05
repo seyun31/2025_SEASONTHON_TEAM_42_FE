@@ -1,6 +1,6 @@
 'use client';
 
-import JobCard from '@/components/ui/JobCard';
+import JobCard from '@/components/card-component/JobCard';
 import SearchBar from '@/components/ui/SearchBar';
 import { jobRecommendations } from '@/mock/jobData';
 import { useState } from 'react';
@@ -8,12 +8,12 @@ import { useState } from 'react';
 export default function JobPostings() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
-  const toggleFavorite = (id: string) => {
+  const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
+    if (newFavorites.has(jobId)) {
+      newFavorites.delete(jobId);
     } else {
-      newFavorites.add(id);
+      newFavorites.add(jobId);
     }
     setFavorites(newFavorites);
   };
@@ -26,20 +26,18 @@ export default function JobPostings() {
             <div className="flex flex-col gap-6 flex-1">
               {jobRecommendations.slice(0, 4).map((job) => (
                 <JobCard
-                  key={job.id}
+                  key={job.jobId}
                   job={job}
-                  isFavorited={favorites.has(job.id)}
-                  onToggleFavorite={toggleFavorite}
+                  onToggleScrap={toggleScrap}
                 />
               ))}
             </div>
             <div className="flex flex-col gap-6 flex-1">
               {jobRecommendations.slice(4, 8).map((job) => (
                 <JobCard
-                  key={job.id}
+                  key={job.jobId}
                   job={job}
-                  isFavorited={favorites.has(job.id)}
-                  onToggleFavorite={toggleFavorite}
+                  onToggleScrap={toggleScrap}
                 />
               ))}
             </div>

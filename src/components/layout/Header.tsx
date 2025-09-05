@@ -155,7 +155,7 @@ export default function Header() {
                 </span>
                 <button
                   onClick={handleLogout}
-                  className="text-s text-gray-500 hover:text-red-600 transition-colors duration-200"
+                  className="text-body-small-medium text-gray-500 hover:text-red-600 transition-colors duration-200"
                 >
                   로그아웃
                 </button>
@@ -180,7 +180,7 @@ export default function Header() {
               </div>
               <Link
                 href="/member/login"
-                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-m font-medium transition-colors duration-200"
+                className="text-gray-600 hover:!text-green-600 px-4 py-2 text-body-small-medium font-medium transition-colors duration-200"
               >
                 로그인
               </Link>

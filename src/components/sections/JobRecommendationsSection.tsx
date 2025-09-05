@@ -2,7 +2,7 @@
 
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
-import JobCard from '@/components/ui/JobCard';
+import JobCard from '@/components/card-component/JobCard';
 import { getUserData } from '@/lib/auth';
 
 export default function JobRecommendationsSection() {
@@ -47,20 +47,18 @@ export default function JobRecommendationsSection() {
           <div className="flex flex-col gap-6 flex-1">
             {jobRecommendations.slice(0, 4).map((job) => (
               <JobCard
-                key={job.id}
+                key={job.jobId}
                 job={job}
-                isFavorited={favorites.has(job.id)}
-                onToggleFavorite={toggleFavorite}
+                onToggleScrap={toggleFavorite}
               />
             ))}
           </div>
           <div className="flex flex-col gap-6 flex-1">
             {jobRecommendations.slice(4, 8).map((job) => (
               <JobCard
-                key={job.id}
+                key={job.jobId}
                 job={job}
-                isFavorited={favorites.has(job.id)}
-                onToggleFavorite={toggleFavorite}
+                onToggleScrap={toggleFavorite}
               />
             ))}
           </div>
