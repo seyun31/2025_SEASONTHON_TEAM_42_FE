@@ -232,11 +232,22 @@ export default function AiChatPage() {
       const answers = JSON.parse(storedAnswers);
       console.log('저장된 로드맵 답변:', answers);
 
+      // 액세스 토큰 가져오기
+      const getCookie = (name: string) => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+      };
+
+      const accessToken = getCookie('accessToken');
+
       // 로드맵 추천 API 호출
       const response = await fetch(`${backendUrl}/job/recommend/roadmap`, {
         method: 'POST',
         headers: {
+          accept: 'application/json',
           'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           career: answers.career || '',
