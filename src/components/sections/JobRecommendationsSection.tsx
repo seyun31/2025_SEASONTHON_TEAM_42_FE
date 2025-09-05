@@ -124,8 +124,17 @@ export default function JobRecommendationsSection() {
       <section className="w-full px-4 py-8">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <div className="h-8 w-80 bg-gray-200 rounded animate-pulse"></div>
-            <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+            <h2 className="text-title-xlarge text-gray-80">
+              {userName
+                ? `${userName}님을 위한 오늘의 맞춤 일자리 추천`
+                : '오늘의 일자리 추천'}
+            </h2>
+            <a
+              href="/job-postings"
+              className="text-primary-300 hover:text-primary-600 transition-colors"
+            >
+              더보기
+            </a>
           </div>
 
           <div className="flex flex-row gap-6">
