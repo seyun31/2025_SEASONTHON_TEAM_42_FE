@@ -1,9 +1,6 @@
 'use client';
 
-import { educationRecommendations } from '@/mock/educationData';
-import type { EducationRecommendation } from '@/mock/educationData';
-import { jobRecommendations, type JobRecommendation } from '@/mock/jobData';
-import { JobSummary } from '@/types/job';
+import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/card-component/JobCard';
 import { getUserData } from '@/lib/auth';
@@ -28,19 +25,6 @@ export default function EducationRecommendationsSection() {
     }
     setFavorites(newFavorites);
   };
-
-  // Convert education data to job format for JobCard compatibility
-  const convertEducationToJob = (
-    education: EducationRecommendation
-  ): JobSummary => ({
-    jobId: education.id.toString(),
-    companyName: education.institutionName,
-    keyword: '교육,프로그램,과정',
-    jobRecommendScore: '0',
-    closingDate: education.deadline,
-    workLocation: education.location,
-    isScrap: education.isFavorited || false,
-  });
 
   return (
     <section className="w-full px-4 py-8">

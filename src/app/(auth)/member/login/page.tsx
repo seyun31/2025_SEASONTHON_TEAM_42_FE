@@ -8,7 +8,7 @@ export default function Login() {
       'https://api.ilhaeng.cloud/oauth2/authorization/kakao';
   };
   return (
-    <div className="flex items-center justify-center min-h-screen">
+    <div className="fixed inset-0 flex items-center justify-center">
       {/* 박스 */}
       <div className="relative w-[30.5vw] h-[57.6vh] border-4 border-primary-90 rounded-[32px] flex flex-col items-center justify-center">
         {/* 박스 배경 오버레이 */}
