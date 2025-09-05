@@ -1,15 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useChatHistory } from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { aiChatFlow as jobFlow } from '@/data/ai-chat-job-list';
 import { aiChatFlow as roadmapFlow } from '@/data/ai-chat-roadmap-list';
+import { roadmapResults } from '@/data/ai-chat-roadmap-results';
+import MessageItem from '@/components/ui/MessageItem';
 
 export default function AiChatPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const chapter = searchParams.get('chapter') || 'job'; // job 또는 roadmap
   const aiChatFlow = chapter === 'roadmap' ? roadmapFlow : jobFlow;
 
@@ -150,15 +153,34 @@ export default function AiChatPage() {
       >
         {/* 완료된 경우 결과 표시 */}
         {isCompleted && (
-          <div>
-            {/* 결과 카드 자리*/}
-            <div className="text-center p-4">
-              <p className="text-chat-message">
-                {chapter === 'roadmap'
-                  ? '로드맵 페이지로 이동'
-                  : '결과가 준비되었습니다!'}
-              </p>
-            </div>
+          // 맞춤형 로드맵 부분
+          <div className="ml-[3.7vw]">
+            {chapter === 'roadmap' ? (
+              <>
+                <div className="space-y-2">
+                  {roadmapResults.map((result, index) => (
+                    <MessageItem
+                      key={index}
+                      message={result.message.join('\n')}
+                      isBot={true}
+                      hideProfile={true}
+                      noTopMargin={true}
+                    />
+                  ))}
+                </div>
+                <div
+                  className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4"
+                  onClick={() => router.push('/career-roadmap')}
+                >
+                  로드맵으로 이동하기
+                </div>
+              </>
+            ) : (
+              // 맞춤형 직업 추천 부분
+              <div className="text-center p-4">
+                <p className="text-chat-message">결과가 준비되었습니다!</p>
+              </div>
+            )}
           </div>
         )}
       </MessageSection>
