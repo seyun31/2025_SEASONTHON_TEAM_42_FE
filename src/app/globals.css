@@ -341,3 +341,16 @@ body {
     transform: translateX(100%);
   }
 }
+
+/* Flip Card 애니메이션 */
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
