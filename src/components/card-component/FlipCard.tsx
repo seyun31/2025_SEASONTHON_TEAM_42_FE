@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { HiStar } from 'react-icons/hi';
+import { PiStarThin } from 'react-icons/pi';
 
 interface FlipCardProps {
   jobTitle: string;
@@ -36,13 +38,22 @@ export default function FlipCard({
   onJobPostingClick,
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isScrap, setIsScrap] = useState(false);
 
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
   };
 
+  const handleToggleScrap = () => {
+    setIsScrap(!isScrap);
+  };
+
   return (
-    <div className="relative w-full h-full" onClick={handleCardClick}>
+    <div
+      className="relative "
+      style={{ width: '384px', height: '595px', flexShrink: 0 }}
+      onClick={handleCardClick}
+    >
       <div
         className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
           isFlipped ? 'rotate-y-180' : ''
@@ -51,10 +62,10 @@ export default function FlipCard({
       >
         {/* 앞면 - 직업 추천 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white"
+          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white flex flex-col"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 relative">
+          <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg relative">
             <div className="absolute top-2 right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
               <svg
                 className="w-4 h-4 text-white"
@@ -71,39 +82,47 @@ export default function FlipCard({
               </svg>
             </div>
           </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-lg font-medium">{jobTitle}</span>
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-              />
-            </svg>
-          </div>
-          <p className="text-gray-600 mb-4">{jobDescription}</p>
-          <div className="flex items-center justify-between">
+
+          <div className="">
             <div>
-              <p className="text-sm text-gray-600">직업 추천도</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {recommendationScore}%
+              <div className="flex items-center justify-between mb-2 mt-[40px]">
+                <span className="text-title-large">{jobTitle}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleScrap();
+                  }}
+                  className={`text-5xl transition-all duration-300 hover:scale-110 ${
+                    isScrap ? 'text-gray-300' : 'text-yellow-400'
+                  }`}
+                >
+                  {isScrap ? <PiStarThin /> : <HiStar />}
+                </button>
+              </div>
+              <p className="text-gray-600 text-body-large-medium">
+                {jobDescription}
               </p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onJobPostingClick();
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
-            >
-              채용공고 확인하기
-            </button>
+
+            <div className="flex items-end justify-between mt-[40px]">
+              <div>
+                <p className="text-body-medium-medium text-gray-600">
+                  직업 추천도
+                </p>
+                <p className="text-title-xlarge text-gray-800">
+                  {recommendationScore}%
+                </p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onJobPostingClick();
+                }}
+                className="px-4 py-2 rounded-lg text-title-medium text-primary-90 transition-colors"
+              >
+                채용공고 확인하기
+              </button>
+            </div>
           </div>
         </div>
 
@@ -113,75 +132,75 @@ export default function FlipCard({
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="flex items-center justify-between mb-6">
-            <h4 className="text-lg font-medium">
-              {userName}님과의 직업 적합성
-            </h4>
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <h4 className="text-title-large">{userName}님과의 직업 적합성</h4>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleScrap();
+              }}
+              className={`text-5xl transition-all duration-300 hover:scale-110 ${
+                isScrap ? 'text-gray-300' : 'text-yellow-400'
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-              />
-            </svg>
+              {isScrap ? <PiStarThin /> : <HiStar />}
+            </button>
           </div>
 
-          {/* 강점 섹션 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{strengths.title}</span>
-              <span className="text-sm font-semibold">
-                {strengths.title} {strengths.percentage}%
-              </span>
+          <div className="flex flex-col gap-6">
+            {/* 강점 섹션 */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">강점</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {strengths.title} {strengths.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${strengths.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">{strengths.description}</p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${strengths.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">{strengths.description}</p>
-          </div>
 
-          {/* 근무조건 섹션 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{workingConditions.title}</span>
-              <span className="text-sm font-semibold">
-                {workingConditions.title} {workingConditions.percentage}%
-              </span>
+            {/* 근무조건 섹션 */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">근무조건</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {workingConditions.title} {workingConditions.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${workingConditions.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">
+                {workingConditions.description}
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${workingConditions.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">
-              {workingConditions.description}
-            </p>
-          </div>
 
-          {/* 희망사항 섹션 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{preferences.title}</span>
-              <span className="text-sm font-semibold">
-                {preferences.title} {preferences.percentage}%
-              </span>
+            {/* 희망사항 섹션 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">희망사항</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {preferences.title} {preferences.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${preferences.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">
+                {preferences.description}
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${preferences.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">{preferences.description}</p>
           </div>
         </div>
       </div>
