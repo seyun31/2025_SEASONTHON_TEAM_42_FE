@@ -18,10 +18,7 @@ export default function MessageItem({
   return (
     <div className={`${isBot && !noTopMargin ? 'mt-[2.4vh]' : ''}`}>
       {isBot && !hideProfile && (
-        <div className="text-chat-message mb-2 ml-[4.5vw]">캐릭터명</div>
-      )}
-      <div className={`flex items-start gap-[1.25vw]`}>
-        {isBot && !hideProfile && (
+        <div className="flex items-center gap-[1.25vw] mb-2 ml-[4.5vw]">
           <Image
             src="/assets/Icons/ai-chat-profile.svg"
             alt="AI 프로필"
@@ -29,10 +26,15 @@ export default function MessageItem({
             height={0}
             className="flex-shrink-0 w-[2.71vw] h-[4.81vh]"
           />
-        )}
+          <div className="text-chat-message">캐릭터명</div>
+        </div>
+      )}
+      <div className={`flex items-start gap-[1.25vw]`}>
         <div
           className={`max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 whitespace-pre-line ${
-            isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
+            isBot
+              ? 'bg-primary-20 text-chat-message ml-[7.96vw]'
+              : 'text-chat-message'
           }`}
           style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
         >

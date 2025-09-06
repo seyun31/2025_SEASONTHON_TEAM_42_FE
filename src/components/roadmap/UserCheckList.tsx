@@ -212,7 +212,7 @@ export default function UserCheckList({
           <div className="text-primary-90 text-header-medium">
             {mockRoadmapData.careerInfo.dDay}
           </div>
-          <div className="text-gray-800 text-header-medium">
+          <div className="text-gray-800 text-header-xlarge">
             {mockRoadmapData.careerInfo.jobTitle}
           </div>
           <div className="flex flex-col gap-4 mt-6">

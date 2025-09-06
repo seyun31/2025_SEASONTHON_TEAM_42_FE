@@ -608,7 +608,7 @@ export default function AiChatPage() {
                       ))}
                     </div>
                     <div
-                      className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4"
+                      className="flex items-center justify-center w-[21vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4"
                       onClick={() => router.push('/career-roadmap')}
                     >
                       로드맵으로 이동하기

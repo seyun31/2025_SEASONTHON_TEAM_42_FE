@@ -278,7 +278,7 @@ body {
   font-style: normal;
   font-weight: 600;
   line-height: 140%;
-  letter-spacing: -2.5px;
+  letter-spacing: -2.5%;
   color: black;
 }
 
@@ -289,7 +289,7 @@ body {
   font-style: normal;
   font-weight: 600;
   line-height: 140%;
-  letter-spacing: -2.5px;
+  letter-spacing: -2.5%;
 }
 
 .ai-chat-input {
@@ -299,7 +299,7 @@ body {
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  letter-spacing: -2.5px;
+  letter-spacing: -2.5%;
   color: black;
 }
 
@@ -310,7 +310,7 @@ body {
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  letter-spacing: -2.5px;
+  letter-spacing: -2.5%;
 }
 
 .chat-message {
@@ -319,7 +319,7 @@ body {
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  letter-spacing: -2.5px;
+  letter-spacing: -2.5%;
 }
 
 /* 스크롤바 숨기기 */
