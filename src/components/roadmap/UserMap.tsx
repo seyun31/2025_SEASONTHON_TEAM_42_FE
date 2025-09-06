@@ -1,5 +1,7 @@
 'use client';
 
+import { RoadMapResponse } from '@/types/roadmap';
+
 // 별 모양 SVG 컴포넌트
 const StarIcon = ({
   filled = false,
@@ -45,15 +47,44 @@ const StarIcon = ({
 
 interface UserMapProps {
   userName: string;
+  roadmapData?: RoadMapResponse | null;
+  onRoadmapUpdate?: () => void;
 }
 
-export default function UserMap({ userName }: UserMapProps) {
-  const roadmapSteps = [
-    { id: 1, name: '준비', position: { x: 12, y: 35 }, completed: true },
-    { id: 2, name: '성장', position: { x: 38, y: 70 }, completed: true },
-    { id: 3, name: '도전', position: { x: 62, y: 30 }, completed: false },
-    { id: 4, name: '달성', position: { x: 90, y: 5 }, completed: false },
-  ];
+export default function UserMap({
+  userName,
+  roadmapData,
+  onRoadmapUpdate,
+}: UserMapProps) {
+  // API 데이터가 있으면 사용하고, 없으면 기본 데이터 사용
+  const roadmapSteps = roadmapData
+    ? roadmapData.steps.map((step, index) => {
+        const positions = [
+          { x: 12, y: 35 },
+          { x: 38, y: 70 },
+          { x: 62, y: 30 },
+          { x: 90, y: 5 },
+        ];
+        const position = positions[index] || { x: 50, y: 50 };
+
+        // actions의 모든 isCompleted가 true인지 확인
+        const allActionsCompleted =
+          step.actions.length > 0 &&
+          step.actions.every((action) => action.isCompleted);
+
+        return {
+          id: index + 1,
+          name: step.category,
+          position,
+          completed: allActionsCompleted,
+        };
+      })
+    : [
+        { id: 1, name: '준비', position: { x: 12, y: 35 }, completed: true },
+        { id: 2, name: '성장', position: { x: 38, y: 70 }, completed: true },
+        { id: 3, name: '도전', position: { x: 62, y: 30 }, completed: false },
+        { id: 4, name: '달성', position: { x: 90, y: 5 }, completed: false },
+      ];
 
   return (
     <div

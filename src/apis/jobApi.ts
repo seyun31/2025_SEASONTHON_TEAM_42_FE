@@ -6,6 +6,13 @@ import {
   AllResponse,
   JobResponse,
 } from '@/types/job';
+import {
+  RoadMapResponse,
+  RoadMapStep,
+  ActionDto,
+  RoadMapRequest,
+  ApiResponse as RoadmapApiResponse,
+} from '@/types/roadmap';
 import { getAccessToken } from '@/lib/auth';
 
 // 전체 채용공고 목록 조회
@@ -254,6 +261,145 @@ export const getAllJobsForLoggedIn = async (filters?: {
     return result.data.jobDtoList || [];
   } catch (error) {
     console.error('Error fetching all jobs for logged in user:', error);
+    throw error;
+  }
+};
+
+// 로드맵 조회
+export const getRoadMap = async (): Promise<RoadMapResponse> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const response = await fetch(`${backendUrl}/job/recommend/roadmap`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(
+        `Failed to fetch roadmap: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error('Error fetching roadmap:', error);
+    throw error;
+  }
+};
+
+// 맞춤형 로드맵 추천
+export const recommendRoadMap = async (
+  request: RoadMapRequest
+): Promise<RoadMapResponse> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const response = await fetch(`${backendUrl}/job/recommend/roadmap`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(
+        `Failed to recommend roadmap: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error('Error recommending roadmap:', error);
+    throw error;
+  }
+};
+
+// 로드맵 액션 완료/미완료 토글
+export const toggleRoadMapAction = async (
+  roadMapId: number,
+  roadMapActionId: number
+): Promise<void> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const response = await fetch(
+      `${backendUrl}/job/roadmap/${roadMapId}/${roadMapActionId}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(
+        `Failed to toggle roadmap action: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<object> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+  } catch (error) {
+    console.error('Error toggling roadmap action:', error);
     throw error;
   }
 };
