@@ -7,7 +7,11 @@ import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
-import { getRecommendedJobs, getAllJobs } from '@/apis/jobApi';
+import {
+  getRecommendedJobs,
+  getAllJobs,
+  getAllJobsForLoggedIn,
+} from '@/apis/jobApi';
 import { AllResponse, JobResponse } from '@/types/job';
 
 export default function JobPostings() {
@@ -41,12 +45,16 @@ export default function JobPostings() {
         let jobData: (AllResponse | JobResponse)[] = [];
 
         if (activeTab === 'custom' && isLoggedIn) {
-          // 맞춤공고 탭 (로그인 시에만)
+          // 맞춤공고 탭 (로그인 시에만) - /job/recommend/job 엔드포인트 사용
           console.log('Fetching recommended jobs...');
           jobData = await getRecommendedJobs();
+        } else if (activeTab === 'all' && isLoggedIn) {
+          // 전체공고 탭 (로그인 시) - /job/all 엔드포인트 사용
+          console.log('Fetching all jobs for logged in user...');
+          jobData = await getAllJobsForLoggedIn();
         } else {
-          // 전체공고 탭 (로그인/비로그인 모두)
-          console.log('Fetching all jobs...');
+          // 전체공고 탭 (비로그인 시) - /job/all/anonymous 엔드포인트 사용
+          console.log('Fetching all jobs for anonymous user...');
           jobData = await getAllJobs();
         }
 
@@ -82,7 +90,7 @@ export default function JobPostings() {
   // API 데이터를 JobCard 컴포넌트에 맞는 형태로 변환
   const convertToJobCardFormat = (job: AllResponse | JobResponse) => {
     if ('jobTitle' in job) {
-      // AllResponse 타입 (전체 채용 조회)
+      // AllResponse 타입 (전체 채용 조회 - 로그인/비로그인 모두)
       return {
         id: job.jobId,
         jobId: job.jobId.toString(),
