@@ -6,7 +6,7 @@ import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import { jobRecommendations } from '@/mock/jobData';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import {
   getRecommendedJobs,
@@ -21,10 +21,19 @@ export default function JobPostings() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [filters, setFilters] = useState({
-    location: 'all',
-    employmentType: 'all',
-    jobCategory: 'all',
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [debouncedSearchKeyword, setDebouncedSearchKeyword] =
+    useState<string>('');
+  const [filters, setFilters] = useState<{
+    selectedRegion: string;
+    selectedDistricts: string[];
+    employmentType: string[];
+    jobCategory: string[];
+  }>({
+    selectedRegion: '',
+    selectedDistricts: [],
+    employmentType: [],
+    jobCategory: [],
   });
 
   // 초기 로그인 상태 확인 및 데이터 로드
@@ -42,13 +51,42 @@ export default function JobPostings() {
     }
   }, []);
 
+  // 검색어 디바운싱 (500ms 지연)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchKeyword(searchKeyword);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchKeyword]);
+
   // 탭 변경 시 API 호출
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        console.log('JobPostings - Fetching jobs:', { activeTab, isLoggedIn });
+        console.log('JobPostings - Fetching jobs:', {
+          activeTab,
+          isLoggedIn,
+          filters,
+          debouncedSearchKeyword,
+        });
         setIsLoading(true);
         let jobData: (AllResponse | JobResponse)[] = [];
+
+        // 필터 데이터를 API 형식으로 변환
+        const apiFilters = {
+          keyword: debouncedSearchKeyword || undefined,
+          workLocation:
+            filters.selectedDistricts.length > 0
+              ? filters.selectedDistricts
+              : undefined,
+          employmentType:
+            filters.employmentType.length > 0
+              ? filters.employmentType
+              : undefined,
+          jobCategory:
+            filters.jobCategory.length > 0 ? filters.jobCategory : undefined,
+        };
 
         if (activeTab === 'custom' && isLoggedIn) {
           // 맞춤공고 탭 (로그인 시에만) - /job/recommend/job 엔드포인트 사용
@@ -57,11 +95,11 @@ export default function JobPostings() {
         } else if (activeTab === 'all' && isLoggedIn) {
           // 전체공고 탭 (로그인 시) - /job/all 엔드포인트 사용
           console.log('Fetching all jobs for logged in user...');
-          jobData = await getAllJobsForLoggedIn();
+          jobData = await getAllJobsForLoggedIn(apiFilters);
         } else {
           // 전체공고 탭 (비로그인 시) - /job/all/anonymous 엔드포인트 사용
           console.log('Fetching all jobs for anonymous user...');
-          jobData = await getAllJobs();
+          jobData = await getAllJobs(apiFilters);
         }
 
         console.log('JobPostings - Jobs fetched:', jobData.length);
@@ -81,7 +119,7 @@ export default function JobPostings() {
     };
 
     fetchJobs();
-  }, [activeTab, isLoggedIn]);
+  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
 
   const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
@@ -148,7 +186,7 @@ export default function JobPostings() {
       <main className="min-h-screen bg-white">
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
-            <SearchBar />
+            <SearchBar onSearchChange={setSearchKeyword} />
 
             <JobFilter onFilterChange={setFilters} />
 
@@ -182,7 +220,7 @@ export default function JobPostings() {
     <main className="min-h-screen bg-white">
       <section className="w-full px-4 py-8">
         <div className="max-w-[1200px] mx-auto">
-          <SearchBar />
+          <SearchBar onSearchChange={setSearchKeyword} />
 
           <JobFilter onFilterChange={setFilters} />
 

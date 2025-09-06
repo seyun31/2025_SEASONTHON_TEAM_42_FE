@@ -101,7 +101,12 @@ export const getRecommendedJobs = async (): Promise<JobResponse[]> => {
 };
 
 // 전체 채용 조회 (비로그인 시)
-export const getAllJobs = async (): Promise<AllResponse[]> => {
+export const getAllJobs = async (filters?: {
+  keyword?: string;
+  workLocation?: string[];
+  employmentType?: string[];
+  jobCategory?: string[];
+}): Promise<AllResponse[]> => {
   try {
     console.log('Making API request to /job/all/anonymous');
 
@@ -113,7 +118,37 @@ export const getAllJobs = async (): Promise<AllResponse[]> => {
       );
     }
 
-    const response = await fetch(`${backendUrl}/job/all/anonymous`, {
+    // 쿼리 파라미터 생성
+    const queryParams = new URLSearchParams();
+
+    if (filters?.keyword) {
+      queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.workLocation && filters.workLocation.length > 0) {
+      filters.workLocation.forEach((location) => {
+        queryParams.append('workLocation', location);
+      });
+    }
+
+    if (filters?.employmentType && filters.employmentType.length > 0) {
+      filters.employmentType.forEach((type) => {
+        queryParams.append('employmentType', type);
+      });
+    }
+
+    if (filters?.jobCategory && filters.jobCategory.length > 0) {
+      filters.jobCategory.forEach((category) => {
+        queryParams.append('jobCategory', category);
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `${backendUrl}/job/all/anonymous?${queryString}`
+      : `${backendUrl}/job/all/anonymous`;
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -142,7 +177,12 @@ export const getAllJobs = async (): Promise<AllResponse[]> => {
 };
 
 // 전체 채용 조회 (로그인 시)
-export const getAllJobsForLoggedIn = async (): Promise<AllResponse[]> => {
+export const getAllJobsForLoggedIn = async (filters?: {
+  keyword?: string;
+  workLocation?: string[];
+  employmentType?: string[];
+  jobCategory?: string[];
+}): Promise<AllResponse[]> => {
   try {
     const token = getAccessToken();
     if (!token) {
@@ -159,7 +199,37 @@ export const getAllJobsForLoggedIn = async (): Promise<AllResponse[]> => {
       );
     }
 
-    const response = await fetch(`${backendUrl}/job/all`, {
+    // 쿼리 파라미터 생성
+    const queryParams = new URLSearchParams();
+
+    if (filters?.keyword) {
+      queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.workLocation && filters.workLocation.length > 0) {
+      filters.workLocation.forEach((location) => {
+        queryParams.append('workLocation', location);
+      });
+    }
+
+    if (filters?.employmentType && filters.employmentType.length > 0) {
+      filters.employmentType.forEach((type) => {
+        queryParams.append('employmentType', type);
+      });
+    }
+
+    if (filters?.jobCategory && filters.jobCategory.length > 0) {
+      filters.jobCategory.forEach((category) => {
+        queryParams.append('jobCategory', category);
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `${backendUrl}/job/all?${queryString}`
+      : `${backendUrl}/job/all`;
+
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,

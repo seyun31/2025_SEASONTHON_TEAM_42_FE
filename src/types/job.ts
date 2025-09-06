@@ -69,5 +69,6 @@ export interface JobResponse {
   jobRecommendScore: string;
   closingDate: string;
   workLocation: string;
+  imageUrl: string;
   isBookmark: boolean;
 }

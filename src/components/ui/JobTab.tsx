@@ -28,7 +28,7 @@ export default function JobTab({
   };
 
   return (
-    <div className="flex gap-8 mt-40">
+    <div className="flex gap-8 mt-10">
       <button
         onClick={handleCustomTabClick}
         disabled={!isLoggedIn}

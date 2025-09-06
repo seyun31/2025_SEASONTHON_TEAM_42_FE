@@ -78,7 +78,7 @@ export default function JobRecommendationsSection() {
         id: job.jobId,
         jobId: job.jobId.toString(),
         companyName: job.companyName,
-        companyLogo: job.companyLogo,
+        companyLogo: job.imageUrl || job.companyLogo, // imageUrl을 우선 사용하고, 없으면 companyLogo 사용
         jobTitle: job.jobTitle,
         jobCategory: job.jobCategory,
         workLocation: job.workLocation,
@@ -100,7 +100,7 @@ export default function JobRecommendationsSection() {
         id: parseInt(job.jobId) || 0,
         jobId: job.jobId,
         companyName: job.companyName,
-        companyLogo: '', // API에서 제공하지 않음
+        companyLogo: job.imageUrl || '', // imageUrl을 companyLogo로 사용
         jobTitle: job.keyword, // keyword를 jobTitle로 사용
         jobCategory: '', // API에서 제공하지 않음
         workLocation: job.workLocation,
