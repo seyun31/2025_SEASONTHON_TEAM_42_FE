@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import ConditionalHeaderClient from '@/components/layout/ConditionalHeaderClient';
 import { ChatHistoryProvider } from '@/contexts/ChatHistoryContext';
+import QueryProvider from '@/components/providers/QueryProvider';
 
 export const metadata: Metadata = {
   title: 'NextCareer',
@@ -40,14 +41,16 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body>
-        <ChatHistoryProvider>
-          <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-24">
-            <div className="w-full  mx-auto px-8 text-lg font-medium">
-              <ConditionalHeaderClient />
-              {children}
+        <QueryProvider>
+          <ChatHistoryProvider>
+            <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-24">
+              <div className="w-full  mx-auto px-8 text-lg font-medium">
+                <ConditionalHeaderClient />
+                {children}
+              </div>
             </div>
-          </div>
-        </ChatHistoryProvider>
+          </ChatHistoryProvider>
+        </QueryProvider>
       </body>
     </html>
   );

@@ -24,11 +24,11 @@ export interface ChatFlow {
   };
 }
 
-export const aiChatFlow: ChatFlow = {
+export const createAiChatRoadmapFlow = (userName: string = '님'): ChatFlow => ({
   intro: {
     speaker: 'AI 코치',
     messages: [
-      '안녕하세요 세윤님! 🙌',
+      `안녕하세요 ${userName}! 🙌`,
       '지금부터 딱 맞는 커리어 로드맵을 만들어드릴게요.',
       '총 3가지만 여쭤볼게요. (금방 끝나요 ✨)',
     ],
@@ -96,9 +96,9 @@ export const aiChatFlow: ChatFlow = {
   outro: {
     speaker: 'AI 코치',
     message: [
-      '수고 많으셨어요 세윤님! 🙏',
-      '말씀해주신 내용을 토대로 세윤님께 딱 맞는',
+      `수고 많으셨어요 ${userName}! 🙏`,
+      `말씀해주신 내용을 토대로 ${userName}께 딱 맞는`,
       '단계별 취업 준비 로드맵을 완성해드릴게요 🚀',
     ],
   },
-};
+});
