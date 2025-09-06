@@ -62,10 +62,10 @@ export default function FlipCard({
       >
         {/* 앞면 - 직업 추천 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white"
+          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white flex flex-col"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg mb-11 relative">
+          <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg relative">
             <div className="absolute top-2 right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
               <svg
                 className="w-4 h-4 text-white"
@@ -82,39 +82,47 @@ export default function FlipCard({
               </svg>
             </div>
           </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-title-large">{jobTitle}</span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleScrap();
-              }}
-              className={`text-5xl transition-all duration-300 hover:scale-110 ${
-                isScrap ? 'text-gray-300' : 'text-yellow-400'
-              }`}
-            >
-              {isScrap ? <PiStarThin /> : <HiStar />}
-            </button>
-          </div>
-          <p className="text-gray-600 mb-4 text-body-large-medium">
-            {jobDescription}
-          </p>
-          <div className="flex items-center justify-between">
+
+          <div className="">
             <div>
-              <p className="text-sm text-gray-600">직업 추천도</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {recommendationScore}%
+              <div className="flex items-center justify-between mb-2 mt-[40px]">
+                <span className="text-title-large">{jobTitle}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleScrap();
+                  }}
+                  className={`text-5xl transition-all duration-300 hover:scale-110 ${
+                    isScrap ? 'text-gray-300' : 'text-yellow-400'
+                  }`}
+                >
+                  {isScrap ? <PiStarThin /> : <HiStar />}
+                </button>
+              </div>
+              <p className="text-gray-600 text-body-large-medium">
+                {jobDescription}
               </p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onJobPostingClick();
-              }}
-              className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
-            >
-              채용공고 확인하기
-            </button>
+
+            <div className="flex items-end justify-between mt-[40px]">
+              <div>
+                <p className="text-body-medium-medium text-gray-600">
+                  직업 추천도
+                </p>
+                <p className="text-title-xlarge text-gray-800">
+                  {recommendationScore}%
+                </p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onJobPostingClick();
+                }}
+                className="px-4 py-2 rounded-lg text-title-medium text-primary-90 transition-colors"
+              >
+                채용공고 확인하기
+              </button>
+            </div>
           </div>
         </div>
 
