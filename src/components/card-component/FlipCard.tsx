@@ -132,9 +132,7 @@ export default function FlipCard({
           style={{ backfaceVisibility: 'hidden' }}
         >
           <div className="flex items-center justify-between mb-6">
-            <h4 className="text-lg font-medium">
-              {userName}님과의 직업 적합성
-            </h4>
+            <h4 className="text-title-large">{userName}님과의 직업 적합성</h4>
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -148,57 +146,61 @@ export default function FlipCard({
             </button>
           </div>
 
-          {/* 강점 섹션 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{strengths.title}</span>
-              <span className="text-sm font-semibold">
-                {strengths.title} {strengths.percentage}%
-              </span>
+          <div className="flex flex-col gap-6">
+            {/* 강점 섹션 */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">강점</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {strengths.title} {strengths.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${strengths.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">{strengths.description}</p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${strengths.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">{strengths.description}</p>
-          </div>
 
-          {/* 근무조건 섹션 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{workingConditions.title}</span>
-              <span className="text-sm font-semibold">
-                {workingConditions.title} {workingConditions.percentage}%
-              </span>
+            {/* 근무조건 섹션 */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">근무조건</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {workingConditions.title} {workingConditions.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${workingConditions.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">
+                {workingConditions.description}
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${workingConditions.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">
-              {workingConditions.description}
-            </p>
-          </div>
 
-          {/* 희망사항 섹션 */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-medium">{preferences.title}</span>
-              <span className="text-sm font-semibold">
-                {preferences.title} {preferences.percentage}%
-              </span>
+            {/* 희망사항 섹션 */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-title-medium">희망사항</span>
+                <span className="text-body-small-medium text-gray-70">
+                  {preferences.title} {preferences.percentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
+                <div
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${preferences.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-body-small-regular">
+                {preferences.description}
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full"
-                style={{ width: `${preferences.percentage}%` }}
-              ></div>
-            </div>
-            <p className="text-sm text-gray-600">{preferences.description}</p>
           </div>
         </div>
       </div>
