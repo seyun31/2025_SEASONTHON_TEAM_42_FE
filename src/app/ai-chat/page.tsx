@@ -628,7 +628,7 @@ export default function AiChatPage() {
                 ) : jobRecommendations ? (
                   <div className="space-y-4">
                     <MessageItem
-                      message="🎉 맞춤형 직업 추천 결과입니다!"
+                      message={`${userName}님의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
                       isBot={true}
                       hideProfile={true}
                       noTopMargin={true}

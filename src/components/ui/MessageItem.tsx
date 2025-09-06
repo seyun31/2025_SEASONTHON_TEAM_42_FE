@@ -18,7 +18,7 @@ export default function MessageItem({
   return (
     <div className={`${isBot && !noTopMargin ? 'mt-[2.4vh]' : ''}`}>
       {isBot && !hideProfile && (
-        <div className="flex items-center gap-[1.25vw] mb-2 ml-[4.5vw]">
+        <div className="flex items-center gap-[1.25vw] mb-4">
           <Image
             src="/assets/Icons/ai-chat-profile.svg"
             alt="AI 프로필"
@@ -32,9 +32,7 @@ export default function MessageItem({
       <div className={`flex items-start gap-[1.25vw]`}>
         <div
           className={`max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 whitespace-pre-line ${
-            isBot
-              ? 'bg-primary-20 text-chat-message ml-[7.96vw]'
-              : 'text-chat-message'
+            isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
           }`}
           style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
         >
