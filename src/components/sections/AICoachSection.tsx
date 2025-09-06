@@ -35,7 +35,7 @@ export default function AICoachSection() {
             >
               <div className="relative z-10 ">
                 <h3 className="text-title-medium ">{card.title}</h3>
-                <p className="text-title-medium text-primary-90 mb-14">
+                <p className="text-title-large text-primary-90 mb-14">
                   {card.subtitle}
                 </p>
                 <button className="text-gray-80 rounded-lg font-medium flex flex-row items-center gap-2">
