@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useChatHistory } from '@/contexts/ChatHistoryContext';
+import {
+  useChatHistory,
+  ChatHistoryProvider,
+} from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
@@ -26,7 +29,7 @@ interface JobRecommendations {
   third: Occupation;
 }
 
-export default function AIChatJob() {
+function AIChatJobContent() {
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
@@ -406,5 +409,13 @@ export default function AIChatJob() {
         />
       </div>
     </div>
+  );
+}
+
+export default function AIChatJob() {
+  return (
+    <ChatHistoryProvider>
+      <AIChatJobContent />
+    </ChatHistoryProvider>
   );
 }

@@ -3,14 +3,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
-import { useChatHistory } from '@/contexts/ChatHistoryContext';
+import {
+  useChatHistory,
+  ChatHistoryProvider,
+} from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import MessageItem from '@/components/ui/MessageItem';
 import { UserResponse } from '@/lib/types/user';
 
-export default function AIChatRoadmap() {
+function AIChatRoadmapContent() {
   const router = useRouter();
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -336,5 +339,13 @@ export default function AIChatRoadmap() {
         />
       </div>
     </div>
+  );
+}
+
+export default function AIChatRoadmap() {
+  return (
+    <ChatHistoryProvider>
+      <AIChatRoadmapContent />
+    </ChatHistoryProvider>
   );
 }
