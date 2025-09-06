@@ -77,7 +77,12 @@ export default function CareerRoadmapSection() {
           }}
         >
           {/* 배경 오버레이 */}
-          <div className="absolute inset-0 bg-black/20 rounded-2xl"></div>
+          <div
+            className="absolute inset-0 bg-black/20 rounded-2xl"
+            style={{
+              backdropFilter: userName ? 'none' : 'blur(10px)',
+            }}
+          ></div>
 
           {/* 콘텐츠 */}
           <div className="relative z-10 h-full flex flex-col">
