@@ -38,7 +38,9 @@ export default function Header() {
 
   const isActive = (path: string) => {
     if (path === '/ai-chat/job') {
-      return pathname.startsWith('/ai-chat');
+      return (
+        pathname === '/ai-chat/job' || pathname.startsWith('/ai-chat/job/')
+      );
     }
     return pathname === path;
   };
