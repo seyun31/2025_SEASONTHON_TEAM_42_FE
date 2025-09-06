@@ -6,12 +6,12 @@ import JobCard from '@/components/card-component/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import { getRecommendedJobs, getAllJobs } from '@/apis/jobApi';
-import { AllResponse, JobResponse } from '@/types/job';
+import { AllResponse } from '@/types/job';
 
 export default function JobRecommendationsSection() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [userName, setUserName] = useState<string>('');
-  const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>([]);
+  const [jobs, setJobs] = useState<AllResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
@@ -31,14 +31,30 @@ export default function JobRecommendationsSection() {
     const fetchJobs = async () => {
       try {
         setIsLoading(true);
-        let jobData: (AllResponse | JobResponse)[] = [];
+        let jobData: AllResponse[] = [];
 
         if (loggedIn) {
           // 로그인 시: 맞춤형 일자리 추천
+          console.log(
+            'JobRecommendationsSection - Fetching recommended jobs for logged in user'
+          );
           jobData = await getRecommendedJobs();
+          console.log(
+            'JobRecommendationsSection - Recommended jobs fetched:',
+            jobData.length,
+            jobData
+          );
         } else {
           // 비로그인 시: 전체 채용 조회
+          console.log(
+            'JobRecommendationsSection - Fetching all jobs for anonymous user'
+          );
           jobData = await getAllJobs();
+          console.log(
+            'JobRecommendationsSection - All jobs fetched:',
+            jobData.length,
+            jobData
+          );
         }
 
         // 8개로 제한
@@ -46,12 +62,7 @@ export default function JobRecommendationsSection() {
       } catch (error) {
         console.error('Error fetching jobs:', error);
         // 에러 시 mock 데이터 사용
-        setJobs(
-          jobRecommendations.slice(0, 8) as unknown as (
-            | AllResponse
-            | JobResponse
-          )[]
-        );
+        setJobs(jobRecommendations.slice(0, 8) as unknown as AllResponse[]);
       } finally {
         setIsLoading(false);
       }
@@ -71,54 +82,27 @@ export default function JobRecommendationsSection() {
   };
 
   // API 데이터를 JobCard 컴포넌트에 맞는 형태로 변환
-  const convertToJobCardFormat = (job: AllResponse | JobResponse) => {
-    if ('jobTitle' in job) {
-      // AllResponse 타입 (전체 채용 조회)
-      return {
-        id: job.jobId,
-        jobId: job.jobId.toString(),
-        companyName: job.companyName,
-        companyLogo: job.imageUrl || job.companyLogo, // imageUrl을 우선 사용하고, 없으면 companyLogo 사용
-        jobTitle: job.jobTitle,
-        jobCategory: job.jobCategory,
-        workLocation: job.workLocation,
-        employmentType: job.employmentType,
-        salary: job.salary,
-        workPeriod: job.workPeriod,
-        experience: job.experience,
-        requiredSkills: job.requiredSkills,
-        preferredSkills: job.preferredSkills,
-        postingDate: job.postingDate,
-        closingDate: job.closingDate,
-        applyLink: job.applyLink,
-        jobRecommendScore: job.jobRecommendScore || null,
-        isScrap: job.isBookmark,
-      };
-    } else {
-      // JobResponse 타입 (맞춤형 일자리 추천)
-      return {
-        id: parseInt(job.jobId) || 0,
-        jobId: job.jobId,
-        companyName: job.companyName,
-        companyLogo: job.imageUrl || '', // imageUrl을 companyLogo로 사용
-        jobTitle: job.keyword, // keyword를 jobTitle로 사용
-        jobCategory: '', // API에서 제공하지 않음
-        workLocation: job.workLocation,
-        employmentType: '', // API에서 제공하지 않음
-        salary: '', // API에서 제공하지 않음
-        workPeriod: '', // API에서 제공하지 않음
-        experience: '', // API에서 제공하지 않음
-        requiredSkills: '', // API에서 제공하지 않음
-        preferredSkills: '', // API에서 제공하지 않음
-        postingDate: '', // API에서 제공하지 않음
-        closingDate: job.closingDate,
-        applyLink: '', // API에서 제공하지 않음
-        jobRecommendScore: job.jobRecommendScore
-          ? parseInt(job.jobRecommendScore)
-          : null,
-        isScrap: job.isBookmark,
-      };
-    }
+  const convertToJobCardFormat = (job: AllResponse) => {
+    return {
+      id: job.jobId,
+      jobId: job.jobId.toString(),
+      companyName: job.companyName,
+      companyLogo: job.imageUrl || job.companyLogo, // imageUrl을 우선 사용하고, 없으면 companyLogo 사용
+      jobTitle: job.jobTitle,
+      jobCategory: job.jobCategory,
+      workLocation: job.workLocation,
+      employmentType: job.employmentType,
+      salary: job.salary,
+      workPeriod: job.workPeriod,
+      experience: job.experience,
+      requiredSkills: job.requiredSkills,
+      preferredSkills: job.preferredSkills,
+      postingDate: job.postingDate,
+      closingDate: job.closingDate,
+      applyLink: job.applyLink,
+      jobRecommendScore: job.jobRecommendScore || null,
+      isScrap: job.isBookmark,
+    };
   };
 
   if (isLoading) {

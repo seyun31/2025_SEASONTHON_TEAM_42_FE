@@ -61,7 +61,7 @@ export const toggleJobScrap = async (jobId: string): Promise<boolean> => {
 };
 
 // 맞춤형 일자리 추천 (로그인 시)
-export const getRecommendedJobs = async (): Promise<JobResponse[]> => {
+export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
   try {
     const token = getAccessToken();
     if (!token) {
@@ -86,21 +86,27 @@ export const getRecommendedJobs = async (): Promise<JobResponse[]> => {
       },
     });
 
+    console.log('getRecommendedJobs - API Response status:', response.status);
+    console.log('getRecommendedJobs - API Response headers:', response.headers);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('getRecommendedJobs - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch recommended jobs: ${response.status} ${response.statusText}`
       );
     }
 
-    const result: ApiResponse<JobResponse> = await response.json();
+    const result: ApiResponse<SearchAllResponse> = await response.json();
+    console.log('getRecommendedJobs - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('getRecommendedJobs - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    return Array.isArray(result.data) ? result.data : [result.data];
+    console.log('getRecommendedJobs - jobDtoList:', result.data.jobDtoList);
+    return result.data.jobDtoList || [];
   } catch (error) {
     console.error('Error fetching recommended jobs:', error);
     throw error;
