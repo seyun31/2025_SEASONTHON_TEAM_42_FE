@@ -43,7 +43,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <ChatHistoryProvider>
-            <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-24">
+            <div className="text-black bg-white flex flex-col items-start justify-start pt-24">
               <div className="w-full  mx-auto px-8 text-lg font-medium">
                 <ConditionalHeaderClient />
                 {children}
