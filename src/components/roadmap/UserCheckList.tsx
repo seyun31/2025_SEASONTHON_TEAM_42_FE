@@ -197,25 +197,37 @@ export default function UserCheckList({
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
             >
-              {/* 연결선들 */}
-              <path
-                d="M 12 35 Q 25 52 38 70"
-                stroke="#FFD700"
-                strokeWidth="0.8"
-                fill="none"
-              />
-              <path
-                d="M 38 70 Q 50 50 62 30"
-                stroke="white"
-                strokeWidth="0.8"
-                fill="none"
-              />
-              <path
-                d="M 62 30 Q 76 17 90 5"
-                stroke="white"
-                strokeWidth="0.8"
-                fill="none"
-              />
+              {/* 동적 연결선들 */}
+              {(() => {
+                const steps =
+                  apiRoadmapSteps.length > 0
+                    ? apiRoadmapSteps.map((_, index) => {
+                        const positions = [
+                          { x: 12, y: 35 },
+                          { x: 38, y: 70 },
+                          { x: 62, y: 30 },
+                          { x: 90, y: 5 },
+                        ];
+                        return positions[index] || { x: 50, y: 50 };
+                      })
+                    : mockRoadmapData.steps.map((step) => step.position);
+
+                return steps.map((step, index) => {
+                  if (index === steps.length - 1) return null;
+
+                  const nextStep = steps[index + 1];
+
+                  return (
+                    <path
+                      key={`line-${index}`}
+                      d={`M ${step.x} ${step.y} L ${nextStep.x} ${nextStep.y}`}
+                      stroke="#FFD700"
+                      strokeWidth="2"
+                      fill="none"
+                    />
+                  );
+                });
+              })()}
             </svg>
 
             {/* 로드맵 단계들 */}
@@ -443,43 +455,112 @@ export default function UserCheckList({
               </div>
 
               <div className="flex-1 flex flex-col justify-center">
-                <div className="space-y-4">
-                  {checklistItems[selectedStepId]?.map((item, index) => (
-                    <div key={item.id} className="flex items-center gap-4">
-                      <div className="flex flex-col items-center">
-                        <button
-                          onClick={() =>
-                            toggleChecklistItem(selectedStepId, item.id)
-                          }
-                          className="hover:scale-110 transition-transform cursor-pointer"
+                <div
+                  className="relative"
+                  style={{
+                    height: `${(checklistItems[selectedStepId]?.length || 0) * 45 + 40}px`,
+                  }}
+                >
+                  {checklistItems[selectedStepId]?.map((item, index) => {
+                    // 지그재그 패턴으로 y좌표 설정 (왼쪽-오른쪽-왼쪽-오른쪽...)
+                    const isLeft = index % 2 === 0;
+                    const yPosition = 20 + index * 45; // 각 항목마다 45px 간격 (기존 60px에서 줄임)
+                    const xPosition = isLeft ? 0 : 50; // 왼쪽은 0px, 오른쪽은 200px
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="absolute flex items-center gap-4"
+                        style={{
+                          left: `${xPosition}px`,
+                          top: `${yPosition}px`,
+                          width: '300px',
+                        }}
+                      >
+                        <div
+                          className="flex flex-col items-center"
+                          style={{ zIndex: 10 }}
                         >
-                          {item.completed ? (
-                            <HiStar className="w-12 h-12 text-secondary2" />
-                          ) : (
-                            <PiStarThin className="w-12 h-12 text-gray-300" />
-                          )}
-                        </button>
-                        {index <
-                          (checklistItems[selectedStepId]?.length || 0) - 1 && (
-                          <div className="w-0.5 h-8 bg-secondary2 mt-2"></div>
-                        )}
+                          <button
+                            onClick={() =>
+                              toggleChecklistItem(selectedStepId, item.id)
+                            }
+                            className="hover:scale-110 transition-transform cursor-pointer"
+                          >
+                            {item.completed ? (
+                              <HiStar className="w-12 h-12 text-secondary2" />
+                            ) : (
+                              <PiStarThin className="bg-white w-12 h-12 text-gray-300" />
+                            )}
+                          </button>
+                        </div>
+                        <div className="flex-1">
+                          <span
+                            className={`text-body-large cursor-pointer whitespace-nowrap ${
+                              item.completed
+                                ? 'text-gray-500 line-through'
+                                : 'text-gray-800'
+                            }`}
+                            onClick={() =>
+                              toggleChecklistItem(selectedStepId, item.id)
+                            }
+                          >
+                            {item.text}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <span
-                          className={`text-body-large cursor-pointer ${
-                            item.completed
-                              ? 'text-gray-500 line-through'
-                              : 'text-gray-800'
-                          }`}
-                          onClick={() =>
-                            toggleChecklistItem(selectedStepId, item.id)
-                          }
-                        >
-                          {item.text}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
+
+                  {/* ===== 체크리스트 별 아이콘들 사이의 연결선 그리기 ===== */}
+                  <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none"
+                    style={{ zIndex: 0 }}
+                  >
+                    {checklistItems[selectedStepId]?.map((item, index) => {
+                      // 마지막 항목은 연결선이 필요 없음
+                      if (
+                        index ===
+                        (checklistItems[selectedStepId]?.length || 0) - 1
+                      )
+                        return null;
+
+                      // 다음 별이 완료된 상태인지 확인 (현재 별은 완료 여부와 관계없이)
+                      const nextItem =
+                        checklistItems[selectedStepId][index + 1];
+                      if (!nextItem || !nextItem.completed) {
+                        return null; // 다음 별이 완료되지 않았으면 연결선을 그리지 않음
+                      }
+
+                      // 현재 별과 다음 별의 위치 계산
+                      const isLeft = index % 2 === 0; // 현재 별이 왼쪽에 있는지 확인
+                      const nextIsLeft = (index + 1) % 2 === 0; // 다음 별이 왼쪽에 있는지 확인
+
+                      // Y좌표: 20px 시작 + (인덱스 * 45px 간격) + 24px(별 크기의 절반)
+                      const currentY = 20 + index * 45 + 24; // 현재 별의 중심점 Y
+                      const nextY = 20 + (index + 1) * 45 + 24; // 다음 별의 중심점 Y
+
+                      // X좌표: 왼쪽은 24px, 오른쪽은 74px (별 크기의 절반 고려)
+                      const currentX = isLeft ? 24 : 74; // 현재 별의 중심점 X
+                      const nextX = nextIsLeft ? 24 : 74; // 다음 별의 중심점 X
+
+                      // 디버깅용 로그
+                      console.log(
+                        `연결선 ${index}: (${currentX}, ${currentY}) -> (${nextX}, ${nextY}) - 다음별 완료됨`
+                      );
+
+                      // SVG path로 직선 연결선 그리기
+                      return (
+                        <path
+                          key={`line-${index}`}
+                          d={`M ${currentX} ${currentY} L ${nextX} ${nextY}`} // M: 시작점, L: 직선으로 연결
+                          stroke="#FFD700" // 더 진한 노란색
+                          strokeWidth="3" // 선 두께 증가
+                          fill="none" // 채우기 없음
+                        />
+                      );
+                    })}
+                  </svg>
                 </div>
               </div>
 
