@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import ConditionalHeaderClient from '@/components/layout/ConditionalHeaderClient';
-import Footer from '@/components/layout/Footer';
 import { ChatHistoryProvider } from '@/contexts/ChatHistoryContext';
 import QueryProvider from '@/components/providers/QueryProvider';
 
@@ -44,13 +43,12 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <ChatHistoryProvider>
-            <div className="text-black bg-white flex flex-col items-start justify-start p-4 pt-24">
+            <div className="text-black bg-white flex flex-col items-start justify-start pt-24">
               <div className="w-full  mx-auto px-8 text-lg font-medium">
                 <ConditionalHeaderClient />
                 {children}
               </div>
             </div>
-            <Footer />
           </ChatHistoryProvider>
         </QueryProvider>
       </body>
