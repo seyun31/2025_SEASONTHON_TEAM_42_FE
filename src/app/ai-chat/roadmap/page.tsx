@@ -299,58 +299,23 @@ export default function AIChatRoadmap() {
             </div>
           ) : (
             <div className="space-y-4">
-              <MessageItem
-                message="🎯 맞춤형 로드맵이 완성되었습니다!"
-                isBot={true}
-                hideProfile={true}
-                noTopMargin={true}
-              />
-
-              {roadmapData &&
-                roadmapData.steps &&
-                roadmapData.steps.map((step, stepIndex: number) => (
-                  <div
-                    key={stepIndex}
-                    className="bg-white rounded-lg p-4 border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-bold text-lg text-primary-90">
-                        {step.period}
-                      </h3>
-                      <span className="px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm">
-                        {step.category}
-                      </span>
-                    </div>
-
-                    {step.actions && step.actions.length > 0 && (
-                      <div className="space-y-2">
-                        {step.actions.map((action, actionIndex: number) => (
-                          <div
-                            key={actionIndex}
-                            className="flex items-start space-x-2"
-                          >
-                            <div
-                              className={`w-4 h-4 rounded-full border-2 mt-1 ${
-                                action.isCompleted
-                                  ? 'bg-green-500 border-green-500'
-                                  : 'border-gray-300'
-                              }`}
-                            />
-                            <p
-                              className={`text-sm ${
-                                action.isCompleted
-                                  ? 'line-through text-gray-500'
-                                  : 'text-gray-700'
-                              }`}
-                            >
-                              {action.action}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
+              {roadmapData && roadmapData.steps && (
+                <MessageItem
+                  message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
+                    .map(
+                      (step, stepIndex) =>
+                        `${step.period} - ${step.category}\n${step.actions
+                          .map((action) => ` • ${action.action}`)
+                          .join('\n')}`
+                    )
+                    .join(
+                      '\n\n'
+                    )}\n\n아래 버튼을 눌러 상세 로드맵을 확인하세요!`}
+                  isBot={true}
+                  hideProfile={true}
+                  noTopMargin={true}
+                />
+              )}
 
               <div
                 className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4"
