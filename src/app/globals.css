@@ -306,7 +306,7 @@ body {
 .ai-chat-input::placeholder {
   color: var(--gray-50);
   font-family: 'Pretendard Variable';
-  font-size: 16px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%;

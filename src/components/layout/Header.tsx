@@ -185,9 +185,9 @@ export default function Header() {
                         <Image
                           src="/assets/Icons/drop-user.svg"
                           alt="마이페이지"
-                          width={16}
-                          height={16}
-                          className="w-4 h-4"
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
                         />
                         마이페이지
                       </button>
@@ -196,14 +196,14 @@ export default function Header() {
                           router.push('/edit');
                           setIsDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-2 text-base font-medium cursor-pointer flex items-center gap-2"
+                        className="w-full text-left px-2.5 py-2 text-base font-medium cursor-pointer flex items-center gap-2"
                       >
                         <Image
                           src="/assets/Icons/drop-edit.svg"
                           alt="개인정보 수정"
-                          width={16}
-                          height={16}
-                          className="w-4 h-4"
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
                         />
                         개인정보 수정
                       </button>
@@ -217,9 +217,9 @@ export default function Header() {
                         <Image
                           src="/assets/Icons/drop-star.svg"
                           alt="관심 목록"
-                          width={16}
-                          height={16}
-                          className="w-4 h-4"
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
                         />
                         관심 목록
                       </button>
@@ -233,9 +233,9 @@ export default function Header() {
                         <Image
                           src="/assets/Icons/drop-sign-out.svg"
                           alt="로그아웃"
-                          width={16}
-                          height={16}
-                          className="w-4 h-4"
+                          width={24}
+                          height={24}
+                          className="w-6 h-6"
                         />
                         로그아웃
                       </button>

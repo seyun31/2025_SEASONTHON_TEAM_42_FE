@@ -108,8 +108,10 @@ export default function AIChatJob() {
 
     if (
       currentQuestion &&
+      currentQuestion.step <= 7 &&
       (currentQuestion.type === 'choice' || currentQuestion.type === 'mixed') &&
-      !optionsFetched.has(currentQuestion.step)
+      !optionsFetched.has(currentQuestion.step) &&
+      !isLoadingOptions
     ) {
       const fetchOptions = async () => {
         setIsLoadingOptions(true);
@@ -136,7 +138,7 @@ export default function AIChatJob() {
 
       fetchOptions();
     }
-  }, [currentStep, aiChatFlow.questions, optionsFetched]);
+  }, [currentStep, aiChatFlow.questions, optionsFetched, isLoadingOptions]);
 
   // AI 채팅 완료 후 결과 데이터 가져오기
   const fetchJobRecommendations = useCallback(async () => {
@@ -283,6 +285,12 @@ export default function AIChatJob() {
       currentQuestion.type === 'choice' || currentQuestion.type === 'mixed';
 
     if (isChoiceOrMixed) {
+      // step 8부터는 ai-chat-job-list.ts의 기본 옵션 사용
+      if (currentQuestion.step >= 8) {
+        return currentQuestion.options || [];
+      }
+
+      // step 7까지는 동적 옵션 사용
       if (isLoadingOptions) {
         return currentQuestion.options || [];
       }
