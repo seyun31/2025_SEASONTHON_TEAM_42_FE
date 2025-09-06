@@ -1,20 +1,22 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useChatHistory } from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/sections/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import MessageItem from '@/components/ui/MessageItem';
-import AIChatJobRecommendCard from '@/components/ui/AIChatJobRecommendCard';
+import FlipCard from '@/components/card-component/AIChatJobCard';
 import { UserResponse } from '@/lib/types/user';
 
 interface Occupation {
   imageUrl: string;
   occupationName: string;
   description: string;
+  strength: string;
+  workCondition: string;
+  wish: string;
   score: string;
 }
 
@@ -25,9 +27,6 @@ interface JobRecommendations {
 }
 
 export default function AIChatJob() {
-  const router = useRouter();
-  const chapter = 'job';
-
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
@@ -54,6 +53,7 @@ export default function AIChatJob() {
   const [showCurrentQuestion, setShowCurrentQuestion] = useState(false);
   const [dynamicOptions, setDynamicOptions] = useState<string[]>([]);
   const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [optionsFetched, setOptionsFetched] = useState<Set<number>>(new Set());
   const [jobRecommendations, setJobRecommendations] =
     useState<JobRecommendations | null>(null);
   const [isLoadingRecommendations, setIsLoadingRecommendations] =
@@ -108,7 +108,8 @@ export default function AIChatJob() {
 
     if (
       currentQuestion &&
-      (currentQuestion.type === 'choice' || currentQuestion.type === 'mixed')
+      (currentQuestion.type === 'choice' || currentQuestion.type === 'mixed') &&
+      !optionsFetched.has(currentQuestion.step)
     ) {
       const fetchOptions = async () => {
         setIsLoadingOptions(true);
@@ -129,12 +130,13 @@ export default function AIChatJob() {
           setDynamicOptions([]);
         } finally {
           setIsLoadingOptions(false);
+          setOptionsFetched((prev) => new Set(prev.add(currentQuestion.step)));
         }
       };
 
       fetchOptions();
     }
-  }, [currentStep, aiChatFlow.questions]);
+  }, [currentStep, aiChatFlow.questions, optionsFetched]);
 
   // AI 채팅 완료 후 결과 데이터 가져오기
   const fetchJobRecommendations = useCallback(async () => {
@@ -142,8 +144,7 @@ export default function AIChatJob() {
 
     try {
       // 1. 채팅 히스토리 조회
-      const historyResponse = await fetch('/api/chat/jobs/history');
-      const historyData = await historyResponse.json();
+      await fetch('/api/chat/jobs/history');
 
       // 2. 맞춤형 직업 추천 조회
       const recommendResponse = await fetch(
@@ -333,17 +334,49 @@ export default function AIChatJob() {
             ) : jobRecommendations ? (
               <div className="space-y-4">
                 <MessageItem
-                  message={`${userName}님의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
+                  message={`${userName}의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
                   isBot={true}
                   hideProfile={true}
                   noTopMargin={true}
                 />
 
-                <AIChatJobRecommendCard
-                  first={jobRecommendations.first}
-                  second={jobRecommendations.second}
-                  third={jobRecommendations.third}
-                />
+                <div className="flex gap-4 overflow-x-auto">
+                  {[
+                    jobRecommendations.first,
+                    jobRecommendations.second,
+                    jobRecommendations.third,
+                  ].map((occupation, index) => (
+                    <FlipCard
+                      key={index}
+                      imageUrl={occupation.imageUrl}
+                      jobTitle={occupation.occupationName}
+                      jobDescription={occupation.description}
+                      recommendationScore={parseInt(occupation.score) || 0}
+                      strengths={{
+                        title: occupation.strength,
+                        percentage: occupation.score,
+                        description: occupation.strength,
+                      }}
+                      workingConditions={{
+                        title: occupation.workCondition,
+                        percentage: occupation.score,
+                        description: occupation.workCondition,
+                      }}
+                      preferences={{
+                        title: occupation.wish,
+                        percentage: occupation.score,
+                        description: occupation.wish,
+                      }}
+                      userName={userName.replace('님', '')}
+                      onJobPostingClick={() => {
+                        console.log(
+                          '채용공고 확인하기 clicked for:',
+                          occupation.occupationName
+                        );
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="text-center p-4">

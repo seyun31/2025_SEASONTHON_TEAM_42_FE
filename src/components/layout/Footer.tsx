@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-20 text-black w-screen relative left-1/2 transform -translate-x-1/2">
+    <footer className="bg-primary-20 text-black w-screen relative left-1/2 transform -translate-x-1/2 mt-30">
       <div className="mx-auto w-full max-w-screen-xl p-12">
         <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1fr]">
           {/* 서비스 소개 */}
