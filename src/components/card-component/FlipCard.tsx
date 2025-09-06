@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { HiStar } from 'react-icons/hi';
+import { PiStarThin } from 'react-icons/pi';
 
 interface FlipCardProps {
   jobTitle: string;
@@ -36,13 +38,22 @@ export default function FlipCard({
   onJobPostingClick,
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isScrap, setIsScrap] = useState(false);
 
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
   };
 
+  const handleToggleScrap = () => {
+    setIsScrap(!isScrap);
+  };
+
   return (
-    <div className="relative w-full h-full" onClick={handleCardClick}>
+    <div
+      className="relative "
+      style={{ width: '384px', height: '595px', flexShrink: 0 }}
+      onClick={handleCardClick}
+    >
       <div
         className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
           isFlipped ? 'rotate-y-180' : ''
@@ -54,7 +65,7 @@ export default function FlipCard({
           className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="w-full h-32 bg-gray-200 rounded-lg mb-4 relative">
+          <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg mb-11 relative">
             <div className="absolute top-2 right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
               <svg
                 className="w-4 h-4 text-white"
@@ -72,22 +83,22 @@ export default function FlipCard({
             </div>
           </div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-lg font-medium">{jobTitle}</span>
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <span className="text-title-large">{jobTitle}</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleScrap();
+              }}
+              className={`text-5xl transition-all duration-300 hover:scale-110 ${
+                isScrap ? 'text-gray-300' : 'text-yellow-400'
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-              />
-            </svg>
+              {isScrap ? <PiStarThin /> : <HiStar />}
+            </button>
           </div>
-          <p className="text-gray-600 mb-4">{jobDescription}</p>
+          <p className="text-gray-600 mb-4 text-body-large-medium">
+            {jobDescription}
+          </p>
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">직업 추천도</p>
@@ -116,19 +127,17 @@ export default function FlipCard({
             <h4 className="text-lg font-medium">
               {userName}님과의 직업 적합성
             </h4>
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleScrap();
+              }}
+              className={`text-5xl transition-all duration-300 hover:scale-110 ${
+                isScrap ? 'text-gray-300' : 'text-yellow-400'
+              }`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-              />
-            </svg>
+              {isScrap ? <PiStarThin /> : <HiStar />}
+            </button>
           </div>
 
           {/* 강점 섹션 */}
