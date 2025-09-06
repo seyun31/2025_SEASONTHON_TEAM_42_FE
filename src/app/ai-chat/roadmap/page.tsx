@@ -298,7 +298,7 @@ export default function AIChatRoadmap() {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="ml-[0.5vw]">
               {roadmapData && roadmapData.steps && (
                 <MessageItem
                   message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
@@ -318,7 +318,7 @@ export default function AIChatRoadmap() {
               )}
 
               <div
-                className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4"
+                className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4 ml-[3.5vw]"
                 onClick={() => router.push('/career-roadmap')}
               >
                 로드맵으로 이동하기

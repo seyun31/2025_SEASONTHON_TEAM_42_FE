@@ -26,10 +26,12 @@ export default function MessageItem({
             height={0}
             className="flex-shrink-0 w-[2.71vw] h-[4.81vh]"
           />
-          <div className="text-chat-message">캐릭터명</div>
+          <div className="text-chat-message">꿈별이</div>
         </div>
       )}
-      <div className={`flex items-start gap-[1.25vw]`}>
+      <div
+        className={`flex items-start gap-[1.25vw] ${isBot && !hideProfile ? 'ml-[4vw]' : 'ml-18'}`}
+      >
         <div
           className={`max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 whitespace-pre-line ${
             isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'

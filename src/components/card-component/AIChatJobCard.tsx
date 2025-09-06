@@ -177,7 +177,7 @@ export default function FlipCard({
               <div className="flex items-center justify-between mb-2">
                 <span className="text-title-medium">강점</span>
                 <span className="text-body-small-medium text-gray-70">
-                  {strengths.title} {strengths.percentage}%
+                  강점 {strengths.percentage}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
@@ -194,7 +194,7 @@ export default function FlipCard({
               <div className="flex items-center justify-between mb-2">
                 <span className="text-title-medium">근무조건</span>
                 <span className="text-body-small-medium text-gray-70">
-                  {workingConditions.title} {workingConditions.percentage}%
+                  근무조건 {workingConditions.percentage}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
@@ -213,7 +213,7 @@ export default function FlipCard({
               <div className="flex items-center justify-between mb-2">
                 <span className="text-title-medium">희망사항</span>
                 <span className="text-body-small-medium text-gray-70">
-                  {preferences.title} {preferences.percentage}%
+                  희망사항 {preferences.percentage}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mb-5">

@@ -30,7 +30,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
     speaker: 'AI 코치',
     messages: [
       `안녕하세요 ${userName}! 반가워요 🙌`,
-      `저는 ${userName}만의 맞춤형 AI 코치 (캐릭터 명)이에요!`,
+      `저는 ${userName}만의 맞춤형 AI 코치 꿈별이에요!`,
       `저랑 잠깐 대화만 하시면, ${userName}께 딱 맞는 직업을 3개 추천해드릴게요.`,
       '질문은 총 9개입니다 (필수 질문 3개, 선택 질문 6개)',
       '그럼 시작해볼까요!',

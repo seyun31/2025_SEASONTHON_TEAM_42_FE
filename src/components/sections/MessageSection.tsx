@@ -43,7 +43,8 @@ export default function MessageSection({
   }, [messages]);
 
   return (
-    <div className="w-[53vw] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] flex flex-col gap-4 px-4">
+    // <div className="max-w-[1200px] mx-auto">
+    <div className="max-w-[1200px] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] flex flex-col gap-4">
       {/* 채팅 히스토리 */}
       {messages.map((message, index) => (
         <div
@@ -97,5 +98,6 @@ export default function MessageSection({
       {/* 스크롤을 위한 빈 div */}
       <div ref={messagesEndRef} />
     </div>
+    // </div>
   );
 }

@@ -340,7 +340,7 @@ export default function AIChatJob() {
                 </p>
               </div>
             ) : jobRecommendations ? (
-              <div className="space-y-4">
+              <div className="ml-[0.5vw]">
                 <MessageItem
                   message={`${userName}의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
                   isBot={true}
@@ -348,7 +348,7 @@ export default function AIChatJob() {
                   noTopMargin={true}
                 />
 
-                <div className="flex gap-4 overflow-x-auto">
+                <div className="flex gap-4 w-full mt-4">
                   {[
                     jobRecommendations.first,
                     jobRecommendations.second,
