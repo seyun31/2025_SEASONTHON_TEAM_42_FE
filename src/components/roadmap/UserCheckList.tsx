@@ -258,7 +258,18 @@ export default function UserCheckList({
                   하기
                 </div>
                 <div className="text-gray-50 text-body-large-regular">
-                  넥스트 커리어에 첫 걸음을 내딛어 봐요!
+                  {(() => {
+                    const currentChecklist = checklistItems[selectedStepId];
+                    const allCompleted = currentChecklist?.every(
+                      (item) => item.completed
+                    );
+
+                    if (allCompleted) {
+                      return '모두 완료했어요! 다음 단계의 별을 눌러보세요!';
+                    } else {
+                      return '넥스트 커리어에 첫 걸음을 내딛어 봐요!';
+                    }
+                  })()}
                 </div>
               </div>
 
