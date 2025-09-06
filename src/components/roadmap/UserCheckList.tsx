@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { mockRoadmapData } from '@/data/roadmapData';
-import { RoadmapStep } from '@/types/roadmap';
+import { RoadmapStep, ChecklistItem, RoadmapChecklist } from '@/types/roadmap';
+import { PiStarThin } from 'react-icons/pi';
+import { HiStar } from 'react-icons/hi';
 
 interface UserCheckListProps {
   userName: string;
@@ -12,6 +15,19 @@ export default function UserCheckList({
   userName,
   hasRoadmap = true,
 }: UserCheckListProps) {
+  const [selectedStepId, setSelectedStepId] = useState<number | null>(null);
+  const [checklistItems, setChecklistItems] = useState<RoadmapChecklist>(
+    mockRoadmapData.checklists
+  );
+
+  const toggleChecklistItem = (stepId: number, itemId: number) => {
+    setChecklistItems((prev: RoadmapChecklist) => ({
+      ...prev,
+      [stepId]: prev[stepId].map((item: ChecklistItem) =>
+        item.id === itemId ? { ...item, completed: !item.completed } : item
+      ),
+    }));
+  };
   if (!hasRoadmap) {
     // 로드맵이 없는 경우 - 상단에 로드맵 시각화, 하단에 생성 버튼
     return (
@@ -121,12 +137,13 @@ export default function UserCheckList({
             {mockRoadmapData.steps.map((step) => (
               <div
                 key={step.id}
-                className="absolute flex flex-col items-center"
+                className="absolute flex flex-col items-center cursor-pointer hover:scale-110 transition-transform"
                 style={{
                   left: `${step.position.x}%`,
                   top: `${step.position.y}%`,
                   transform: 'translate(-50%, -50%)',
                 }}
+                onClick={() => setSelectedStepId(step.id)}
               >
                 <div className="mb-2">
                   <div className="relative">
@@ -218,9 +235,9 @@ export default function UserCheckList({
           </div>
         </div>
 
-        {/* 오른쪽 카드 - 안내 및 캐릭터 */}
+        {/* 오른쪽 카드 - 안내 및 체크리스트 */}
         <div
-          className="bg-white rounded-2xl p-6 relative flex flex-col justify-center items-center"
+          className="bg-white rounded-2xl p-6 relative"
           style={{
             width: '844px',
             height: '400px',
@@ -228,18 +245,89 @@ export default function UserCheckList({
             boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
           }}
         >
-          <div className="text-gray-800 text-title-xlarge mb-4">
-            로드맵의 별을 눌러서
-            <br />
-            진행도를 확인하세요!
-          </div>
-          <div className="absolute bottom-4 right-4">
-            <img
-              src="/assets/Icons/character_cheer.png"
-              alt="응원하는 별 캐릭터"
-              className="w-auto h-[134px]"
-            />
-          </div>
+          {selectedStepId ? (
+            // 체크리스트 표시
+            <div className="h-full flex flex-col">
+              <div className="flex flex-row items-end gap-2">
+                <div className="text-primary-90 text-header-medium">
+                  {
+                    mockRoadmapData.steps.find(
+                      (step) => step.id === selectedStepId
+                    )?.name
+                  }
+                  하기
+                </div>
+                <div className="text-gray-50 text-body-large-regular">
+                  넥스트 커리어에 첫 걸음을 내딛어 봐요!
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="space-y-4">
+                  {checklistItems[selectedStepId]?.map((item, index) => (
+                    <div key={item.id} className="flex items-center gap-4">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={() =>
+                            toggleChecklistItem(selectedStepId, item.id)
+                          }
+                          className="hover:scale-110 transition-transform cursor-pointer"
+                        >
+                          {item.completed ? (
+                            <HiStar className="w-12 h-12 text-secondary2" />
+                          ) : (
+                            <PiStarThin className="w-12 h-12 text-gray-300" />
+                          )}
+                        </button>
+                        {index <
+                          (checklistItems[selectedStepId]?.length || 0) - 1 && (
+                          <div className="w-0.5 h-8 bg-secondary2 mt-2"></div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <span
+                          className={`text-body-large cursor-pointer ${
+                            item.completed
+                              ? 'text-gray-500 line-through'
+                              : 'text-gray-800'
+                          }`}
+                          onClick={() =>
+                            toggleChecklistItem(selectedStepId, item.id)
+                          }
+                        >
+                          {item.text}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="absolute bottom-4 right-4">
+                <img
+                  src="/assets/Icons/character_cheer.png"
+                  alt="응원하는 별 캐릭터"
+                  className="w-auto h-[134px]"
+                />
+              </div>
+            </div>
+          ) : (
+            // 기본 안내 메시지
+            <div className="h-full flex flex-col justify-center items-center">
+              <div className="text-gray-800 text-title-xlarge mb-4">
+                로드맵의 별을 눌러서
+                <br />
+                진행도를 확인하세요!
+              </div>
+              <div className="absolute bottom-4 right-4">
+                <img
+                  src="/assets/Icons/character_cheer.png"
+                  alt="응원하는 별 캐릭터"
+                  className="w-auto h-[134px]"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

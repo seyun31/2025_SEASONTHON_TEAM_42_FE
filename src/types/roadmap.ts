@@ -6,6 +6,16 @@ export interface RoadmapStep {
   progress?: number; // 진행도 (0-100)
 }
 
+export interface ChecklistItem {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+export interface RoadmapChecklist {
+  [key: number]: ChecklistItem[]; // Key is RoadmapStep.id
+}
+
 export interface CareerInfo {
   dDay: string;
   jobTitle: string;
@@ -17,4 +27,5 @@ export interface CareerInfo {
 export interface RoadmapData {
   steps: RoadmapStep[];
   careerInfo: CareerInfo;
+  checklists: RoadmapChecklist;
 }
