@@ -90,7 +90,7 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
 
   const completeChat = () => {
     setIsCompleted(true);
-    setCurrentStep(10);
+    setCurrentStep(11);
   };
 
   const resetChat = () => {

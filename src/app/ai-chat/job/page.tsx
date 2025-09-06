@@ -285,7 +285,7 @@ export default function AIChatJob() {
       currentQuestion.type === 'choice' || currentQuestion.type === 'mixed';
 
     if (isChoiceOrMixed) {
-      // step 8부터는 ai-chat-job-list.ts의 기본 옵션 사용
+      // step 8부터는 기본 옵션 사용
       if (currentQuestion.step >= 8) {
         return currentQuestion.options || [];
       }
