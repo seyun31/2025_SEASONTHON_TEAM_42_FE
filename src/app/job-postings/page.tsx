@@ -4,6 +4,7 @@ import JobCard from '@/components/card-component/JobCard';
 import SearchBar from '@/components/ui/SearchBar';
 import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import JobFilter from '@/components/ui/JobFilter';
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
@@ -20,6 +21,11 @@ export default function JobPostings() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [filters, setFilters] = useState({
+    location: 'all',
+    employmentType: 'all',
+    jobCategory: 'all',
+  });
 
   // 초기 로그인 상태 확인 및 데이터 로드
   useEffect(() => {
@@ -143,6 +149,9 @@ export default function JobPostings() {
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
             <SearchBar />
+
+            <JobFilter onFilterChange={setFilters} />
+
             {isLoggedIn && (
               <JobTab
                 activeTab={activeTab}
@@ -174,6 +183,9 @@ export default function JobPostings() {
       <section className="w-full px-4 py-8">
         <div className="max-w-[1200px] mx-auto">
           <SearchBar />
+
+          <JobFilter onFilterChange={setFilters} />
+
           {isLoggedIn && (
             <JobTab
               activeTab={activeTab}
