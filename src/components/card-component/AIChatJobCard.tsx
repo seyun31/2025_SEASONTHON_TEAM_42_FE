@@ -64,8 +64,13 @@ export default function FlipCard({
       >
         {/* 앞면 - 직업 추천 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white flex flex-col"
-          style={{ backfaceVisibility: 'hidden' }}
+          className="absolute inset-0 w-full h-full backface-hidden rounded-[16px] bg-white flex flex-col p-4"
+          style={{
+            backfaceVisibility: 'hidden',
+            background:
+              'linear-gradient(white, white) padding-box, linear-gradient(157.78deg, #E1DC53 0%, #F06F18 99.94%) border-box',
+            border: '4px solid transparent',
+          }}
         >
           <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg relative overflow-hidden">
             <img
@@ -86,9 +91,9 @@ export default function FlipCard({
                 }
               }}
             />
-            <div className="absolute top-2 right-2 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+            <div className="absolute top-2 right-2 w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
               <svg
-                className="w-4 h-4 text-white"
+                className="w-6 h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
