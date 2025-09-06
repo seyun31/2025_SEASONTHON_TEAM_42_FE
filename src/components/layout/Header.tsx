@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { getUserData, clearAuthData } from '@/lib/auth';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
@@ -21,7 +21,6 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     const user = getUserData();
@@ -38,8 +37,8 @@ export default function Header() {
   };
 
   const isActive = (path: string) => {
-    if (path === '/ai-chat?chapter=job') {
-      return pathname === '/ai-chat' && searchParams.get('chapter') === 'job';
+    if (path === '/ai-chat/job') {
+      return pathname.startsWith('/ai-chat');
     }
     return pathname === path;
   };
@@ -57,7 +56,11 @@ export default function Header() {
         {/* 로고 */}
         <Link
           href="/"
-          className="flex justify-center items-center relative h-12 w-28 shrink-0"
+          className="flex justify-center items-center relative h-12 w-28 shrink-0 cursor-pointer"
+          onClick={(e) => {
+            e.preventDefault();
+            router.push('/');
+          }}
         >
           <Image
             src="/assets/logos/logo.svg"
@@ -91,9 +94,9 @@ export default function Header() {
             교육 공고
           </div> */}
           <div
-            onClick={() => router.push('/ai-chat?chapter=job')}
+            onClick={() => router.push('/ai-chat/job')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
-              isActive('/ai-chat?chapter=job')
+              isActive('/ai-chat/job')
                 ? 'text-green-600'
                 : 'text-gray-700 hover:!text-green-600'
             }`}
@@ -308,7 +311,7 @@ export default function Header() {
           >
             채용 공고
           </div>
-          <div
+          {/* <div
             onClick={() => {
               router.push('/education-programs');
               setIsMobileMenuOpen(false);
@@ -320,14 +323,14 @@ export default function Header() {
             }`}
           >
             교육 공고
-          </div>
+          </div> */}
           <div
             onClick={() => {
-              router.push('/ai-chat?chapter=job');
+              router.push('/ai-chat/job');
               setIsMobileMenuOpen(false);
             }}
             className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-chat?chapter=job')
+              isActive('/ai-chat/job')
                 ? 'text-green-600 bg-green-50 border-green-600'
                 : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
             }`}
