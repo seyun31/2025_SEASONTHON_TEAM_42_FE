@@ -9,11 +9,10 @@ export default function Footer() {
           <div>
             <h2 className="mb-2 text-lg font-bold">NextCareer</h2>
             <p className="text-sm leading-relaxed">
-              중장년층을 위한 맞춤형 구직 서비스로,
+              NextCareer은 중장년층을 위한 맞춤형 구직 서비스로,
               <br />
-              AI 기반 커리어 상담부터 교육 프로그램까지
-              <br />
-              제2의 직업을 찾는 모든 과정을 지원합니다.
+              AI 기반 맞춤형 직업 추천과 일자리 매칭, 실행 로드맵 제공까지
+              <br />제 2의 직업을 찾는 모든 과정을 지원합니다.
             </p>
           </div>
 
@@ -21,17 +20,17 @@ export default function Footer() {
           <div>
             <h2 className="mb-2 text-lg font-bold">주요 서비스</h2>
             <nav className="flex flex-col space-y-1 text-sm">
-              <Link href="/ai-chat" className="hover:underline">
-                AI 커리어 상담
+              <Link href="/ai-chat/job" className="hover:underline">
+                AI 커리어 채팅
+              </Link>
+              <Link href="/ai-chat/roadmap" className="hover:underline">
+                직업 매칭
+              </Link>
+              <Link href="/education-programs" className="hover:underline">
+                채용 공고
               </Link>
               <Link href="/career-roadmap" className="hover:underline">
                 커리어 로드맵
-              </Link>
-              <Link href="/education-programs" className="hover:underline">
-                교육 프로그램
-              </Link>
-              <Link href="/job-postings" className="hover:underline">
-                채용 공고
               </Link>
             </nav>
           </div>
