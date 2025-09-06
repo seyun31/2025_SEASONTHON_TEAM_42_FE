@@ -317,7 +317,7 @@ export default function AIChatJob() {
   }
 
   return (
-    <div className="absolute top-[10vh] left-1/2 transform -translate-x-1/2">
+    <div className="absolute top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[1200px] w-full">
       <MessageSection
         messages={messages}
         showStartButton={showStartButton}
@@ -398,7 +398,7 @@ export default function AIChatJob() {
       </MessageSection>
 
       {/* 입력창 */}
-      <div className="absolute bottom-[4.8vh] w-full flex justify-center">
+      <div className="absolute bottom-[4.8vh] w-full max-w-[1200px] flex justify-center">
         <ChatInput
           value={textInput}
           onChange={setTextInput}

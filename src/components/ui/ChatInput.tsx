@@ -30,7 +30,7 @@ export default function ChatInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex border-2 border-primary-90 rounded-[24px] overflow-hidden w-[51.875vw] h-[12.96vh] relative"
+      className="flex border-2 border-primary-90 rounded-[24px] overflow-hidden w-[51.875vw] max-w-full h-[12.96vh] relative"
     >
       <input
         type="text"
