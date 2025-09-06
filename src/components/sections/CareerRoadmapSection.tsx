@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { getUserData } from '@/lib/auth';
+import { getRoadMap } from '@/apis/jobApi';
+import { RoadMapResponse } from '@/types/roadmap';
 
 // 별 모양 SVG 컴포넌트
 const StarIcon = ({
@@ -48,20 +50,58 @@ const StarIcon = ({
 
 export default function CareerRoadmapSection() {
   const [userName, setUserName] = useState<string>('');
+  const [roadmapData, setRoadmapData] = useState<RoadMapResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = getUserData();
     if (userData?.name) {
       setUserName(userData.name);
+      // 사용자가 로그인되어 있으면 로드맵 데이터 가져오기
+      fetchRoadmapData();
+    } else {
+      setLoading(false);
     }
   }, []);
 
-  const roadmapSteps = [
-    { id: 1, name: '준비', position: { x: 12, y: 35 }, completed: true },
-    { id: 2, name: '성장', position: { x: 38, y: 70 }, completed: true },
-    { id: 3, name: '도전', position: { x: 62, y: 30 }, completed: false },
-    { id: 4, name: '달성', position: { x: 90, y: 5 }, completed: false },
-  ];
+  const fetchRoadmapData = async () => {
+    try {
+      setLoading(true);
+      const data = await getRoadMap();
+      setRoadmapData(data);
+    } catch (err) {
+      console.error('로드맵 데이터 가져오기 실패:', err);
+      setError('로드맵을 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // API 데이터를 UI용 데이터로 변환
+  const roadmapSteps = roadmapData
+    ? roadmapData.steps.map((step, index) => {
+        const positions = [
+          { x: 12, y: 35 },
+          { x: 38, y: 70 },
+          { x: 62, y: 30 },
+          { x: 90, y: 5 },
+        ];
+        const position = positions[index] || { x: 50, y: 50 };
+
+        // actions의 모든 isCompleted가 true인지 확인
+        const allActionsCompleted =
+          step.actions.length > 0 &&
+          step.actions.every((action) => action.isCompleted);
+
+        return {
+          id: step.roadMapId,
+          name: step.category,
+          position,
+          completed: allActionsCompleted,
+        };
+      })
+    : [];
 
   return (
     <section className="w-full px-4 py-8">
@@ -102,32 +142,49 @@ export default function CareerRoadmapSection() {
 
             {/* 로드맵 차트 또는 로그인 안내 */}
             <div className="flex-1 relative flex items-center justify-center">
-              {userName ? (
+              {!userName ? (
+                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                  <p className="text-black text-title-xlarge opacity-90">
+                    로그인 하시고
+                    <br />
+                    취업 로드맵 받아보세요!
+                  </p>
+                </div>
+              ) : loading ? (
+                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                  <p className="text-black text-title-xlarge opacity-90">
+                    로드맵을 불러오는 중...
+                  </p>
+                </div>
+              ) : error ? (
+                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                  <p className="text-black text-title-xlarge opacity-90">
+                    {error}
+                  </p>
+                </div>
+              ) : (
                 <>
                   <svg
                     className="absolute inset-0 w-full h-full"
                     viewBox="0 0 100 100"
                     preserveAspectRatio="none"
                   >
-                    {/* 연결선들 */}
-                    <path
-                      d="M 12 35 Q 25 52 38 70"
-                      stroke="#FFD700"
-                      strokeWidth="0.8"
-                      fill="none"
-                    />
-                    <path
-                      d="M 38 70 Q 50 50 62 30"
-                      stroke="white"
-                      strokeWidth="0.8"
-                      fill="none"
-                    />
-                    <path
-                      d="M 62 30 Q 76 17 90 5"
-                      stroke="white"
-                      strokeWidth="0.8"
-                      fill="none"
-                    />
+                    {/* 동적 연결선들 */}
+                    {roadmapSteps.map((step, index) => {
+                      if (index === roadmapSteps.length - 1) return null;
+
+                      const nextStep = roadmapSteps[index + 1];
+
+                      return (
+                        <path
+                          key={`line-${index}`}
+                          d={`M ${step.position.x} ${step.position.y} L ${nextStep.position.x} ${nextStep.position.y}`}
+                          stroke="#FFD700"
+                          strokeWidth="2"
+                          fill="none"
+                        />
+                      );
+                    })}
                   </svg>
 
                   {/* 로드맵 단계들 */}
@@ -158,17 +215,6 @@ export default function CareerRoadmapSection() {
                     </div>
                   ))}
                 </>
-              ) : (
-                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
-                  <p className="text-black text-title-xlarge opacity-90">
-                    로그인 하시고
-                    <br />
-                    취업 로드맵 받아보세요!
-                  </p>
-                  {/* <button className="bg-white text-primary-600 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                    로그인하기
-                  </button> */}
-                </div>
               )}
             </div>
           </div>
