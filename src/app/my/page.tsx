@@ -70,9 +70,9 @@ export default function My() {
             {userData?.name || '사용자'}님의 추천 직업 카드
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
             {/* 직업 추천 카드 1 */}
-            <div className="h-80">
+            <div className="h-[595px]">
               <FlipCard
                 jobTitle="직업명"
                 jobDescription="직업 한 줄 소개"
