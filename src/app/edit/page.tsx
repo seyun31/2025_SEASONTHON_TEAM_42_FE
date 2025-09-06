@@ -72,8 +72,8 @@ export default function EditPage() {
   }
 
   return (
-    <div>
-      <div className="fixed inset-0 flex items-center justify-center">
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-1 flex items-center justify-center py-8">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
           <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
@@ -174,7 +174,7 @@ export default function EditPage() {
               <div className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50" />
               <button
                 onClick={handleCancel}
-                className="relative z-10 px-8 py-4 rounded-[24px] bg-gray-400 text-white text-body-large-medium hover:bg-gray-500 transition-colors"
+                className="relative z-10 px-8 py-4 rounded-[24px] w-[281px] h-[120px] bg-white text-gray-50 text-title-medium border-4 border-primary-40"
               >
                 취소
               </button>
@@ -184,11 +184,7 @@ export default function EditPage() {
               <button
                 onClick={handleComplete}
                 disabled={!isFormValid}
-                className={`relative z-10 px-8 py-4 rounded-[24px] text-body-large-medium transition-colors ${
-                  isFormValid
-                    ? 'bg-primary-90 text-white hover:bg-primary-100'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
+                className="relative z-10 px-8 py-4 rounded-[24px] w-[281px] h-[120px] bg-primary-90 text-white text-title-medium"
               >
                 수정 완료
               </button>
