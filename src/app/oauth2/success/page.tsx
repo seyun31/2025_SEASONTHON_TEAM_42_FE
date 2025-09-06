@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Footer from '@/components/layout/Footer';
 
 interface UserData {
   userId: number;
@@ -134,6 +135,7 @@ export default function OAuth2SuccessPage() {
       <p className="mt-4 text-gray-600 text-lg font-medium">
         메인 페이지로 이동 중...
       </p>
+      <Footer />
     </div>
   );
 }

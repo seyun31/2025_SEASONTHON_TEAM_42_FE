@@ -5,6 +5,7 @@ import SearchBar from '@/components/ui/SearchBar';
 import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
+import Footer from '@/components/layout/Footer';
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
@@ -145,6 +146,44 @@ export default function JobPostings() {
   };
   if (isLoading) {
     return (
+      <div>
+        <main className="min-h-screen bg-white">
+          <section className="w-full px-4 py-8">
+            <div className="max-w-[1200px] mx-auto">
+              <SearchBar />
+
+              <JobFilter onFilterChange={setFilters} />
+
+              {isLoggedIn && (
+                <JobTab
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
+                  isLoggedIn={isLoggedIn}
+                />
+              )}
+
+              <div className="flex flex-row gap-6 mt-12">
+                <div className="flex flex-col gap-6 flex-1">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <JobCardSkeleton key={index} />
+                  ))}
+                </div>
+                <div className="flex flex-col gap-6 flex-1">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <JobCardSkeleton key={index + 4} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div>
       <main className="min-h-screen bg-white">
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
@@ -162,60 +201,28 @@ export default function JobPostings() {
 
             <div className="flex flex-row gap-6 mt-12">
               <div className="flex flex-col gap-6 flex-1">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <JobCardSkeleton key={index} />
+                {jobs.slice(0, Math.ceil(jobs.length / 2)).map((job, index) => (
+                  <JobCard
+                    key={job.jobId || index}
+                    job={convertToJobCardFormat(job)}
+                    onToggleScrap={toggleScrap}
+                  />
                 ))}
               </div>
               <div className="flex flex-col gap-6 flex-1">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <JobCardSkeleton key={index + 4} />
+                {jobs.slice(Math.ceil(jobs.length / 2)).map((job, index) => (
+                  <JobCard
+                    key={job.jobId || index + Math.ceil(jobs.length / 2)}
+                    job={convertToJobCardFormat(job)}
+                    onToggleScrap={toggleScrap}
+                  />
                 ))}
               </div>
             </div>
           </div>
         </section>
       </main>
-    );
-  }
-
-  return (
-    <main className="min-h-screen bg-white">
-      <section className="w-full px-4 py-8">
-        <div className="max-w-[1200px] mx-auto">
-          <SearchBar />
-
-          <JobFilter onFilterChange={setFilters} />
-
-          {isLoggedIn && (
-            <JobTab
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              isLoggedIn={isLoggedIn}
-            />
-          )}
-
-          <div className="flex flex-row gap-6 mt-12">
-            <div className="flex flex-col gap-6 flex-1">
-              {jobs.slice(0, Math.ceil(jobs.length / 2)).map((job, index) => (
-                <JobCard
-                  key={job.jobId || index}
-                  job={convertToJobCardFormat(job)}
-                  onToggleScrap={toggleScrap}
-                />
-              ))}
-            </div>
-            <div className="flex flex-col gap-6 flex-1">
-              {jobs.slice(Math.ceil(jobs.length / 2)).map((job, index) => (
-                <JobCard
-                  key={job.jobId || index + Math.ceil(jobs.length / 2)}
-                  job={convertToJobCardFormat(job)}
-                  onToggleScrap={toggleScrap}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+      <Footer />
+    </div>
   );
 }
