@@ -183,32 +183,32 @@ export default function UserCheckList({
       {/* 하단 - 두 개의 카드 */}
       <div className="flex gap-4">
         {/* 왼쪽 카드 - 취업 정보 */}
-        <div className="bg-white rounded-2xl p-6 flex-1">
-          <div className="text-green-500 text-title-large font-bold mb-4">
+        <div
+          className="bg-white rounded-3xl py-6 px-8"
+          style={{
+            width: '324px',
+            height: '400px',
+            background: '#FFF',
+            boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
+          }}
+        >
+          <div className="text-primary-90 text-header-medium">
             {mockRoadmapData.careerInfo.dDay}
           </div>
-          <div className="text-gray-800 text-title-xlarge font-bold mb-6">
+          <div className="text-gray-800 text-header-medium">
             {mockRoadmapData.careerInfo.jobTitle}
           </div>
-          <div className="space-y-4">
-            <div>
-              <div className="text-gray-600 text-body-medium mb-1">
+          <div className="flex flex-col gap-4 mt-6">
+            <div className="flex flex-col gap-2">
+              <div className="text-gray-50 text-body-medium">
                 보유 경험/자격증
               </div>
               <div className="text-gray-800 text-body-large">
                 {mockRoadmapData.careerInfo.experience}
               </div>
             </div>
-            <div>
-              <div className="text-gray-600 text-body-medium mb-1">
-                세부 경력 사항 예시
-              </div>
-              <div className="text-gray-800 text-body-large">
-                {mockRoadmapData.careerInfo.careerDetails}
-              </div>
-            </div>
-            <div>
-              <div className="text-gray-600 text-body-medium mb-1">
+            <div className="flex flex-col gap-2">
+              <div className="text-gray-50 text-body-medium">
                 목표 취업 기간
               </div>
               <div className="text-gray-800 text-body-large">
@@ -219,15 +219,25 @@ export default function UserCheckList({
         </div>
 
         {/* 오른쪽 카드 - 안내 및 캐릭터 */}
-        <div className="bg-white rounded-2xl p-6 flex-1 relative">
-          <div className="text-gray-800 text-body-large mb-4">
-            로드맵의 별을 눌러서 진행도를 확인하세요!
+        <div
+          className="bg-white rounded-2xl p-6 relative flex flex-col justify-center items-center"
+          style={{
+            width: '844px',
+            height: '400px',
+            background: '#FFF',
+            boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
+          }}
+        >
+          <div className="text-gray-800 text-title-xlarge mb-4">
+            로드맵의 별을 눌러서
+            <br />
+            진행도를 확인하세요!
           </div>
           <div className="absolute bottom-4 right-4">
             <img
               src="/assets/Icons/character_cheer.png"
               alt="응원하는 별 캐릭터"
-              className="w-16 h-16"
+              className="w-auto h-[134px]"
             />
           </div>
         </div>
