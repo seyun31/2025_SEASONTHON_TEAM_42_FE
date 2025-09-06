@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { getUserData, clearAuthData } from '@/lib/auth';
+import { getUserData, clearAuthData, fetchUserData } from '@/lib/auth';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
 
 export default function Header() {
@@ -19,17 +19,85 @@ export default function Header() {
     profileImage: string;
   } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const user = getUserData();
-    if (user) {
-      setUserData(user);
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+  // 프로필 이미지 URL 유효성 검사
+  const isValidImageUrl = (url: string): boolean => {
+    if (!url) return false;
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
     }
+  };
+
+  // 이미지 로딩 에러 핸들러
+  const handleImageError = (
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
+    imageUrl: string
+  ) => {
+    console.log('이미지 로딩 실패:', imageUrl);
+    const target = e.target as HTMLImageElement;
+    target.src = '/default-profile.png';
+    target.onerror = null; // 무한 루프 방지
+  };
+
+  // 이미지 로딩 성공 핸들러
+  const handleImageLoad = (imageUrl: string) => {
+    console.log('이미지 로딩 성공:', imageUrl);
+  };
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      setIsLoadingProfile(true);
+
+      // 로딩 타임아웃 설정 (5초)
+      const loadingTimeout = setTimeout(() => {
+        console.log('프로필 로딩 타임아웃');
+        setIsLoadingProfile(false);
+      }, 5000);
+
+      try {
+        // 먼저 로컬스토리지에서 데이터 확인
+        const localUserData = getUserData();
+        if (localUserData) {
+          setUserData(localUserData);
+          setIsLoggedIn(true);
+          clearTimeout(loadingTimeout);
+          setIsLoadingProfile(false);
+        }
+
+        // 서버에서 최신 사용자 정보 가져오기
+        const freshUserData = await fetchUserData();
+        if (freshUserData) {
+          setUserData(freshUserData);
+          setIsLoggedIn(true);
+        } else if (!localUserData) {
+          // 서버에서도 데이터가 없고 로컬에도 없으면 로그아웃 상태
+          setUserData(null);
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error('프로필 로딩 실패:', error);
+        // 에러가 발생해도 로컬 데이터가 있으면 유지
+        const localUserData = getUserData();
+        if (localUserData) {
+          setUserData(localUserData);
+          setIsLoggedIn(true);
+        } else {
+          setUserData(null);
+          setIsLoggedIn(false);
+        }
+      } finally {
+        clearTimeout(loadingTimeout);
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadUserProfile();
   }, [pathname]); // pathname이 변경될 때마다 사용자 상태 확인
 
   const toggleMobileMenu = () => {
@@ -49,6 +117,7 @@ export default function Header() {
     clearAuthData();
     setUserData(null);
     setIsLoggedIn(false);
+    setIsLoadingProfile(false);
     router.push('/');
   };
 
@@ -126,18 +195,21 @@ export default function Header() {
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               >
                 {/* 사용자 프로필 이미지 */}
-                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-                  {userData?.profileImage ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                  {isLoadingProfile ? (
+                    <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
+                  ) : userData?.profileImage &&
+                    isValidImageUrl(userData.profileImage) ? (
                     <Image
                       src={userData.profileImage}
                       alt="프로필 이미지"
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/default-profile.png';
-                      }}
+                      onError={(e) =>
+                        handleImageError(e, userData.profileImage)
+                      }
+                      onLoad={() => handleImageLoad(userData.profileImage)}
                     />
                   ) : (
                     <svg
@@ -357,18 +429,21 @@ export default function Header() {
           {isLoggedIn ? (
             <div className="px-4 py-3">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center">
-                  {userData?.profileImage ? (
+                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                  {isLoadingProfile ? (
+                    <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
+                  ) : userData?.profileImage &&
+                    isValidImageUrl(userData.profileImage) ? (
                     <Image
                       src={userData.profileImage}
                       alt="프로필 이미지"
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/default-profile.png';
-                      }}
+                      onError={(e) =>
+                        handleImageError(e, userData.profileImage)
+                      }
+                      onLoad={() => handleImageLoad(userData.profileImage)}
                     />
                   ) : (
                     <svg

@@ -11,6 +11,8 @@ const withPWA = require('next-pwa')({
 const nextConfig: NextConfig = {
   // Next.js 15에서는 appDir이 기본값이므로 제거
   images: {
+    // 이미지 최적화 완전 비활성화
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'http',
