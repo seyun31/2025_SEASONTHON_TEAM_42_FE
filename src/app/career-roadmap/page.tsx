@@ -6,16 +6,43 @@ import { useRoadmapStore } from '@/stores/roadmapStore';
 import UserMap from '@/components/roadmap/UserMap';
 import UserCheckList from '@/components/roadmap/UserCheckList';
 import Footer from '@/components/layout/Footer';
+import { getRoadMap } from '@/apis/jobApi';
+import { RoadMapResponse } from '@/types/roadmap';
 export default function CareerRoadmap() {
   const [userName, setUserName] = useState<string>('');
-  const { hasRoadmap } = useRoadmapStore();
+  const [roadmapData, setRoadmapData] = useState<RoadMapResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const { hasRoadmap, setHasRoadmap } = useRoadmapStore();
 
   useEffect(() => {
     const userData = getUserData();
     if (userData?.name) {
       setUserName(userData.name);
+      // 로그인한 사용자의 경우 로드맵 데이터 가져오기
+      fetchRoadmapData();
     }
   }, []);
+
+  const fetchRoadmapData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getRoadMap();
+      setRoadmapData(data);
+      setHasRoadmap(true);
+    } catch (err) {
+      console.error('로드맵 데이터 가져오기 실패:', err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : '로드맵 데이터를 가져올 수 없습니다.'
+      );
+      setHasRoadmap(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div>
@@ -61,7 +88,12 @@ export default function CareerRoadmap() {
             </div>
           ) : (
             // 로그인한 경우 (로드맵 있음/없음 모두 UserCheckList 사용)
-            <UserCheckList userName={userName} hasRoadmap={hasRoadmap} />
+            <UserCheckList
+              userName={userName}
+              hasRoadmap={hasRoadmap}
+              roadmapData={roadmapData}
+              onRoadmapUpdate={fetchRoadmapData}
+            />
           )}
         </div>
       </section>
