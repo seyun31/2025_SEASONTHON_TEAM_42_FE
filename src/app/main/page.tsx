@@ -14,7 +14,7 @@ export default function Main() {
 
       <JobRecommendationsSection />
 
-      <EducationRecommendationsSection />
+      {/* <EducationRecommendationsSection /> */}
     </main>
   );
 }

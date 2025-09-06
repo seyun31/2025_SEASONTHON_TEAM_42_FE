@@ -2,7 +2,7 @@
 
 import { jobRecommendations } from '@/mock/jobData';
 import { useState, useEffect } from 'react';
-import JobCard from '@/components/ui/JobCard';
+import JobCard from '@/components/card-component/JobCard';
 import { getUserData } from '@/lib/auth';
 
 export default function EducationRecommendationsSection() {
@@ -16,12 +16,12 @@ export default function EducationRecommendationsSection() {
     }
   }, []);
 
-  const toggleFavorite = (id: string) => {
+  const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
-    if (newFavorites.has(id)) {
-      newFavorites.delete(id);
+    if (newFavorites.has(jobId)) {
+      newFavorites.delete(jobId);
     } else {
-      newFavorites.add(id);
+      newFavorites.add(jobId);
     }
     setFavorites(newFavorites);
   };
@@ -43,28 +43,18 @@ export default function EducationRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-row gap-6">
+        {/* <div className="flex flex-row gap-6">
           <div className="flex flex-col gap-6 flex-1">
             {jobRecommendations.slice(0, 4).map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                isFavorited={favorites.has(job.id)}
-                onToggleFavorite={toggleFavorite}
-              />
+              <JobCard key={job.jobId} job={job} onToggleScrap={toggleScrap} />
             ))}
           </div>
           <div className="flex flex-col gap-6 flex-1">
             {jobRecommendations.slice(4, 8).map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                isFavorited={favorites.has(job.id)}
-                onToggleFavorite={toggleFavorite}
-              />
+              <JobCard key={job.jobId} job={job} onToggleScrap={toggleScrap} />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );

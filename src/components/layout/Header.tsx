@@ -80,7 +80,7 @@ export default function Header() {
           >
             채용 공고
           </div>
-          <div
+          {/* <div
             onClick={() => router.push('/education-programs')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
               isActive('/education-programs')
@@ -89,7 +89,7 @@ export default function Header() {
             }`}
           >
             교육 공고
-          </div>
+          </div> */}
           <div
             onClick={() => router.push('/ai-chat?chapter=job')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${

@@ -26,7 +26,7 @@ export default function AICoachSection() {
           {aiCoachCards.map((card, index) => (
             <div
               key={card.id}
-              className="relative bg-white rounded-3xl px-5 py-6 text-gray-80 overflow-hidden h-[200px] w-[588px] flex-shrink-0 cursor-pointer"
+              className="relative bg-white rounded-3xl px-5 py-6 text-gray-80 overflow-hidden h-[200px] w-[588px] flex-shrink-0 cursor-pointer hover:bg-[#E1F5EC] transition-transform duration-300"
               onClick={() => handleStartClick(card.id)}
               style={{
                 border: '4px solid #E1F5EC',
@@ -38,7 +38,7 @@ export default function AICoachSection() {
                 <p className="text-title-medium text-primary-90 mb-14">
                   {card.subtitle}
                 </p>
-                <button className="bg-white text-gray-80 rounded-lg font-medium flex flex-row items-center gap-2">
+                <button className="text-gray-80 rounded-lg font-medium flex flex-row items-center gap-2">
                   시작하기
                   <IoIosArrowForward className="w-4 h-4" />
                 </button>
