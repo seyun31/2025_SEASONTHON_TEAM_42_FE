@@ -13,7 +13,7 @@ AI 기반 맞춤형 직업 추천과 일자리 매칭, 실행 로드맵 제공�
 - **깔끔한 구조**: 불필요한 파일들 제거 및 정리
 - **Tailwind CSS**: 유틸리티 퍼스트 CSS 프레임워크
 - **TypeScript**: 타입 안정성
-- **React Query**: 서버 상태 관리
+- **Zustand**: 서버 상태 관리
 - **PWA 지원**: Progressive Web App
 
 ## 🛠️ 기술 스택
