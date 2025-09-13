@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { aiCoachCards } from '@/mock/aiCoachData';
+import { aiCoachCards } from '@/data/aiCoachData';
 import { IoIosArrowForward } from 'react-icons/io';
 
 export default function AICoachSection() {

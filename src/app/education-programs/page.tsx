@@ -1,9 +1,9 @@
 'use client';
 
-import JobCard from '@/components/card-component/JobCard';
+import JobCard from '@/components/features/job/JobCard';
 import SearchBar from '@/components/ui/SearchBar';
 import Footer from '@/components/layout/Footer';
-import { jobRecommendations } from '@/mock/jobData';
+import { jobRecommendations } from '@/data/jobData';
 import { useState } from 'react';
 
 export default function EducationPrograms() {

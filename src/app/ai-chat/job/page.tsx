@@ -6,12 +6,12 @@ import {
   useChatHistory,
   ChatHistoryProvider,
 } from '@/contexts/ChatHistoryContext';
-import MessageSection from '@/components/sections/MessageSection';
+import MessageSection from '@/components/features/chat/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import MessageItem from '@/components/ui/MessageItem';
-import FlipCard from '@/components/card-component/AIChatJobCard';
-import { UserResponse } from '@/lib/types/user';
+import FlipCard from '@/components/features/chat/AIChatJobCard';
+import { UserResponse } from '@/types/user';
 
 interface Occupation {
   imageUrl: string;

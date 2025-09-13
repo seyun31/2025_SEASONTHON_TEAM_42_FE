@@ -6,7 +6,9 @@ import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 
 // 디데이 계산 함수
-const calculateDaysLeft = (closingDate: string): string => {
+const calculateDaysLeft = (closingDate: string | null | undefined): string => {
+  if (!closingDate) return '마감일 미정';
+
   try {
     // 다양한 날짜 형식 지원
     const dateFormats = [
@@ -102,7 +104,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
         style={{
           width: '540px',
           height: '200px',
-          background: `url(${job.companyLogo}) lightgray 50% / cover no-repeat`,
+          background: `url(${job.companyLogo || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
         }}
       >
         {/* Compact 오버레이 */}
@@ -119,10 +121,10 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           <div className="flex justify-between items-center text-white">
             <div className="flex flex-row gap-3">
               <div className="text-title-medium flex items-center">
-                {job.companyName}
+                {job.companyName || '회사명 미정'}
               </div>
               <div className="text-body-small-medium text-gray-300 flex items-center">
-                {job.workLocation}
+                {job.workLocation || '근무지 미정'}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -149,14 +151,14 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
               <div className="flex flex-col gap-3">
                 <div className="flex flex-row items-center gap-3 transition-all duration-500 ease-out">
                   <span className="text-title-medium text-gray-800">
-                    {job.companyName}
+                    {job.companyName || '회사명 미정'}
                   </span>
                   <span className="text-body-small-medium text-gray-500">
-                    {job.workLocation}
+                    {job.workLocation || '근무지 미정'}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {job.requiredSkills.split(',').map((skill, i) => (
+                  {(job.requiredSkills?.split(',') || []).map((skill, i) => (
                     <span
                       key={i}
                       className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-50 transition-all duration-500 ease-out ${
@@ -193,7 +195,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
             {/* 직무 설명 */}
             <p className="text-gray-800 text-title-large leading-relaxed mb-12 transition-all duration-500 ease-out">
-              {job.jobTitle}
+              {job.jobTitle || '직무명 미정'}
             </p>
 
             {/* 상세 정보 */}
@@ -211,7 +213,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   경력
                 </span>
                 <span className="text-primary-90 text-body-large-medium">
-                  {job.experience}
+                  {job.experience || '경력 미정'}
                 </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
@@ -219,7 +221,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   급여
                 </span>
                 <span className="text-primary-90 text-body-large-medium">
-                  {job.salary}
+                  {job.salary || '급여 미정'}
                 </span>
               </div>
               <div className="grid grid-cols-[5rem_1fr] gap-2 text-sm">
@@ -277,11 +279,11 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           // Compact 상태
           <div className="space-y-3 transition-all duration-500 ease-in-out">
             <p className="text-gray-800 text-title-large leading-relaxed pt-3 transition-all duration-400 ease-in-out">
-              {job.jobTitle}
+              {job.jobTitle || '직무명 미정'}
             </p>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              {job.requiredSkills.split(',').map((tag, i) => (
+              {(job.requiredSkills?.split(',') || []).map((tag, i) => (
                 <span
                   key={i}
                   className={`flex px-2 py-1 rounded-full text-body-small-medium text-gray-800 transition-all duration-400 ease-in-out ${
@@ -304,7 +306,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   급여
                 </span>
                 <span className="text-body-medium-medium text-primary-90">
-                  {job.salary}
+                  {job.salary || '급여 미정'}
                 </span>
               </div>
             </div>

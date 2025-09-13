@@ -51,8 +51,8 @@ export interface AllResponse {
   closingDate: string;
   applyLink: string;
   imageUrl: string;
-  jobRecommendScore: number | null;
   isBookmark: boolean;
+  score: number;
 }
 
 export interface SearchAllResponse {
@@ -71,4 +71,109 @@ export interface JobResponse {
   workLocation: string;
   imageUrl: string;
   isBookmark: boolean;
+}
+
+// 단건 채용 조회 API 응답 타입 (스웨거 Response 스키마)
+export interface JobDetailResponse {
+  jobId: number;
+  companyName: string;
+  companyLogo: string;
+  jobTitle: string;
+  jobCategory: string;
+  workLocation: string;
+  employmentType: string;
+  salary: string;
+  workPeriod: string;
+  experience: string;
+  requiredSkills: string;
+  preferredSkills: string;
+  postingDate: string;
+  closingDate: string;
+  applyLink: string;
+  isScrap: boolean;
+}
+
+// 직업 추천 API 응답 타입
+export interface Occupation {
+  imageUrl: string;
+  occupationName: string;
+  description: string;
+  strength: string;
+  workCondition: string;
+  wish: string;
+  score: string;
+}
+
+export interface RecommendJob {
+  first: Occupation;
+  second: Occupation;
+  third: Occupation;
+}
+
+// 북마크 관련 타입
+export interface MemberJobMap {
+  createdAt: string;
+  modifiedAt: string;
+  deletedAt: string | null;
+  id: number;
+  memberId: number;
+  jobId: number;
+}
+
+// AI 채팅 옵션 응답 타입
+export interface OptionResponse {
+  optionList: string[];
+}
+
+// AI 채팅 히스토리 응답 타입
+export interface HistoryResponse {
+  experience: string;
+  certificateOrSkill: string;
+  personalityType: string;
+  interests: string;
+  preferredWorkStyles: string;
+  avoidConditions: string;
+  availableWorkingTime: string;
+  physicalCondition: string;
+  educationAndCareerGoal: string;
+}
+
+// HRD 과정 관련 타입
+export interface CardCourseItem {
+  eiEmplCnt3Gt10: string;
+  eiEmplRate6: string;
+  eiEmplCnt3: string;
+  eiEmplRate3: string;
+  certificate: string;
+  title: string;
+  realMan: string;
+  telNo: string;
+  stdgScor: string;
+  traStartDate: string;
+  grade: string;
+  ncsCd: string;
+  regCourseMan: string;
+  trprDegr: string;
+  address: string;
+  traEndDate: string;
+  subTitle: string;
+  instCd: string;
+  trngAreaCd: string;
+  trprId: string;
+  yardMan: string;
+  courseMan: string;
+  trainTarget: string;
+  trainTargetCd: string;
+  trainstCstId: string;
+  contents: string;
+  subTitleLink: string;
+  titleLink: string;
+  titleIcon: string;
+}
+
+export interface CardCoursePage {
+  pageNum: number;
+  pageSize: number;
+  scn_cnt: number;
+  srchList: CardCourseItem[];
 }

@@ -1,8 +1,8 @@
 'use client';
 
-import { jobRecommendations } from '@/mock/jobData';
+import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
-import JobCard from '@/components/card-component/JobCard';
+import JobCard from '@/components/features/job/JobCard';
 import { getUserData } from '@/lib/auth';
 
 export default function EducationRecommendationsSection() {

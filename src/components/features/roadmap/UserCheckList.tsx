@@ -12,7 +12,7 @@ import {
 } from '@/types/roadmap';
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
-import { toggleRoadMapAction } from '@/apis/jobApi';
+import { toggleRoadMapAction } from '@/lib/api/jobApi';
 
 interface UserCheckListProps {
   userName: string;

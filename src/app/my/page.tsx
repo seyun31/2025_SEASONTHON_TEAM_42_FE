@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getUserData } from '@/lib/auth';
-import FlipCard from '@/components/card-component/FlipCard';
+import FlipCard from '@/components/common/FlipCard';
 import Footer from '@/components/layout/Footer';
 
 export default function My() {

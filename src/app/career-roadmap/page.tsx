@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { getUserData } from '@/lib/auth';
 import { useRoadmapStore } from '@/stores/roadmapStore';
-import UserMap from '@/components/roadmap/UserMap';
-import UserCheckList from '@/components/roadmap/UserCheckList';
+import UserMap from '@/components/features/roadmap/UserMap';
+import UserCheckList from '@/components/features/roadmap/UserCheckList';
 import Footer from '@/components/layout/Footer';
-import { getRoadMap } from '@/apis/jobApi';
+import { getRoadMap } from '@/lib/api/jobApi';
 import { RoadMapResponse } from '@/types/roadmap';
 export default function CareerRoadmap() {
   const [userName, setUserName] = useState<string>('');

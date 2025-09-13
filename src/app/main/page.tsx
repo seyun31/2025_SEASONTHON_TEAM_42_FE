@@ -1,9 +1,9 @@
 'use client';
 
-import AICoachSection from '@/components/sections/AICoachSection';
-import CareerRoadmapSection from '@/components/sections/CareerRoadmapSection';
-import JobRecommendationsSection from '@/components/sections/JobRecommendationsSection';
-// import EducationRecommendationsSection from '@/components/sections/EducationRecommendationsSection';
+import AICoachSection from '@/components/features/chat/AICoachSection';
+import CareerRoadmapSection from '@/components/features/roadmap/CareerRoadmapSection';
+import JobRecommendationsSection from '@/components/features/job/JobRecommendationsSection';
+// import EducationRecommendationsSection from '@/components/features/roadmap/EducationRecommendationsSection';
 import Footer from '@/components/layout/Footer';
 
 export default function Main() {
