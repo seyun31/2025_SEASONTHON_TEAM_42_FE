@@ -1,6 +1,14 @@
 @import 'tailwindcss';
 
 /* ============================================
+   컴포넌트 스타일 임포트
+   ============================================ */
+@import '../styles/components/buttons.css';
+@import '../styles/components/cards.css';
+@import '../styles/components/forms.css';
+@import '../styles/components/utilities.css';
+
+/* ============================================
    디자인 토큰 정의 (기존 변수명 유지)
    ============================================ */
 
