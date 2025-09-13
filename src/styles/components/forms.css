@@ -1,0 +1,81 @@
+/* ============================================
+   폼 컴포넌트 스타일
+   ============================================ */
+
+/* 기본 입력 필드 */
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--foreground);
+  background-color: var(--background);
+  border: 1px solid var(--gray-20);
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: var(--gray-50);
+}
+
+.form-input:focus {
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(0, 66, 11, 0.1);
+}
+
+.form-input:disabled {
+  background-color: var(--gray-20);
+  color: var(--gray-50);
+  cursor: not-allowed;
+}
+
+.form-input--error {
+  border-color: var(--secondary3);
+}
+
+.form-input--error:focus {
+  border-color: var(--secondary3);
+  box-shadow: 0 0 0 3px rgba(240, 111, 24, 0.1);
+}
+
+/* 입력 크기 변형 */
+.form-input--sm {
+  padding: 8px 12px;
+  font-size: var(--font-size-sm);
+}
+
+.form-input--lg {
+  padding: 16px 20px;
+  font-size: var(--font-size-lg);
+}
+
+/* 라벨 */
+.form-label {
+  display: block;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  margin-bottom: 8px;
+}
+
+/* 에러 메시지 */
+.form-error {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--secondary3);
+  margin-top: 4px;
+}
+
+/* 도움말 텍스트 */
+.form-help {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  color: var(--gray-50);
+  margin-top: 4px;
+}

@@ -1,35 +1,94 @@
 @import 'tailwindcss';
 
+/* ============================================
+   컴포넌트 스타일 임포트
+   ============================================ */
+@import '../styles/components/buttons.css';
+@import '../styles/components/cards.css';
+@import '../styles/components/forms.css';
+@import '../styles/components/utilities.css';
+
+/* ============================================
+   디자인 토큰 정의 (기존 변수명 유지)
+   ============================================ */
+
 :root {
+  /* ============================================
+     기본 색상
+     ============================================ */
   --background: #ffffff;
   --foreground: #171717;
-
-  /* Primary 컬러 팔레트 */
   --black: #111111;
-  --primary-600: #00420b;
-  --primary-300: #007e1f;
-  --primary-90: #00ad38;
-  --primary-60: #71d193;
-  --primary-40: #9cdfb9;
-  --primary-30: #b4e6ce;
-  --primary-20: #e1f5ec;
   --white: #ffffff;
 
-  /* gray 컬러 팔레트 */
-  --gray-20: #c7d6cc;
-  --gray-50: #869f8e;
-  --gray-70: #515f55;
-  --gray-80: #334339;
+  /* ============================================
+     Primary 컬러 팔레트 (브랜드 색상)
+     ============================================ */
+  --primary-600: #00420b; /* 메인 브랜드 색상 */
+  --primary-300: #007e1f; /* 보조 브랜드 색상 */
+  --primary-90: #00ad38; /* 강조 색상 */
+  --primary-60: #71d193; /* 밝은 브랜드 색상 */
+  --primary-40: #9cdfb9; /* 더 밝은 브랜드 색상 */
+  --primary-30: #b4e6ce; /* 가장 밝은 브랜드 색상 */
+  --primary-20: #e1f5ec; /* 연한 브랜드 색상 */
 
-  --gray-blue-20: #bec7d6;
-  --gray-blue-50: #7a808a;
-  --gray-blue-70: #3e4147;
+  /* ============================================
+     Gray 컬러 팔레트 (중성 색상)
+     ============================================ */
+  --gray-20: #c7d6cc; /* 가장 밝은 회색 */
+  --gray-50: #869f8e; /* 중간 회색 */
+  --gray-70: #515f55; /* 어두운 회색 */
+  --gray-80: #334339; /* 가장 어두운 회색 */
 
-  /* Secondary 컬러 팔레트 */
-  --secondary1: #9fc2ff;
-  --secondary2: #e1dc53;
-  --secondary3: #f06f18;
-  --secondary4: #5786da;
+  /* ============================================
+     Gray Blue 컬러 팔레트 (보조 중성 색상)
+     ============================================ */
+  --gray-blue-20: #bec7d6; /* 가장 밝은 회색-파랑 */
+  --gray-blue-50: #7a808a; /* 중간 회색-파랑 */
+  --gray-blue-70: #3e4147; /* 어두운 회색-파랑 */
+
+  /* ============================================
+     Secondary 컬러 팔레트 (보조 색상)
+     ============================================ */
+  --secondary1: #9fc2ff; /* 파랑 계열 */
+  --secondary2: #e1dc53; /* 노랑 계열 */
+  --secondary3: #f06f18; /* 주황 계열 */
+  --secondary4: #5786da; /* 진한 파랑 계열 */
+
+  /* ============================================
+     타이포그래피 시스템
+     ============================================ */
+  --font-family-primary:
+    'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR',
+    'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    sans-serif;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+  --font-size-5xl: 3rem; /* 48px */
+  --font-size-6xl: 3.75rem; /* 60px */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+
+  /* Letter Spacing */
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
 }
 
 /* 다크 모드 비활성화 - 라이트 모드 고정 */
@@ -92,151 +151,159 @@ body {
   font-family: Pretendard;
 }
 
-/* Typography System */
+/* ============================================
+   타이포그래피 시스템 (기존 클래스명 유지)
+   ============================================ */
+
 .text-header-large {
-  font-family: 'Pretendard Variable';
-  font-size: 60px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-6xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -1.5px;
 }
 
 .text-header-medium {
-  font-family: 'Pretendard Variable';
-  font-size: 44px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-5xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -1.1px;
 }
 
 .text-header-small {
-  font-family: 'Pretendard Variable';
-  font-size: 32px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-4xl);
   font-style: normal;
-  font-weight: 400;
-  line-height: 140%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.8px;
 }
 
 .text-title-xlarge {
-  font-family: 'Pretendard Variable';
-  font-size: 40px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-4xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -1px;
 }
 
 .text-title-large {
-  font-family: 'Pretendard Variable';
-  font-size: 28px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.8px;
 }
 
 .text-title-medium {
-  font-family: 'Pretendard Variable';
-  font-size: 24px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.6px;
 }
 
 .text-title-small {
-  font-family: 'Pretendard Variable';
-  font-size: 20px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.5px;
 }
 
 .text-title-xsmall {
-  font-family: 'Pretendard Variable';
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.45px;
 }
 
 .text-body-large-medium {
-  font-family: 'Pretendard Variable';
-  font-size: 20px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.5px;
 }
 
 .text-body-large-regular {
-  font-family: 'Pretendard Variable';
-  font-size: 20px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xl);
   font-style: normal;
-  font-weight: 400;
-  line-height: 150%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.5px;
 }
 
 .text-body-medium-medium {
-  font-family: 'Pretendard Variable';
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.45px;
 }
 
 .text-body-medium-regular {
-  font-family: 'Pretendard Variable';
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-style: normal;
-  font-weight: 400;
-  line-height: 150%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.45px;
 }
 
 .text-body-small-medium {
-  font-family: 'Pretendard Variable';
-  font-size: 16px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
   font-style: normal;
-  font-weight: 500;
-  line-height: 140%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.4px;
 }
 
 .text-body-small-regular {
-  font-family: 'Pretendard Variable';
-  font-size: 16px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
   font-style: normal;
-  font-weight: 400;
-  line-height: 150%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.4px;
 }
 
 .text-caption-large {
-  font-family: 'Pretendard Variable';
-  font-size: 14px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
   font-style: normal;
-  font-weight: 500;
-  line-height: 140%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
   letter-spacing: -0.35px;
 }
+
 .text-caption-small {
-  font-family: 'Pretendard Variable';
-  font-size: 12px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xs);
   font-style: normal;
-  font-weight: 400;
-  line-height: 150%;
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
   letter-spacing: -0.3px;
 }
 
-/* Utility classes */
+/* ============================================
+   유틸리티 클래스
+   ============================================ */
+
+/* 텍스트 유틸리티 */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -245,84 +312,124 @@ body {
   overflow: hidden;
 }
 
+/* 호버 효과 */
 .hover\:scale-102:hover {
   transform: scale(1.02);
+  transition: transform 0.2s ease-in-out;
 }
 
-/* Input placeholder 및 Input 들여쓰기 */
+/* ============================================
+   입력 컴포넌트 스타일
+   ============================================ */
+
 .my-input {
-  font-family: 'Pretendard Variable';
+  font-family: var(--font-family-primary);
   padding-left: 20px;
+  background-color: var(--background);
+  border: 1px solid var(--gray-20);
+  border-radius: 6px;
+  color: var(--foreground);
+  transition: all 0.2s ease-in-out;
 }
 
 .my-input::placeholder {
-  font-family: 'Pretendard Variable';
-  color: #869f8e;
+  font-family: var(--font-family-primary);
+  color: var(--gray-50);
+}
+
+.my-input:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(0, 66, 11, 0.1);
 }
 
 /* Address 버튼 placeholder 스타일 */
 .my-input.text-gray-400 {
-  font-family: 'Pretendard Variable';
-  color: #869f8e !important;
+  font-family: var(--font-family-primary);
+  color: var(--gray-50) !important;
 }
 
 .city-indent {
-  font-family: 'Pretendard Variable';
+  font-family: var(--font-family-primary);
   padding-left: 32px;
 }
 
 .search-input {
   padding-left: 108px;
-  font-family: 'Pretendard Variable';
-  font-size: 24px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -2.5%;
-  color: black;
+  color: var(--black);
+  background-color: var(--background);
+  border: 1px solid var(--gray-20);
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
 }
 
 .search-input::placeholder {
   color: var(--gray-50);
-  font-family: 'Pretendard Variable';
-  font-size: 24px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
   font-style: normal;
-  font-weight: 600;
-  line-height: 140%;
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
   letter-spacing: -2.5%;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(0, 66, 11, 0.1);
 }
 
 .ai-chat-input {
   padding-left: 24px;
-  font-family: 'Pretendard Variable';
-  font-size: 16px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
   font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
   letter-spacing: -2.5%;
-  color: black;
+  color: var(--black);
+  background-color: var(--background);
+  border: 1px solid var(--gray-20);
+  border-radius: 6px;
+  transition: all 0.2s ease-in-out;
 }
 
 .ai-chat-input::placeholder {
   color: var(--gray-50);
-  font-family: 'Pretendard Variable';
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
   letter-spacing: -2.5%;
+}
+
+.ai-chat-input:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(0, 66, 11, 0.1);
 }
 
 .chat-message {
-  font-family: 'Pretendard Variable';
-  font-size: 18px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-lg);
   font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
   letter-spacing: -2.5%;
+  color: var(--foreground);
 }
 
-/* 스크롤바 숨기기 */
+/* ============================================
+   스크롤바 유틸리티
+   ============================================ */
+
 .scrollbar-hide {
   -ms-overflow-style: none; /* Internet Explorer 10+ */
   scrollbar-width: none; /* Firefox */
@@ -331,6 +438,10 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }
+
+/* ============================================
+   애니메이션
+   ============================================ */
 
 /* 스켈레톤 UI 애니메이션 */
 @keyframes shimmer {

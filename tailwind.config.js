@@ -39,7 +39,33 @@ module.exports = {
         secondary4: 'var(--secondary4)',
       },
       fontFamily: {
-        sans: ['Pretendard Variable', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-family-primary)', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        xs: 'var(--font-size-xs)',
+        sm: 'var(--font-size-sm)',
+        base: 'var(--font-size-base)',
+        lg: 'var(--font-size-lg)',
+        xl: 'var(--font-size-xl)',
+        '2xl': 'var(--font-size-2xl)',
+        '3xl': 'var(--font-size-3xl)',
+        '4xl': 'var(--font-size-4xl)',
+        '5xl': 'var(--font-size-5xl)',
+        '6xl': 'var(--font-size-6xl)',
+      },
+      fontWeight: {
+        normal: 'var(--font-weight-normal)',
+        medium: 'var(--font-weight-medium)',
+        semibold: 'var(--font-weight-semibold)',
+        bold: 'var(--font-weight-bold)',
+      },
+      lineHeight: {
+        tight: 'var(--line-height-tight)',
+        normal: 'var(--line-height-normal)',
+      },
+      letterSpacing: {
+        tight: 'var(--letter-spacing-tight)',
+        normal: 'var(--letter-spacing-normal)',
       },
       keyframes: {
         fadeInUp: {
