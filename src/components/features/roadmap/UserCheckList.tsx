@@ -12,7 +12,7 @@ import {
 } from '@/types/roadmap';
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
-import { toggleRoadMapAction } from '@/apis/jobApi';
+import { toggleRoadMapAction } from '@/lib/api/jobApi';
 
 interface UserCheckListProps {
   userName: string;
@@ -74,7 +74,7 @@ export default function UserCheckList({
         throw new Error('Action not found');
       }
 
-      await toggleRoadMapAction(step.roadMapId, action.roadMapActionId);
+      await toggleRoadMapAction(action.roadMapActionId);
 
       // 성공 시 로컬 상태 업데이트
       setChecklistItems((prev: RoadmapChecklist) => ({

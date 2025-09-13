@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getUserData } from '@/lib/auth';
-import { getRoadMap } from '@/apis/jobApi';
+import { getRoadMap } from '@/lib/api/jobApi';
 import { RoadMapResponse } from '@/types/roadmap';
 
 // 별 모양 SVG 컴포넌트

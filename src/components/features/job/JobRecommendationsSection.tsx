@@ -1,11 +1,11 @@
 'use client';
 
-import { jobRecommendations } from '@/mock/jobData';
+import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
-import JobCard from '@/components/card-component/JobCard';
+import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { getUserData, getAccessToken } from '@/lib/auth';
-import { getRecommendedJobs, getAllJobs } from '@/apis/jobApi';
+import { getRecommendedJobs, getAllJobs } from '@/lib/api/jobApi';
 import { AllResponse } from '@/types/job';
 
 export default function JobRecommendationsSection() {
@@ -100,7 +100,7 @@ export default function JobRecommendationsSection() {
       postingDate: job.postingDate,
       closingDate: job.closingDate,
       applyLink: job.applyLink,
-      jobRecommendScore: job.jobRecommendScore || null,
+      jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
     };
   };

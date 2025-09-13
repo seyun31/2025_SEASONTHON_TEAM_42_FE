@@ -1,19 +1,19 @@
 'use client';
 
-import JobCard from '@/components/card-component/JobCard';
+import JobCard from '@/components/features/job/JobCard';
 import SearchBar from '@/components/ui/SearchBar';
 import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
-import { jobRecommendations } from '@/mock/jobData';
+import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect, useCallback } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import {
   getRecommendedJobs,
   getAllJobs,
   getAllJobsForLoggedIn,
-} from '@/apis/jobApi';
+} from '@/lib/api/jobApi';
 import { AllResponse, JobResponse } from '@/types/job';
 
 export default function JobPostings() {
@@ -153,7 +153,7 @@ export default function JobPostings() {
         postingDate: job.postingDate,
         closingDate: job.closingDate,
         applyLink: job.applyLink,
-        jobRecommendScore: job.jobRecommendScore || null,
+        jobRecommendScore: job.score || null,
         isScrap: job.isBookmark,
       };
     } else {

@@ -7,11 +7,11 @@ import {
   useChatHistory,
   ChatHistoryProvider,
 } from '@/contexts/ChatHistoryContext';
-import MessageSection from '@/components/sections/MessageSection';
+import MessageSection from '@/components/features/chat/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import MessageItem from '@/components/ui/MessageItem';
-import { UserResponse } from '@/lib/types/user';
+import { UserResponse } from '@/types/user';
 
 function AIChatRoadmapContent() {
   const router = useRouter();

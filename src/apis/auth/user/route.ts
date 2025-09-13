@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { UserResponse } from '@/lib/types/user';
+import { UserResponse } from '@/types/user';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 

@@ -5,7 +5,7 @@ import AddressButton from '@/components/ui/AddressButton';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserData } from '@/lib/types/user';
+import { UserData } from '@/types/user';
 
 export default function EditPage() {
   const router = useRouter();
