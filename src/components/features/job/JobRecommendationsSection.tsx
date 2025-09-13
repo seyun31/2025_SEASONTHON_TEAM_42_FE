@@ -100,7 +100,7 @@ export default function JobRecommendationsSection() {
       postingDate: job.postingDate,
       closingDate: job.closingDate,
       applyLink: job.applyLink,
-      jobRecommendScore: job.jobRecommendScore || null,
+      jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
     };
   };
