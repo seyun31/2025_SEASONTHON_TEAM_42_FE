@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import MessageItem from '@/components/ui/MessageItem';
-import MessageOptionItem from '../ui/MessageOptionItem';
+import MessageOptionItem from '@/components/ui/MessageOptionItem';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
 
 interface MessageSectionProps {
