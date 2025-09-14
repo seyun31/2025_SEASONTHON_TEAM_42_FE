@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -51,6 +52,18 @@ export async function GET(): Promise<Response> {
     return Response.json(historyData);
   } catch (error) {
     console.error('AI chat history fetch error:', error);
+
+    // Sentry에 에러 전송
+    Sentry.captureException(error, {
+      tags: {
+        api: 'chat/jobs/history',
+        method: 'GET',
+      },
+      extra: {
+        backendUrl,
+        hasAccessToken: !!cookies().get('accessToken')?.value,
+      },
+    });
 
     return Response.json(
       {

@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { UserResponse } from '@/types/user';
+import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -50,6 +51,18 @@ export async function GET(): Promise<Response> {
     return Response.json(userData);
   } catch (error) {
     console.error('User profile fetch error:', error);
+
+    // Sentry에 에러 전송
+    Sentry.captureException(error, {
+      tags: {
+        api: 'auth/user',
+        method: 'GET',
+      },
+      extra: {
+        backendUrl,
+        hasAccessToken: !!cookies().get('accessToken')?.value,
+      },
+    });
 
     // 백엔드 API 에러 응답인 경우 그대로 전달
     if (error instanceof Error && error.message.includes('response')) {

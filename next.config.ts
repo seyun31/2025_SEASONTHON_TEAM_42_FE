@@ -8,6 +8,11 @@ const withPWA = require('next-pwa')({
   disable: process.env.NODE_ENV === 'development',
 });
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { withSentryConfig } = require('@sentry/nextjs');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const withPlugins = require('next-compose-plugins');
+
 const nextConfig: NextConfig = {
   // Next.js 15에서는 appDir이 기본값이므로 제거
   images: {
@@ -60,4 +65,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+// Sentry 설정
+const sentryOptions = {
+  sentry: {
+    hideSourceMaps: true,
+  },
+};
+
+const sentryWebpackPluginOptions = {
+  silent: true,
+};
+
+// PWA와 Sentry 플러그인을 함께 사용
+const plugins = [[withPWA, {}]];
+
+export default withSentryConfig(
+  withPlugins(plugins, nextConfig),
+  sentryOptions,
+  sentryWebpackPluginOptions
+);
