@@ -54,6 +54,9 @@ export async function GET(): Promise<Response> {
     console.error('Job recommendation fetch error:', error);
 
     // Sentry에 에러 전송
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
     Sentry.captureException(error, {
       tags: {
         api: 'chat/jobs/recommend/occupation',
@@ -61,7 +64,7 @@ export async function GET(): Promise<Response> {
       },
       extra: {
         backendUrl,
-        hasAccessToken: !!cookies().get('accessToken')?.value,
+        hasAccessToken: !!accessToken,
       },
     });
 

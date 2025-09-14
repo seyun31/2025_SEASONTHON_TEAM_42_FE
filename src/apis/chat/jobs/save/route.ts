@@ -78,6 +78,9 @@ export async function POST(request: Request): Promise<Response> {
     console.error('Job chat save error:', error);
 
     // Sentry에 에러 전송
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
     Sentry.captureException(error, {
       tags: {
         api: 'chat/jobs/save',
@@ -85,7 +88,7 @@ export async function POST(request: Request): Promise<Response> {
       },
       extra: {
         backendUrl,
-        hasAccessToken: !!cookies().get('accessToken')?.value,
+        hasAccessToken: !!accessToken,
       },
     });
 

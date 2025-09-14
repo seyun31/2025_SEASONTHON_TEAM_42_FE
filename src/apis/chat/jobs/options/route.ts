@@ -76,6 +76,9 @@ export async function GET(request: Request): Promise<Response> {
     console.error('AI chat options fetch error:', error);
 
     // Sentry에 에러 전송
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
     Sentry.captureException(error, {
       tags: {
         api: 'chat/jobs/options',
@@ -83,7 +86,7 @@ export async function GET(request: Request): Promise<Response> {
       },
       extra: {
         backendUrl,
-        hasAccessToken: !!cookies().get('accessToken')?.value,
+        hasAccessToken: !!accessToken,
       },
     });
 
