@@ -1,9 +1,10 @@
 'use client';
 
 import { JobSummary } from '@/types/job';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
+import { getUserData } from '@/lib/auth';
 
 // 디데이 계산 함수
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
@@ -65,6 +66,12 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isScrap, setIsScrap] = useState(job.isScrap);
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const userData = getUserData();
+    setIsLoggedIn(!!userData);
+  }, []);
 
   const handleToggleScrap = (jobId: string) => {
     setIsScrap(!isScrap);
@@ -255,10 +262,26 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
               <span className="text-body-large-medium text-gray-500">
                 직업 추천도
               </span>
-              <span className="text-title-xlarge font-bold text-black">
-                {job.jobRecommendScore !== null
-                  ? `${job.jobRecommendScore}%`
-                  : '??%'}
+              <span
+                className="text-title-xlarge font-bold text-black"
+                style={{
+                  color: 'var(--color-style-900-black, #111)',
+                  textAlign: 'right',
+                  fontFamily: '"Pretendard Variable"',
+                  fontSize: '36px',
+                  fontStyle: 'normal',
+                  fontWeight: 600,
+                  lineHeight: '140%',
+                  letterSpacing: '-0.9px',
+                  filter: !isLoggedIn ? 'blur(8px)' : 'none',
+                  transition: 'filter 0.3s ease-in-out',
+                }}
+              >
+                {!isLoggedIn
+                  ? '100%'
+                  : job.jobRecommendScore !== null
+                    ? `${job.jobRecommendScore}%`
+                    : '??%'}
               </span>
             </div>
 
@@ -325,8 +348,26 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
         <span className="text-body-large-medium text-gray-500">
           직업 추천도
         </span>
-        <span className="text-title-xlarge font-bold text-black">
-          {job.jobRecommendScore !== null ? `${job.jobRecommendScore}%` : '??%'}
+        <span
+          className="text-title-xlarge font-bold text-black"
+          style={{
+            color: 'var(--color-style-900-black, #111)',
+            textAlign: 'right',
+            fontFamily: '"Pretendard Variable"',
+            fontSize: '36px',
+            fontStyle: 'normal',
+            fontWeight: 600,
+            lineHeight: '140%',
+            letterSpacing: '-0.9px',
+            filter: !isLoggedIn ? 'blur(8px)' : 'none',
+            transition: 'filter 0.3s ease-in-out',
+          }}
+        >
+          {!isLoggedIn
+            ? '100%'
+            : job.jobRecommendScore !== null
+              ? `${job.jobRecommendScore}%`
+              : '??%'}
         </span>
       </div>
     </div>
