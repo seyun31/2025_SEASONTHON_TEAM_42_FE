@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -73,6 +74,21 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json(optionsData);
   } catch (error) {
     console.error('AI chat options fetch error:', error);
+
+    // Sentry에 에러 전송
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
+    Sentry.captureException(error, {
+      tags: {
+        api: 'chat/jobs/options',
+        method: 'GET',
+      },
+      extra: {
+        backendUrl,
+        hasAccessToken: !!accessToken,
+      },
+    });
 
     // 백엔드 API 에러 응답인 경우 그대로 전달
     if (error instanceof Error && error.message.includes('response')) {

@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -74,7 +75,22 @@ export async function POST(request: Request): Promise<Response> {
     const responseData = await response.json();
     return Response.json(responseData);
   } catch (error) {
-    console.error('User profile fetch error:', error);
+    console.error('Job chat save error:', error);
+
+    // Sentry에 에러 전송
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
+    Sentry.captureException(error, {
+      tags: {
+        api: 'chat/jobs/save',
+        method: 'POST',
+      },
+      extra: {
+        backendUrl,
+        hasAccessToken: !!accessToken,
+      },
+    });
 
     // 백엔드 API 에러 응답인 경우 그대로 전달
     if (error instanceof Error && error.message.includes('response')) {
