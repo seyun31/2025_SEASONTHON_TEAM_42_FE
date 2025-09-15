@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AddressButton from '@/components/ui/AddressButton';
+import RegionSelectModal from '@/components/ui/RegionSelectModal';
 import { getAccessToken } from '@/lib/auth';
 
 export default function Signup() {
@@ -13,6 +14,7 @@ export default function Signup() {
   const [address, setAddress] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [birthDate, setBirthDate] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // 페이지 로드 시 local storage에서 저장된 정보 불러오기
@@ -55,26 +57,17 @@ export default function Signup() {
   const isFormValid =
     name.trim() !== '' && birthDate.trim() !== '' && selectedGender !== '';
 
-  // 프로필 업데이트 함수
   // 생년월일 포맷팅 함수
   const formatBirthDate = (value: string) => {
-    // 숫자만 추출
-    const numbers = value.replace(/\D/g, '');
-
-    // 8자리까지만 허용
-    if (numbers.length > 8) return birthDate;
-
+    const numbers = value.replace(/\D/g, ''); // 숫자 추출
+    if (numbers.length > 8) return birthDate; // 8자리까지만 허용
     let formatted = '';
-
     if (numbers.length <= 4) {
-      // 연도 부분 (최대 4자리)
-      formatted = numbers;
+      formatted = numbers; // 연도
     } else if (numbers.length <= 6) {
-      // 연도 + 월 부분
-      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4)}`; // 연도 + 월
     } else {
-      // 연도 + 월 + 일 부분
-      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`; // 연도 + 월 + 일
     }
 
     return formatted;
@@ -100,7 +93,7 @@ export default function Signup() {
         return;
       }
 
-      // 주소를 city와 street로 분리 (선택적)
+      // 주소를 city와 street로 분리
       const [city, street] = address ? address.split(' ') : ['', ''];
 
       // 성별을 백엔드 형식에 맞게 변환
@@ -236,7 +229,7 @@ export default function Signup() {
                 <AddressButton
                   value={address}
                   onClick={() => {
-                    router.push('/member/signup/region-select');
+                    setIsModalOpen(true);
                   }}
                 />
               </div>
@@ -252,7 +245,7 @@ export default function Signup() {
             disabled={!isFormValid || isSubmitting}
             className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium transition-colors ${
               isFormValid && !isSubmitting
-                ? 'bg-primary-90 text-white'
+                ? 'bg-primary-90 text-white cursor-pointer'
                 : 'bg-primary-20 text-black cursor-not-allowed'
             }`}
           >
@@ -260,6 +253,17 @@ export default function Signup() {
           </button>
         </div>
       </div>
+
+      {/* 주소 선택 모달 */}
+      <RegionSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={(selectedAddress) => {
+          setAddress(selectedAddress);
+          setIsModalOpen(false);
+        }}
+        offsetY="-75px"
+      />
     </div>
   );
 }
