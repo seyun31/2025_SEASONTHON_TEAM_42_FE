@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AddressButton from '@/components/ui/AddressButton';
+import { getAccessToken } from '@/lib/auth';
 
 export default function Signup() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export default function Signup() {
   const [address, setAddress] = useState<string>('');
   const [name, setName] = useState<string>('');
   const [birthDate, setBirthDate] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // 페이지 로드 시 local storage에서 저장된 정보 불러오기
   useEffect(() => {
@@ -19,6 +21,20 @@ export default function Signup() {
     const savedBirthDate = localStorage.getItem('signup-birthDate');
     const savedGender = localStorage.getItem('signup-gender');
     const savedAddress = localStorage.getItem('signup-address');
+
+    // OAuth에서 받은 사용자 데이터가 있으면 이름을 자동으로 설정
+    const userData = localStorage.getItem('userData');
+    if (userData) {
+      try {
+        const parsedUserData = JSON.parse(userData);
+        if (parsedUserData.name && !savedName) {
+          setName(parsedUserData.name);
+          localStorage.setItem('signup-name', parsedUserData.name);
+        }
+      } catch (error) {
+        console.error('사용자 데이터 파싱 오류:', error);
+      }
+    }
 
     if (savedName) setName(savedName);
     if (savedBirthDate) setBirthDate(savedBirthDate);
@@ -38,6 +54,99 @@ export default function Signup() {
   // 필수 필드가 모두 입력되었는지 확인
   const isFormValid =
     name.trim() !== '' && birthDate.trim() !== '' && selectedGender !== '';
+
+  // 프로필 업데이트 함수
+  // 생년월일 포맷팅 함수
+  const formatBirthDate = (value: string) => {
+    // 숫자만 추출
+    const numbers = value.replace(/\D/g, '');
+
+    // 8자리까지만 허용
+    if (numbers.length > 8) return birthDate;
+
+    let formatted = '';
+
+    if (numbers.length <= 4) {
+      // 연도 부분 (최대 4자리)
+      formatted = numbers;
+    } else if (numbers.length <= 6) {
+      // 연도 + 월 부분
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
+    } else {
+      // 연도 + 월 + 일 부분
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
+    }
+
+    return formatted;
+  };
+
+  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatBirthDate(e.target.value);
+    setBirthDate(formatted);
+    localStorage.setItem('signup-birthDate', formatted);
+  };
+
+  const handleSubmit = async () => {
+    if (!isFormValid || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const accessToken = getAccessToken();
+
+      if (!accessToken) {
+        alert('로그인이 필요합니다. 다시 로그인해주세요.');
+        router.push('/member/login');
+        return;
+      }
+
+      // 주소를 city와 street로 분리 (선택적)
+      const [city, street] = address ? address.split(' ') : ['', ''];
+
+      // 성별을 백엔드 형식에 맞게 변환
+      const genderMap: { [key: string]: string } = {
+        남자: 'MALE',
+        여자: 'FEMALE',
+      };
+
+      const profileData = {
+        name: name.trim(),
+        birthDate: birthDate.replace(/\s/g, '').replace(/\//g, '-'),
+        gender: genderMap[selectedGender] || selectedGender,
+        city: city || undefined,
+        street: street || undefined,
+      };
+
+      const response = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(profileData),
+      });
+
+      const result = await response.json();
+
+      if (result.result === 'SUCCESS') {
+        // localStorage에서 회원가입 관련 임시 데이터 삭제
+        localStorage.removeItem('signup-name');
+        localStorage.removeItem('signup-birthDate');
+        localStorage.removeItem('signup-gender');
+        localStorage.removeItem('signup-address');
+
+        // 메인 페이지로 리다이렉트
+        router.push('/');
+      } else {
+        console.error('프로필 업데이트 실패:', result.error);
+        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+      }
+    } catch (error) {
+      console.error('프로필 업데이트 오류:', error);
+      alert('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center">
@@ -78,12 +187,10 @@ export default function Signup() {
               <input
                 type="text"
                 value={birthDate}
-                onChange={(e) => {
-                  setBirthDate(e.target.value);
-                  localStorage.setItem('signup-birthDate', e.target.value);
-                }}
+                onChange={handleBirthDateChange}
                 placeholder="1972 / 01 / 20"
                 className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                maxLength={14}
               />
             </div>
 
@@ -141,9 +248,10 @@ export default function Signup() {
         <div className="relative">
           <div className="absolute inset-0 rounded-[16px] bg-primary-30 opacity-50 pointer-events-none" />
           <button
-            disabled={!isFormValid}
+            onClick={handleSubmit}
+            disabled={!isFormValid || isSubmitting}
             className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium transition-colors ${
-              isFormValid
+              isFormValid && !isSubmitting
                 ? 'bg-primary-90 text-white'
                 : 'bg-primary-20 text-black cursor-not-allowed'
             }`}

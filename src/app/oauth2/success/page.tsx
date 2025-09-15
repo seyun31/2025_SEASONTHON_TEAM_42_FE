@@ -11,6 +11,11 @@ interface UserData {
   socialId: string;
   email: string;
   profileImage: string;
+  additionalInfo?: {
+    birthDate: string | null;
+    gender: string | null;
+    address: string | null;
+  };
 }
 
 interface ApiResponse {
@@ -82,8 +87,14 @@ export default function OAuth2SuccessPage() {
           // 사용자 정보를 localStorage에도 저장 (선택사항)
           localStorage.setItem('userData', JSON.stringify(result.data));
 
-          // 로그인 성공 시 바로 메인 페이지로 리다이렉트
-          router.push('/');
+          // additionalInfo의 birthDate나 gender가 없으면 회원가입 페이지로 이동
+          const { additionalInfo } = result.data;
+          if (!additionalInfo?.birthDate || !additionalInfo?.gender) {
+            router.push('/member/signup');
+          } else {
+            // 모든 정보가 있으면 메인 페이지로 리다이렉트
+            router.push('/');
+          }
         } else {
           throw new Error(
             result.error || '사용자 정보를 가져오는데 실패했습니다.'
@@ -106,7 +117,7 @@ export default function OAuth2SuccessPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        <p className="mt-4 text-gray-600 text-lg font-medium">로그인 중...</p>
+        {/* <p className="mt-4 text-gray-600 text-lg font-medium">로그인 중...</p> */}
       </div>
     );
   }
@@ -133,7 +144,7 @@ export default function OAuth2SuccessPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       <p className="mt-4 text-gray-600 text-lg font-medium">
-        메인 페이지로 이동 중...
+        {/* 메인 페이지로 이동 중... */}
       </p>
       <Footer />
     </div>
