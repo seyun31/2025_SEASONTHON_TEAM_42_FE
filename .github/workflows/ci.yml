@@ -1,5 +1,7 @@
+# CI/CD 파이프라인 - Next.js 프로젝트 자동 빌드 및 테스트
 name: CI
 
+# 트리거 조건: main, develop 브랜치에 push/PR 시 실행
 on:
   push:
     branches: [main, develop]
@@ -7,62 +9,81 @@ on:
     branches: [main, develop]
 
 jobs:
+  # 코드 품질 검사 (ESLint, Prettier, TypeScript)
   lint-and-type-check:
+    name: Code Quality Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     strategy:
       matrix:
         node-version: [20.x]
 
     steps:
+      # 소스 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Node.js 환경 설정 및 npm 캐시 활용
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      # 의존성 설치
       - name: Install dependencies
         run: npm ci
 
+      # ESLint로 코드 스타일 및 오류 검사
       - name: Run ESLint
         run: npm run lint
 
+      # Prettier로 코드 포맷팅 검사
       - name: Run Prettier check
         run: npx prettier --check .
 
+      # TypeScript 타입 체크
       - name: Type check
         run: npx tsc --noEmit
 
+  # 애플리케이션 빌드 작업
   build:
+    name: Build Application
     runs-on: ubuntu-latest
     needs: lint-and-type-check
+    timeout-minutes: 15
 
     strategy:
       matrix:
         node-version: [20.x]
 
     steps:
+      # 소스 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Node.js 환경 설정 및 npm 캐시 활용
       - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
+      # 의존성 설치
       - name: Install dependencies
         run: npm ci
 
+      # Next.js 애플리케이션 빌드
       - name: Build application
         run: npm run build
+        env:
+          NEXT_PUBLIC_BACKEND_URL: ${{ env.NEXT_PUBLIC_BACKEND_URL }}
 
+      # 빌드 결과물을 아티팩트로 업로드 (다른 워크플로우에서 재사용 가능)
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-files
+          name: build-files-${{ github.sha }}
           path: .next/
-          retention-days: 1
+          retention-days: 7
