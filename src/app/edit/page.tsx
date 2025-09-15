@@ -28,7 +28,14 @@ export default function EditPage() {
           const user = result.data;
           setUserData(user);
           setName(user.name || '');
-          setBirthDate(user.additionalInfo?.birthDate || '');
+
+          // birthDate 포맷팅 (YYYY-MM-DD → YYYY / MM / DD)
+          const rawBirthDate = user.additionalInfo?.birthDate;
+          if (rawBirthDate) {
+            const formattedDate = rawBirthDate.replace(/-/g, ' / ');
+            setBirthDate(formattedDate);
+          }
+
           setSelectedGender(
             user.additionalInfo?.gender === 'MALE'
               ? '남자'
@@ -36,14 +43,30 @@ export default function EditPage() {
                 ? '여자'
                 : ''
           );
-          setAddress(
-            user.additionalInfo?.address
-              ? `${user.additionalInfo.address.city} ${user.additionalInfo.address.street}`
-              : ''
-          );
+
+          // address 정보 설정 (city와 street 결합)
+          const { additionalInfo } = user;
+          if (
+            additionalInfo?.address?.city ||
+            additionalInfo?.address?.street
+          ) {
+            const addressParts = [
+              additionalInfo.address.city,
+              additionalInfo.address.street,
+            ].filter(Boolean);
+            setAddress(addressParts.join(' '));
+          }
+        } else if (result.error?.code === 'UNAUTHORIZED') {
+          // 인증되지 않은 경우 로그인 페이지로 리다이렉트
+          alert('로그인이 필요합니다.');
+          router.push('/member/login');
+        } else {
+          console.error('API Error:', result.error);
+          alert('사용자 정보를 불러오는데 실패했습니다.');
         }
       } catch (error) {
         console.error('Failed to fetch user data:', error);
+        alert('서버 연결 오류가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -59,6 +82,29 @@ export default function EditPage() {
     router.push('/');
   };
 
+  // 생년월일 포맷팅 함수
+  const formatBirthDate = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+
+    if (numbers.length > 8) return birthDate;
+
+    let formatted = '';
+    if (numbers.length <= 4) {
+      formatted = numbers;
+    } else if (numbers.length <= 6) {
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4)}`;
+    } else {
+      formatted = `${numbers.slice(0, 4)} / ${numbers.slice(4, 6)} / ${numbers.slice(6)}`;
+    }
+
+    return formatted;
+  };
+
+  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatBirthDate(e.target.value);
+    setBirthDate(formatted);
+  };
+
   const handleComplete = () => {
     router.push('/');
   };
@@ -66,7 +112,8 @@ export default function EditPage() {
   if (isLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <div>로딩 중...</div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        {/* <p className="mt-4 text-gray-600 text-lg font-medium">로딩 중...</p> */}
       </div>
     );
   }
@@ -112,11 +159,10 @@ export default function EditPage() {
                 <input
                   type="text"
                   value={birthDate}
-                  onChange={(e) => {
-                    setBirthDate(e.target.value);
-                  }}
+                  onChange={handleBirthDateChange}
                   placeholder="1972 / 01 / 20"
                   className="my-input relative top-2 w-full h-[5vh] py-4 px-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                  maxLength={14}
                 />
               </div>
 
