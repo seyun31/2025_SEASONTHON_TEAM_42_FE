@@ -154,7 +154,7 @@ export default function Header() {
           >
             채용 공고
           </div>
-          {/* <div
+          <div
             onClick={() => router.push('/education-programs')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
               isActive('/education-programs')
@@ -163,7 +163,7 @@ export default function Header() {
             }`}
           >
             교육 공고
-          </div> */}
+          </div>
           <div
             onClick={() => router.push('/ai-chat/job')}
             className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
@@ -364,127 +364,125 @@ export default function Header() {
       </div>
 
       {/* 모바일 네비게이션 메뉴 */}
-      <div
-        className={`md:hidden w-full transition-all duration-300 ease-in-out gap-4 ${
-          isMobileMenuOpen
-            ? 'max-h-[500px] opacity-100'
-            : 'max-h-0 opacity-0 overflow-hidden'
-        }`}
-      >
-        <div className="px-4 pt-4 pb-12 space-y-2 border-t border-gray-200 bg-white shadow-md rounded-b-2xl">
-          <div
-            onClick={() => {
-              router.push('/job-postings');
-              setIsMobileMenuOpen(false);
-            }}
-            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/job-postings')
-                ? 'text-green-600 bg-green-50 border-green-600'
-                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-            }`}
-          >
-            채용 공고
-          </div>
-          {/* <div
-            onClick={() => {
-              router.push('/education-programs');
-              setIsMobileMenuOpen(false);
-            }}
-            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/education-programs')
-                ? 'text-green-600 bg-green-50 border-green-600'
-                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-            }`}
-          >
-            교육 공고
-          </div> */}
-          <div
-            onClick={() => {
-              router.push('/ai-chat/job');
-              setIsMobileMenuOpen(false);
-            }}
-            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/ai-chat/job')
-                ? 'text-green-600 bg-green-50 border-green-600'
-                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-            }`}
-          >
-            AI 직업 추천
-          </div>
-          <div
-            onClick={() => {
-              router.push('/career-roadmap');
-              setIsMobileMenuOpen(false);
-            }}
-            className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-              isActive('/career-roadmap')
-                ? 'text-green-600 bg-green-50 border-green-600'
-                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-            }`}
-          >
-            커리어 로드맵
-          </div>
-
-          {/* 모바일 로그인/로그아웃 버튼 */}
-          {isLoggedIn ? (
-            <div className="px-4 py-3">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
-                  {isLoadingProfile ? (
-                    <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
-                  ) : userData?.profileImage &&
-                    isValidImageUrl(userData.profileImage) ? (
-                    <Image
-                      src={userData.profileImage}
-                      alt="프로필 이미지"
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-cover"
-                      onError={(e) =>
-                        handleImageError(e, userData.profileImage)
-                      }
-                      onLoad={() => handleImageLoad(userData.profileImage)}
-                    />
-                  ) : (
-                    <svg
-                      className="w-5 h-5 text-gray-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-base font-semibold text-gray-800">
-                  {userData?.name || '사용자'}
-                </span>
-              </div>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setIsMobileMenuOpen(false);
-                }}
-                className="w-full text-left text-sm text-gray-500 hover:text-red-600 transition-colors duration-200"
-              >
-                로그아웃
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/member/login"
-              className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-              onClick={() => setIsMobileMenuOpen(false)}
+      {isMobileMenuOpen && (
+        <div className="md:hidden w-full bg-white shadow-lg z-40 absolute top-full left-0 right-0">
+          <div className="px-2 pt-2 pb-6 space-y-1 border-t border-gray-200 bg-white shadow-md rounded-b-2xl">
+            <div
+              onClick={() => {
+                router.push('/job-postings');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+                isActive('/job-postings')
+                  ? 'text-green-600 bg-green-50 border-green-600'
+                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+              }`}
             >
-              로그인
-            </Link>
-          )}
+              채용 공고
+            </div>
+            <div
+              onClick={() => {
+                router.push('/education-programs');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+                isActive('/education-programs')
+                  ? 'text-green-600 bg-green-50 border-green-600'
+                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+              }`}
+            >
+              교육 공고
+            </div>
+            <div
+              onClick={() => {
+                router.push('/ai-chat/job');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+                isActive('/ai-chat/job')
+                  ? 'text-green-600 bg-green-50 border-green-600'
+                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+              }`}
+            >
+              AI 직업 추천
+            </div>
+            <div
+              onClick={() => {
+                router.push('/career-roadmap');
+                setIsMobileMenuOpen(false);
+              }}
+              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
+                isActive('/career-roadmap')
+                  ? 'text-green-600 bg-green-50 border-green-600'
+                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
+              }`}
+            >
+              커리어 로드맵
+            </div>
+
+            {/* 모바일 로그인/로그아웃 버튼 */}
+            {isLoggedIn ? (
+              <div className="px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
+                      {isLoadingProfile ? (
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
+                      ) : userData?.profileImage &&
+                        isValidImageUrl(userData.profileImage) ? (
+                        <Image
+                          src={userData.profileImage}
+                          alt="프로필 이미지"
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                          onError={(e) =>
+                            handleImageError(e, userData.profileImage)
+                          }
+                          onLoad={() => handleImageLoad(userData.profileImage)}
+                        />
+                      ) : (
+                        <svg
+                          className="w-5 h-5 text-gray-600"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-base font-semibold text-gray-800">
+                      {userData?.name || '사용자'}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="px-3 py-2 text-sm text-gray-500 hover:text-red-600 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/member/login"
+                className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                로그인
+              </Link>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 }
