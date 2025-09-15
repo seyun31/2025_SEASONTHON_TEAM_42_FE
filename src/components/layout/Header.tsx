@@ -422,8 +422,11 @@ export default function Header() {
 
             {/* 모바일 로그인/로그아웃 버튼 */}
             {isLoggedIn ? (
-              <div className="px-4 py-3">
-                <div className="flex items-center justify-between">
+              <div className="px-4 py-3 relative">
+                <div
+                  className="flex items-center justify-between cursor-pointer"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
                       {isLoadingProfile ? (
@@ -460,16 +463,93 @@ export default function Header() {
                       {userData?.name || '사용자'}
                     </span>
                   </div>
-                  <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className="px-3 py-2 text-sm text-gray-500 hover:text-red-600 rounded-lg hover:bg-gray-50 transition-all duration-200"
-                  >
-                    로그아웃
-                  </button>
+                  {isDropdownOpen ? (
+                    <BsChevronUp className="w-4 h-4 text-black" />
+                  ) : (
+                    <BsChevronDown className="w-4 h-4 text-black" />
+                  )}
                 </div>
+
+                {/* 모바일 드롭박스 모달 */}
+                {isDropdownOpen && (
+                  <div
+                    className="absolute top-full right-0 mt-2 w-[180px] bg-white rounded-[12px]"
+                    style={{
+                      boxShadow: '0px 10px 20px 0px #11111126',
+                    }}
+                  >
+                    <div className="p-2 flex flex-col space-y-1">
+                      <button
+                        onClick={() => {
+                          router.push('/my');
+                          setIsDropdownOpen(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        <Image
+                          src="/assets/Icons/drop-user.svg"
+                          alt="마이페이지"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        마이페이지
+                      </button>
+                      <button
+                        onClick={() => {
+                          router.push('/edit');
+                          setIsDropdownOpen(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm font-medium cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        <Image
+                          src="/assets/Icons/drop-edit.svg"
+                          alt="개인정보 수정"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        개인정보 수정
+                      </button>
+                      <button
+                        onClick={() => {
+                          router.push('/heart-lists');
+                          setIsDropdownOpen(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        <Image
+                          src="/assets/Icons/drop-star.svg"
+                          alt="관심 목록"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        관심 목록
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setIsDropdownOpen(false);
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
+                      >
+                        <Image
+                          src="/assets/Icons/drop-sign-out.svg"
+                          alt="로그아웃"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        로그아웃
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <Link
