@@ -426,6 +426,14 @@ body {
   color: var(--foreground);
 }
 
+/* progress-bar 스타일 */
+.progress-text {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 140%;
+  letter-spacing: -2.5%;
+}
+
 /* ============================================
    스크롤바 유틸리티
    ============================================ */
@@ -464,4 +472,25 @@ body {
 
 .rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+/* 애니메이션 클래스 */
+.animate-slide-up-fade {
+  animation: slideUpFade 0.6s ease-out forwards;
+}
+
+.animate-slide-down-fade {
+  animation: slideDownFade 0.4s ease-in forwards;
+}
+
+.animate-slide-up-bounce {
+  animation: slideUpBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.animate-message-slide-in {
+  animation: messageSlideIn 0.5s ease-out forwards;
+}
+
+.animate-pulse-gentle {
+  animation: pulse 2s ease-in-out infinite;
 }

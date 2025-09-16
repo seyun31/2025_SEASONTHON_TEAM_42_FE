@@ -8,6 +8,7 @@ import {
 } from '@/contexts/ChatHistoryContext';
 import MessageSection from '@/components/features/chat/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
+import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import MessageItem from '@/components/ui/MessageItem';
 import FlipCard from '@/components/features/chat/AIChatJobCard';
@@ -400,8 +401,18 @@ function AIChatJobContent() {
         )}
       </MessageSection>
 
+      {/* 진행바 */}
+      {currentStep > 0 && (
+        <div className="absolute bottom-[19vh] left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] flex justify-center items-center animate-slide-up-fade">
+          <ProgressBar
+            currentStep={currentStep}
+            totalSteps={aiChatFlow.questions.length}
+          />
+        </div>
+      )}
+
       {/* 입력창 */}
-      <div className="absolute bottom-[4.8vh] w-full max-w-[1200px] flex justify-center">
+      <div className="absolute bottom-[4.8vh] w-full max-w-[1200px] flex justify-center animate-slide-up-bounce">
         <ChatInput
           value={textInput}
           onChange={setTextInput}
