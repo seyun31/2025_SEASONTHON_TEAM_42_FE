@@ -320,7 +320,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           }}
         >
           <div className="flex justify-between items-center text-white">
-            <div className="flex flex-col md:flex-row gap-1 md:gap-3 flex-1 min-w-0">
+            <div className="flex flex-row gap-1 md:gap-3 flex-1 min-w-0">
               <div className="text-lg md:text-2xl flex items-center truncate font-medium">
                 {job.companyName || '회사명 미정'}
               </div>
@@ -408,7 +408,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
         ) : (
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
-            <p className="text-gray-800 text-xl md:text-title-large leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
+            <p className="text-gray-800 text-xl md:text-title-large text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
               {job.jobTitle || '직무명 미정'}
             </p>
 
