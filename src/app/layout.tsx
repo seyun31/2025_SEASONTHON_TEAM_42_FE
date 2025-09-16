@@ -39,7 +39,7 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
-      <body>
+      <body suppressHydrationWarning={true}>
         <QueryProvider>
           <div className="text-black bg-white flex flex-col items-start justify-start pt-24">
             <div className="w-full mx-auto px-4 md:px-8 text-lg font-medium">

@@ -19,6 +19,8 @@ import {
   RoadMapStep,
   ActionDto,
   RoadMapRequest,
+  ActionUpdateRequest,
+  RoadmapActionRecommendResponse,
   ApiResponse as RoadmapApiResponse,
 } from '@/types/roadmap';
 import { getAccessToken } from '@/lib/auth';
@@ -294,6 +296,8 @@ export const getRoadMap = async (): Promise<RoadMapResponse> => {
       );
     }
 
+    console.log('Making API request to /roadmap/recommend (GET)');
+
     const response = await fetch(`${backendUrl}/roadmap/recommend`, {
       method: 'GET',
       headers: {
@@ -302,17 +306,21 @@ export const getRoadMap = async (): Promise<RoadMapResponse> => {
       },
     });
 
+    console.log('getRoadMap - API Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('getRoadMap - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch roadmap: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
+    console.log('getRoadMap - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('getRoadMap - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -340,6 +348,9 @@ export const recommendRoadMap = async (
       );
     }
 
+    console.log('Making API request to /roadmap/recommend (POST)');
+    console.log('Request body:', request);
+
     const response = await fetch(`${backendUrl}/roadmap/recommend`, {
       method: 'POST',
       headers: {
@@ -349,17 +360,21 @@ export const recommendRoadMap = async (
       body: JSON.stringify(request),
     });
 
+    console.log('recommendRoadMap - API Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('recommendRoadMap - API Error Response:', errorText);
       throw new Error(
         `Failed to recommend roadmap: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
+    console.log('recommendRoadMap - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('recommendRoadMap - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -387,6 +402,8 @@ export const toggleRoadMapAction = async (
       );
     }
 
+    console.log(`Making API request to /roadmap/${roadMapActionId} (POST)`);
+
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
       method: 'POST',
       headers: {
@@ -395,17 +412,21 @@ export const toggleRoadMapAction = async (
       },
     });
 
+    console.log('toggleRoadMapAction - API Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('toggleRoadMapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to toggle roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
+    console.log('toggleRoadMapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('toggleRoadMapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -751,26 +772,35 @@ export const updateRoadmapAction = async (
       );
     }
 
+    const requestBody: ActionUpdateRequest = { action };
+
+    console.log(`Making API request to /roadmap/${roadMapActionId} (PUT)`);
+    console.log('Request body:', requestBody);
+
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ action }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log('updateRoadmapAction - API Response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('updateRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to update roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
+    console.log('updateRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('updateRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -796,6 +826,8 @@ export const deleteRoadmapAction = async (
       );
     }
 
+    console.log(`Making API request to /roadmap/${roadMapActionId} (DELETE)`);
+
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
       method: 'DELETE',
       headers: {
@@ -804,17 +836,21 @@ export const deleteRoadmapAction = async (
       },
     });
 
+    console.log('deleteRoadmapAction - API Response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('deleteRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to delete roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
+    console.log('deleteRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
+      console.error('deleteRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -840,6 +876,10 @@ export const recommendRoadmapAction = async (
       );
     }
 
+    console.log(
+      `Making API request to /roadmap/roadmapAction/recommend?category=${category}`
+    );
+
     const response = await fetch(
       `${backendUrl}/roadmap/roadmapAction/recommend?category=${encodeURIComponent(category)}`,
       {
@@ -851,18 +891,29 @@ export const recommendRoadmapAction = async (
       }
     );
 
+    console.log(
+      'recommendRoadmapAction - API Response status:',
+      response.status
+    );
+
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('API Error Response:', errorText);
+      console.error('recommendRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to recommend roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
-    const result: ApiResponse<{ recommendRoadmapActionList: string[] }> =
+    const result: ApiResponse<RoadmapActionRecommendResponse> =
       await response.json();
 
+    console.log('recommendRoadmapAction - API Response data:', result);
+
     if (result.result !== 'SUCCESS') {
+      console.error(
+        'recommendRoadmapAction - API returned error:',
+        result.error
+      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
