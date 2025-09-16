@@ -84,7 +84,7 @@ const styles = {
     }`,
 
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
-    `flex px-2 py-1 rounded-full ext-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
+    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
       isExpanded
         ? 'bg-primary-20'
         : isHovered
@@ -158,7 +158,7 @@ const RecommendationScore = ({
   isExpanded?: boolean;
 }) => (
   <div
-    className={`flex flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
+    className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
       isExpanded
         ? 'opacity-100 translate-x-0 translate-y-0'
         : 'opacity-100 translate-x-0 translate-y-0 scale-100'
@@ -194,9 +194,7 @@ const DetailItem = ({
   isPrimary?: boolean;
 }) => (
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
-    <span className="text-gray-500 text-sm md:text-body-large-medium">
-      {label}
-    </span>
+    <span className="text-gray-500 text-sm md:text-xl">{label}</span>
     <span
       className={`text-sm md:text-body-large-medium ${isPrimary ? 'text-primary-90' : 'text-black'}`}
     >
@@ -253,7 +251,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
     const skills = job.requiredSkills?.split(',') || [];
 
     return (
-      <div className="flex flex-wrap gap-1 md:gap-2">
+      <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
         {categories.map((category, i) => (
           <Tag
             key={`category-${i}`}
@@ -283,7 +281,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
   // 상세 정보 렌더링 함수
   const renderDetails = () => (
-    <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-out">
+    <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
       <DetailItem label="디데이" value={calculateDaysLeft(job.closingDate)} />
       <DetailItem
         label="경력"
@@ -395,12 +393,12 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 버튼 */}
-            <div className="mt-4 md:mt-6 transition-all duration-500 ease-out">
+            <div className="mt-4 md:mt-6 md:text-2xl transition-all duration-500 ease-out">
               <a
                 href={job.applyLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-title-medium hover:bg-green-600 transition-all duration-300 block text-center"
+                className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-green-600 transition-all duration-300 block text-center"
                 onClick={(e) => e.stopPropagation()}
               >
                 자세히 보기
