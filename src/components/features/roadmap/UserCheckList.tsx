@@ -111,12 +111,12 @@ export default function UserCheckList({
   };
   // 로드맵이 없거나 API 데이터가 없는 경우
   if (!hasRoadmap || !roadmapData) {
-    // 로드맵이 없는 경우 - 상단에 로드맵 시각화, 하단에 생성 버튼
+    // 로드맵이 없는 경우 - 왼쪽에 로드맵 시각화, 오른쪽에 생성 버튼
     return (
-      <div className="flex flex-col gap-4">
-        {/* 상단 - 로드맵 시각화 */}
+      <div className="flex gap-4">
+        {/* 왼쪽 - 로드맵 시각화 */}
         <div
-          className="relative rounded-2xl p-8 text-white overflow-hidden h-[400px] w-[1200px] flex-shrink-0"
+          className="relative rounded-2xl p-8 text-white overflow-hidden h-[800px] w-[600px] flex-shrink-0"
           style={{
             backgroundImage: 'url(/assets/Icons/roadmap_bg.png)',
             backgroundSize: 'cover',
@@ -141,12 +141,12 @@ export default function UserCheckList({
           </div>
         </div>
 
-        {/* 하단 - AI와 함께 로드맵 생성하기 버튼 */}
+        {/* 오른쪽 - AI와 함께 로드맵 생성하기 버튼 */}
         <div
           className="flex justify-center items-center flex-shrink-0 rounded-3xl"
           style={{
-            width: '1200px',
-            height: '400px',
+            width: '580px',
+            height: '800px',
             background: '#FFF',
             boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
           }}
@@ -162,12 +162,12 @@ export default function UserCheckList({
     );
   }
 
-  // 로드맵이 있는 경우 - 상단에 로드맵, 하단에 두 개의 카드
+  // 로드맵이 있는 경우 - 왼쪽에 로드맵, 오른쪽에 두 개의 카드
   return (
-    <div className="flex flex-col gap-4">
-      {/* 상단 - 로드맵 시각화 */}
+    <div className="flex gap-4">
+      {/* 왼쪽 - 로드맵 시각화 */}
       <div
-        className="relative rounded-2xl p-8 text-white overflow-hidden h-[400px] w-[1200px] flex-shrink-0"
+        className="relative rounded-2xl p-8 text-white overflow-hidden h-[800px] w-[600px] flex-shrink-0"
         style={{
           backgroundImage: 'url(/assets/Icons/roadmap_bg.png)',
           backgroundSize: 'cover',
@@ -370,57 +370,73 @@ export default function UserCheckList({
         </div>
       </div>
 
-      {/* 하단 - 두 개의 카드 */}
-      <div className="flex gap-4">
-        {/* 왼쪽 카드 - 취업 정보 */}
+      {/* 오른쪽 - 두 개의 카드 (세로 배치) */}
+      <div className="flex flex-col gap-4">
+        {/* 상단 카드 - 취업 정보 */}
         <div
-          className="bg-white rounded-3xl py-6 px-8"
+          className="bg-white rounded-3xl py-6 px-8 h-60 w-full bg-white"
           style={{
-            width: '324px',
-            height: '400px',
-            background: '#FFF',
             boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
           }}
         >
-          <div className="text-primary-90 text-header-medium">
-            {roadmapData
-              ? `D-${roadmapData.roadmapInputResponse.dday}`
-              : mockRoadmapData.careerInfo.dDay}
-          </div>
-          <div className="text-gray-800 text-title-xlarge">
-            {roadmapData
-              ? roadmapData.roadmapInputResponse.career
-              : mockRoadmapData.careerInfo.jobTitle}
-          </div>
-          <div className="flex flex-col gap-4 mt-6">
-            <div className="flex flex-col gap-2">
-              <div className="text-gray-50 text-body-medium">
-                보유 경험/자격증
+          <div className="flex h-full">
+            {/* 왼쪽 섹션 */}
+            <div className="flex-[2] flex flex-col justify-between">
+              <div>
+                <div className="text-primary-90 text-header-medium">
+                  {roadmapData
+                    ? `D+${roadmapData.roadmapInputResponse.dday}`
+                    : mockRoadmapData.careerInfo.dDay}
+                </div>
+                <div className="text-gray-800 text-title-xlarge mt-2">
+                  {roadmapData
+                    ? roadmapData.roadmapInputResponse.career
+                    : mockRoadmapData.careerInfo.jobTitle}
+                </div>
               </div>
-              <div className="text-gray-800 text-body-large">
-                {roadmapData
-                  ? roadmapData.roadmapInputResponse.experience
-                  : mockRoadmapData.careerInfo.experience}
+
+              <div className="flex flex-col">
+                <div className="text-gray-50 text-body-medium">
+                  목표 취업 기간
+                </div>
+                <div className="text-gray-800 text-body-large">
+                  {roadmapData
+                    ? roadmapData.roadmapInputResponse.period
+                    : mockRoadmapData.careerInfo.targetPeriod}
+                </div>
               </div>
             </div>
-            <div className="flex flex-col gap-2">
-              <div className="text-gray-50 text-body-medium">
-                목표 취업 기간
+
+            {/* 세로 구분선 */}
+            <div className="w-px bg-gray-200 mx-4"></div>
+
+            {/* 오른쪽 섹션 */}
+            <div className="flex-1 flex flex-col">
+              <div className="text-primary-90 text-body-medium mb-4">
+                보유 경험/자격증
               </div>
-              <div className="text-gray-800 text-body-large">
+              <div className="text-gray-800 text-body-large space-y-2">
                 {roadmapData
-                  ? roadmapData.roadmapInputResponse.period
-                  : mockRoadmapData.careerInfo.targetPeriod}
+                  ? roadmapData.roadmapInputResponse.experience
+                      ?.split(',')
+                      .map((item, index) => (
+                        <div key={index}>{item.trim()}</div>
+                      ))
+                  : mockRoadmapData.careerInfo.experience
+                      ?.split(',')
+                      .map((item, index) => (
+                        <div key={index}>{item.trim()}</div>
+                      ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 오른쪽 카드 - 안내 및 체크리스트 */}
+        {/* 하단 카드 - 안내 및 체크리스트 */}
         <div
           className="bg-white rounded-2xl p-6 relative"
           style={{
-            width: '844px',
+            width: '580px',
             height: '400px',
             background: '#FFF',
             boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
@@ -455,32 +471,11 @@ export default function UserCheckList({
               </div>
 
               <div className="flex-1 flex flex-col justify-center">
-                <div
-                  className="relative"
-                  style={{
-                    height: `${(checklistItems[selectedStepId]?.length || 0) * 45 + 40}px`,
-                  }}
-                >
+                <div className="space-y-4">
                   {checklistItems[selectedStepId]?.map((item, index) => {
-                    // 지그재그 패턴으로 y좌표 설정 (왼쪽-오른쪽-왼쪽-오른쪽...)
-                    const isLeft = index % 2 === 0;
-                    const yPosition = 20 + index * 45; // 각 항목마다 45px 간격 (기존 60px에서 줄임)
-                    const xPosition = isLeft ? 0 : 50; // 왼쪽은 0px, 오른쪽은 200px
-
                     return (
-                      <div
-                        key={item.id}
-                        className="absolute flex items-center gap-4"
-                        style={{
-                          left: `${xPosition}px`,
-                          top: `${yPosition}px`,
-                          width: '300px',
-                        }}
-                      >
-                        <div
-                          className="flex flex-col items-center"
-                          style={{ zIndex: 10 }}
-                        >
+                      <div key={item.id} className="flex items-center gap-4">
+                        <div className="flex flex-col items-center">
                           <button
                             onClick={() =>
                               toggleChecklistItem(selectedStepId, item.id)
@@ -488,15 +483,15 @@ export default function UserCheckList({
                             className="hover:scale-110 transition-transform cursor-pointer"
                           >
                             {item.completed ? (
-                              <HiStar className="w-12 h-12 text-secondary2" />
+                              <HiStar className="w-8 h-8 text-secondary2" />
                             ) : (
-                              <PiStarThin className="bg-white w-12 h-12 text-gray-300" />
+                              <PiStarThin className="w-8 h-8 text-gray-300" />
                             )}
                           </button>
                         </div>
                         <div className="flex-1">
                           <span
-                            className={`text-body-large cursor-pointer whitespace-nowrap ${
+                            className={`text-body-large cursor-pointer ${
                               item.completed
                                 ? 'text-gray-500 line-through'
                                 : 'text-gray-800'
@@ -512,55 +507,19 @@ export default function UserCheckList({
                     );
                   })}
 
-                  {/* ===== 체크리스트 별 아이콘들 사이의 연결선 그리기 ===== */}
-                  <svg
-                    className="absolute inset-0 w-full h-full pointer-events-none"
-                    style={{ zIndex: 0 }}
-                  >
-                    {checklistItems[selectedStepId]?.map((item, index) => {
-                      // 마지막 항목은 연결선이 필요 없음
-                      if (
-                        index ===
-                        (checklistItems[selectedStepId]?.length || 0) - 1
-                      )
-                        return null;
-
-                      // 다음 별이 완료된 상태인지 확인 (현재 별은 완료 여부와 관계없이)
-                      const nextItem =
-                        checklistItems[selectedStepId][index + 1];
-                      if (!nextItem || !nextItem.completed) {
-                        return null; // 다음 별이 완료되지 않았으면 연결선을 그리지 않음
-                      }
-
-                      // 현재 별과 다음 별의 위치 계산
-                      const isLeft = index % 2 === 0; // 현재 별이 왼쪽에 있는지 확인
-                      const nextIsLeft = (index + 1) % 2 === 0; // 다음 별이 왼쪽에 있는지 확인
-
-                      // Y좌표: 20px 시작 + (인덱스 * 45px 간격) + 24px(별 크기의 절반)
-                      const currentY = 20 + index * 45 + 24; // 현재 별의 중심점 Y
-                      const nextY = 20 + (index + 1) * 45 + 24; // 다음 별의 중심점 Y
-
-                      // X좌표: 왼쪽은 24px, 오른쪽은 74px (별 크기의 절반 고려)
-                      const currentX = isLeft ? 24 : 74; // 현재 별의 중심점 X
-                      const nextX = nextIsLeft ? 24 : 74; // 다음 별의 중심점 X
-
-                      // 디버깅용 로그
-                      console.log(
-                        `연결선 ${index}: (${currentX}, ${currentY}) -> (${nextX}, ${nextY}) - 다음별 완료됨`
-                      );
-
-                      // SVG path로 직선 연결선 그리기
-                      return (
-                        <path
-                          key={`line-${index}`}
-                          d={`M ${currentX} ${currentY} L ${nextX} ${nextY}`} // M: 시작점, L: 직선으로 연결
-                          stroke="#FFD700" // 더 진한 노란색
-                          strokeWidth="3" // 선 두께 증가
-                          fill="none" // 채우기 없음
-                        />
-                      );
-                    })}
-                  </svg>
+                  {/* 추가 목표 항목 */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex flex-col items-center">
+                      <button className="hover:scale-110 transition-transform cursor-pointer">
+                        <PiStarThin className="w-8 h-8 text-gray-300" />
+                      </button>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-body-large text-gray-800">
+                        별을 눌러 직접 목표를 추가해보세요!
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
