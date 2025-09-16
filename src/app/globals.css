@@ -325,9 +325,9 @@ body {
 .my-input {
   font-family: var(--font-family-primary);
   padding-left: 20px;
-  background-color: var(--background);
+  /* background-color: var(--background);
   border: 1px solid var(--gray-20);
-  border-radius: 6px;
+  border-radius: 6px; */
   color: var(--foreground);
   transition: all 0.2s ease-in-out;
 }
