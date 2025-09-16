@@ -84,15 +84,15 @@ function FilterDropdown({
     <div className="relative">
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary-20 transition-colors ${
+        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap ${
           isSelected || isOpen
             ? 'bg-primary-20 text-gray-90'
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-title-large">{label}</span>
+        <span className="text-sm md:text-3xl">{label}</span>
         <svg
-          className={`w-6 h-6 transition-transform ${
+          className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
           }`}
           fill="none"
@@ -109,8 +109,8 @@ function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-4">
-          <div className="grid grid-cols-3 gap-3">
+        <div className="absolute top-full left-0 mt-2 w-[calc(100vw-3rem)] max-w-72 bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-2 md:p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             {options.map((option) => {
               const isChecked = values.includes(option.value);
               return (
@@ -139,7 +139,7 @@ function FilterDropdown({
                       </svg>
                     )}
                   </div>
-                  <span className="text-body-medium text-gray-90">
+                  <span className="text-xs md:text-lg text-gray-90">
                     {option.label}
                   </span>
                   <input
@@ -182,15 +182,15 @@ function RegionSelector({
     <div className="relative">
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary-20 transition-colors ${
+        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap ${
           isSelected || isOpen
             ? 'bg-primary-20 text-gray-90'
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-title-large">지역</span>
+        <span className="text-sm md:text-3xl">지역</span>
         <svg
-          className={`w-6 h-6 transition-transform ${
+          className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
           }`}
           fill="none"
@@ -207,11 +207,11 @@ function RegionSelector({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-[600px] bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-4">
-          <div className="flex gap-4">
+        <div className="absolute top-full left-0 mt-2 w-[calc(100vw-3rem)] md:w-[500px] bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-2 md:p-4">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
             {/* 왼쪽: 지역 목록 */}
-            <div className="w-1/2">
-              <h3 className="text-body-large font-medium text-gray-90 mb-3">
+            <div className="w-full md:w-1/2">
+              <h3 className="text-sm md:text-xl font-medium text-gray-90 mb-2 md:mb-3">
                 지역 선택
               </h3>
               <div className="grid grid-cols-2 gap-2">
@@ -219,7 +219,7 @@ function RegionSelector({
                   <button
                     key={region.id}
                     onClick={() => onRegionChange(region.value)}
-                    className={`px-3 py-2 text-body-medium text-left rounded transition-colors ${
+                    className={`px-3 py-2 text-xs md:text-lg text-left rounded transition-colors ${
                       selectedRegion === region.value
                         ? 'bg-primary-10 text-primary-90 font-medium'
                         : 'text-gray-70 hover:bg-gray-5'
@@ -232,14 +232,14 @@ function RegionSelector({
             </div>
 
             {/* 오른쪽: 선택된 지역의 구/시 목록 */}
-            <div className="w-1/2 border-l border-gray-20 pl-4">
-              <h3 className="text-body-large font-medium text-gray-90 mb-3">
+            <div className="w-full md:w-1/2 md:border-l border-gray-20 md:pl-4">
+              <h3 className="text-sm md:text-xl font-medium text-gray-90 mb-2 md:mb-3">
                 {selectedRegion
                   ? `${selectedRegion} 지역`
                   : '지역을 선택하세요'}
               </h3>
               {selectedRegion && currentDistricts.length > 0 ? (
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                   {currentDistricts.map((district, index) => {
                     const isChecked = selectedDistricts.includes(district);
                     return (
@@ -268,7 +268,7 @@ function RegionSelector({
                             </svg>
                           )}
                         </div>
-                        <span className="text-body-small text-gray-90">
+                        <span className="text-xs md:text-base text-gray-90">
                           {district}
                         </span>
                         <input
@@ -282,7 +282,7 @@ function RegionSelector({
                   })}
                 </div>
               ) : (
-                <div className="text-body-medium text-gray-50 text-center py-8">
+                <div className="text-xs md:text-lg text-gray-50 text-center py-8">
                   {selectedRegion
                     ? '해당 지역에 구/시가 없습니다'
                     : '지역을 선택해주세요'}
@@ -405,7 +405,7 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
   return (
     <div ref={filterRef} className="w-full mt-6">
       {/* 필터 바 */}
-      <div className="flex items-center gap-4 ">
+      <div className="flex flex-row items-stretch md:items-center gap-3 md:gap-4">
         {/* 지역 필터 */}
         <RegionSelector
           selectedRegion={filters.selectedRegion}
@@ -436,10 +436,20 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
           onChange={(values) => handleFilterChange('jobCategory', values)}
         />
 
-        {/* 필터 적용하기 버튼 */}
+        {/* 데스크탑용 필터 적용하기 버튼 */}
         <button
           onClick={() => onFilterChange?.(filters)}
-          className="ml-auto px-6 py-3 bg-primary-90 text-white rounded-xl text-body-medium font-medium hover:bg-primary-80 transition-colors"
+          className="hidden md:block ml-auto px-6 py-3 bg-primary-90 text-white rounded-xl text-body-medium font-medium hover:bg-primary-80 transition-colors"
+        >
+          필터 적용하기
+        </button>
+      </div>
+
+      {/* 모바일용 필터 적용하기 버튼 */}
+      <div className="mt-4 md:hidden flex justify-start">
+        <button
+          onClick={() => onFilterChange?.(filters)}
+          className="px-4 py-2 bg-primary-90 text-white rounded-xl text-sm font-medium hover:bg-primary-80 transition-colors"
         >
           필터 적용하기
         </button>
@@ -452,7 +462,7 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
           {filters.selectedDistricts.map((district) => (
             <div
               key={`district-${district}`}
-              className="flex items-center gap-2 px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-body-small"
+              className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-xs md:text-body-small"
             >
               <span>{district}</span>
               <button
@@ -478,7 +488,7 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
             return (
               <div
                 key={`employment-${type}`}
-                className="flex items-center gap-2 px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-body-small"
+                className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-xs md:text-body-small"
               >
                 <span>{option.label}</span>
                 <button
@@ -505,7 +515,7 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
             return (
               <div
                 key={`category-${category}`}
-                className="flex items-center gap-2 px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-body-small"
+                className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-xs md:text-body-small"
               >
                 <span>{option.label}</span>
                 <button
