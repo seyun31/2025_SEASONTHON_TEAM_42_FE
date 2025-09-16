@@ -1,42 +1,30 @@
 import { RoadmapData } from '@/types/roadmap';
 
+// 기본 로드맵 단계 데이터 (API 데이터가 없을 때 사용)
+export const defaultRoadmapSteps = [
+  { id: 1, name: '준비', completed: true },
+  { id: 2, name: '성장', completed: true },
+  { id: 3, name: '도전', completed: false },
+  { id: 4, name: '달성', completed: false },
+];
+
+// 기본 취업 정보 (API 데이터가 없을 때 사용)
+export const defaultCareerInfo = {
+  dDay: 'D + 10',
+  jobTitle: '사회복지사 보조',
+  experience: '노인 봉사활동 5년',
+  targetPeriod: '4개월 이내',
+};
+
 export const mockRoadmapData: RoadmapData = {
-  steps: [
-    {
-      id: 1,
-      name: '준비',
-      position: { x: 12, y: 35 },
-      completed: true,
-      progress: 100,
-    },
-    {
-      id: 2,
-      name: '성장',
-      position: { x: 38, y: 70 },
-      completed: true,
-      progress: 100,
-    },
-    {
-      id: 3,
-      name: '도전',
-      position: { x: 62, y: 30 },
-      completed: false,
-      progress: 60,
-    },
-    {
-      id: 4,
-      name: '달성',
-      position: { x: 90, y: 5 },
-      completed: false,
-      progress: 0,
-    },
-  ],
+  steps: defaultRoadmapSteps.map((step, index) => ({
+    ...step,
+    position: { x: 12 + index * 20, y: 35 + index * 10 },
+    progress: step.completed ? 100 : 0,
+  })),
   careerInfo: {
-    dDay: 'D + 10',
-    jobTitle: '사회복지사 보조',
-    experience: '노인 봉사활동 5년',
+    ...defaultCareerInfo,
     careerDetails: '엄청나게 긴 경력사항은 이렇게 처리합니다',
-    targetPeriod: '4개월 이내',
   },
   checklists: {
     1: [

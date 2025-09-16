@@ -8,6 +8,7 @@ import { getRoadMap } from '@/lib/api/jobApi';
 import { RoadMapResponse } from '@/types/roadmap';
 import { aiCoachCards } from '@/data/aiCoachData';
 import { IoIosArrowForward } from 'react-icons/io';
+import RoadmapRenderer from '@/components/ui/RoadmapRenderer';
 
 // 별 모양 SVG 컴포넌트
 const StarIcon = ({
