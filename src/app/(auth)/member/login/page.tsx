@@ -10,7 +10,7 @@ export default function Login() {
   return (
     <div className="fixed inset-0 flex items-center justify-center">
       {/* 데스크탑 박스 */}
-      <div className="relative hidden md:flex w-[30.5vw] h-[57.6vh] border-4 border-primary-90 rounded-[32px] flex-col items-center justify-center">
+      <div className="relative hidden xl:flex w-[30.5vw] h-[57.6vh] border-4 border-primary-90 rounded-[32px] flex-col items-center justify-center">
         {/* 박스 배경 오버레이 */}
         <div className="absolute inset-0 rounded-[32px] bg-primary-20 opacity-50 pointer-events-none" />
 
@@ -60,7 +60,7 @@ export default function Login() {
       </div>
 
       {/* 모바일 레이아웃 */}
-      <div className="flex md:hidden w-full h-full flex-col items-center justify-center px-8">
+      <div className="flex xl:hidden w-full h-full flex-col items-center justify-center px-8">
         {/* 로고 이미지 */}
         <div className="mb-57.5">
           <Image

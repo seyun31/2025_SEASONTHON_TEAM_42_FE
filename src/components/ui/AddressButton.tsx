@@ -16,10 +16,10 @@ export default function AddressButton({
       type="button"
       onClick={onClick}
       onMouseEnter={onHover}
-      className="w-full h-[9.26vh] rounded-[12px] border-2 border-primary-30 bg-white flex items-center justify-between"
+      className="w-full h-[10vh] md:h-[10vh] rounded-[12px] border-2 border-primary-30 bg-white flex items-center justify-between px-4"
     >
       <span
-        className={`my-input text-body-large-medium ${value ? 'text-gray-900' : 'text-gray-400'}`}
+        className={`text-[18px] font-medium leading-[180%] tracking-tighter md:my-input text-body-large-medium ${value ? 'text-black' : 'text-gray-50'} flex-1 text-left`}
       >
         {value || placeholder}
       </span>
@@ -28,8 +28,7 @@ export default function AddressButton({
         alt="오른쪽 화살표"
         width={0}
         height={0}
-        className="w-[1.25vw] h-[2.22vh]"
-        style={{ marginRight: '20px' }}
+        className="w-5 h-5 md:w-[1.25vw] md:h-[2.22vh] flex-shrink-0"
       />
     </button>
   );

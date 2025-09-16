@@ -13,7 +13,7 @@ export default function MessageOption({
 }: MessageOptionProps) {
   return (
     <div
-      className={`flex items-center justify-center border-2 border-secondary1 rounded-[100px] overflow-hidden max-w-[60vw] xs:max-w-[60vw] md:max-w-[40vw] lg:max-w-[30vw] px-4 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message text-center text-[18px] xs:text-[18px] md:text-[18px] lg:text-[18px] ${
+      className={`flex items-center justify-center border-2 border-secondary1 rounded-[30px] xs:rounded-[50px] md:rounded-[80px] lg:rounded-[100px] overflow-hidden max-w-[60vw] xs:max-w-[60vw] md:max-w-[40vw] lg:max-w-[30vw] min-w-[120px] xs:min-w-[120px] md:min-w-0 max-h-[30vh] md:max-h-none min-h-[48px] xs:min-h-[48px] md:min-h-0 px-4 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message text-center text-[18px] xs:text-[18px] md:text-[18px] lg:text-[18px] ${
         isSelected ? 'bg-secondary1 text-black' : 'text-black'
       }`}
       style={!isSelected ? { backgroundColor: 'white' } : {}}

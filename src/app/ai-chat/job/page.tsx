@@ -401,6 +401,8 @@ function AIChatJobContent() {
         )}
       </MessageSection>
 
+      {/* 진행바 및 입력창 컨테이너
+      <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
       {/* 진행바 */}
       {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
         <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
@@ -420,6 +422,7 @@ function AIChatJobContent() {
         />
       </div>
     </div>
+    // </div>
   );
 }
 
