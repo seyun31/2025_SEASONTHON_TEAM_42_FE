@@ -18,8 +18,9 @@ export default function AICoachSection() {
   return (
     <section className="w-full px-4 py-8">
       <div className="max-w-[1200px] mx-auto">
-        <h2 className="text-title-xlarge text-gray-80 mb-8 text-left">
-          AI 코치와 함께 넥스트 커리어를 준비해봐요!
+        <h2 className="text-2xl md:text-4xl font-semibold text-gray-80 mb-8 text-left">
+          AI 코치와 함께 <br className="md:hidden" /> 넥스트 커리어를
+          준비해봐요!
         </h2>
 
         <div className="flex flex-col xl:flex-row gap-6 justify-center items-center">

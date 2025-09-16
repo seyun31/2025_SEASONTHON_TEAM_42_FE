@@ -110,7 +110,7 @@ export default function JobRecommendationsSection() {
       <section className="w-full px-4 py-8">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-title-xlarge text-gray-80">
+            <h2 className="text-2xl md:text-4xl font-semibold text-gray-80 text-left items-center">
               {userName
                 ? `${userName}님을 위한 오늘의 맞춤 일자리 추천`
                 : '오늘의 일자리 추천'}
@@ -144,10 +144,15 @@ export default function JobRecommendationsSection() {
     <section className="w-full px-4 py-8">
       <div className="max-w-[1200px] mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-title-xlarge text-gray-80">
-            {userName
-              ? `${userName}님을 위한 오늘의 맞춤 일자리 추천`
-              : '오늘의 일자리 추천'}
+          <h2 className="text-2xl md:text-4xl font-semibold text-gray-80 text-left items-center">
+            {userName ? (
+              <>
+                {userName}님을 위한 <br className="md:hidden" /> 오늘의 맞춤
+                일자리 추천
+              </>
+            ) : (
+              '오늘의 일자리 추천'
+            )}
           </h2>
           <a
             href="/job-postings"
@@ -157,7 +162,7 @@ export default function JobRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-6">
           <div className="flex flex-col gap-6 flex-1">
             {jobs.slice(0, 4).map((job, index) => (
               <JobCard

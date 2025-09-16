@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import { useState } from 'react';
+import { IoSearchOutline } from 'react-icons/io5';
 
 interface SearchBarProps {
   onSearchChange?: (keyword: string) => void;
@@ -21,28 +21,24 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
   };
 
   return (
-    <div className="flex border-4 border-primary-90 rounded-[100px] overflow-hidden w-[1200px] h-[100px] relative">
-      <button
-        type="button"
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 w-[2.81vw] h-[5vh] flex items-center justify-center"
-        onClick={() => onSearchChange?.(searchValue)}
-      >
-        <Image
-          src="/assets/Icons/search.svg"
-          alt="검색"
-          width={0}
-          height={0}
-          className="w-[2.81vw] h-[5vh]"
+    <div className="flex flex-col items-start gap-[10px] w-full p-3 md:p-6 rounded-[100px] border-2 md:border-4 border-[#00AD38] shadow-[0_10px_10px_0_rgba(87,134,218,0.20)]">
+      <div className="flex items-center w-full">
+        <button
+          type="button"
+          className="flex items-center justify-center w-6 h-6 md:w-12 md:h-12"
+          onClick={() => onSearchChange?.(searchValue)}
+        >
+          <IoSearchOutline className="w-6 h-6 md:w-12 md:h-12" />
+        </button>
+        <input
+          type="text"
+          placeholder="직무명이나 직업 분야를 검색해보세요!"
+          className="flex-1 text-lg md:text-2xl outline-none border-0 bg-transparent ml-2"
+          value={searchValue}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
         />
-      </button>
-      <input
-        type="text"
-        placeholder="직무명이나 직업 분야를 검색해보세요!"
-        className="search-input flex-1 py-2 outline-none"
-        value={searchValue}
-        onChange={handleInputChange}
-        onKeyPress={handleKeyPress}
-      />
+      </div>
     </div>
   );
 }

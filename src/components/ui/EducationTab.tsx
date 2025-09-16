@@ -1,20 +1,20 @@
 'use client';
 
-interface JobTabProps {
+interface EducationTabProps {
   activeTab: 'custom' | 'all';
   onTabChange: (tab: 'custom' | 'all') => void;
   isLoggedIn?: boolean;
 }
 
-export default function JobTab({
+export default function EducationTab({
   activeTab,
   onTabChange,
   isLoggedIn = true,
-}: JobTabProps) {
+}: EducationTabProps) {
   const handleCustomTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('JobTab - Custom tab clicked:', { isLoggedIn });
+    console.log('EducationTab - Custom tab clicked:', { isLoggedIn });
     if (isLoggedIn) {
       onTabChange('custom');
     }
@@ -23,7 +23,7 @@ export default function JobTab({
   const handleAllTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('JobTab - All tab clicked');
+    console.log('EducationTab - All tab clicked');
     onTabChange('all');
   };
 
@@ -40,7 +40,7 @@ export default function JobTab({
               : 'text-gray-30 cursor-not-allowed'
         }`}
       >
-        맞춤공고
+        맞춤교육
         {activeTab === 'custom' && (
           <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-90"></div>
         )}
@@ -51,7 +51,7 @@ export default function JobTab({
           activeTab === 'all' ? 'text-black' : 'text-gray-50 hover:text-gray-70'
         }`}
       >
-        전체공고
+        전체교육
         {activeTab === 'all' && (
           <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-90"></div>
         )}

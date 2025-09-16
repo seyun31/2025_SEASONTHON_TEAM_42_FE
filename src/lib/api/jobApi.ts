@@ -11,6 +11,8 @@ import {
   OptionResponse,
   HistoryResponse,
   CardCoursePage,
+  EducationSummary,
+  EducationApiResponse,
 } from '@/types/job';
 import {
   RoadMapResponse,
@@ -1005,6 +1007,113 @@ export const getAIChatHistory = async (): Promise<HistoryResponse> => {
     return result.data;
   } catch (error) {
     console.error('Error fetching AI chat history:', error);
+    throw error;
+  }
+};
+
+// HRD 교육과정 조회 (Education API)
+export const getEducationCourses = async (filters?: {
+  keyword?: string;
+  pageNo?: number;
+  pageSize?: number;
+  startYmd?: string;
+  endYmd?: string;
+}): Promise<EducationSummary[]> => {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    // 쿼리 파라미터 생성
+    const queryParams = new URLSearchParams();
+
+    if (filters?.keyword) {
+      queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.pageNo) {
+      queryParams.append('pageNo', filters.pageNo.toString());
+    }
+
+    if (filters?.pageSize) {
+      queryParams.append('pageSize', filters.pageSize.toString());
+    }
+
+    if (filters?.startYmd) {
+      queryParams.append('startYmd', filters.startYmd);
+    }
+
+    if (filters?.endYmd) {
+      queryParams.append('endYmd', filters.endYmd);
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `${backendUrl}/job/hrd-course?${queryString}`
+      : `${backendUrl}/job/hrd-course`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error Response:', errorText);
+      throw new Error(
+        `Failed to fetch education courses: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: EducationApiResponse = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    // CardCourseItem을 EducationSummary로 변환
+    return result.data.srchList.map((item) => ({
+      id: item.trprId,
+      trprId: item.trprId,
+      title: item.title,
+      subTitle: item.subTitle,
+      institution: item.instCd, // 기관 코드를 기관명으로 사용
+      address: item.address,
+      traStartDate: item.traStartDate,
+      traEndDate: item.traEndDate,
+      trainTarget: item.trainTarget,
+      contents: item.contents,
+      certificate: item.certificate,
+      grade: item.grade,
+      regCourseMan: item.regCourseMan,
+      courseMan: item.courseMan,
+      realMan: item.realMan,
+      yardMan: item.yardMan,
+      telNo: item.telNo,
+      stdgScor: item.stdgScor,
+      eiEmplCnt3: item.eiEmplCnt3,
+      eiEmplRate3: item.eiEmplRate3,
+      eiEmplCnt3Gt10: item.eiEmplCnt3Gt10,
+      eiEmplRate6: item.eiEmplRate6,
+      ncsCd: item.ncsCd,
+      trprDegr: item.trprDegr,
+      instCd: item.instCd,
+      trngAreaCd: item.trngAreaCd,
+      trainTargetCd: item.trainTargetCd,
+      trainstCstId: item.trainstCstId,
+      subTitleLink: item.subTitleLink,
+      titleLink: item.titleLink,
+      titleIcon: item.titleIcon,
+      isBookmark: false,
+      recommendScore: undefined,
+    }));
+  } catch (error) {
+    console.error('Error fetching education courses:', error);
     throw error;
   }
 };
