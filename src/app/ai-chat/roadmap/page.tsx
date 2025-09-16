@@ -121,7 +121,7 @@ function AIChatRoadmapContent() {
       const accessToken = getCookie('accessToken');
 
       // 로드맵 추천 API 호출
-      const response = await fetch(`${backendUrl}/job/recommend/roadmap`, {
+      const response = await fetch(`${backendUrl}/roadmap/recommend`, {
         method: 'POST',
         headers: {
           accept: 'application/json',

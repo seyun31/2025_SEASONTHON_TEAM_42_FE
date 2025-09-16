@@ -34,11 +34,8 @@ export default function MessageItem({
         </div>
       )}
       <div
-        className={`flex items-start ${isBot && !hideProfile ? 'gap-[1.5vw] xs:gap-[1.5vw] md:gap-[0.8vw] lg:gap-[0.6vw]' : 'ml-12 xs:ml-16 md:ml-18 lg:ml-18'}`}
+        className={`${isBot ? 'ml-[8vw] xs:ml-[6vw] md:ml-[3.5vw] lg:ml-[2.71vw]' : 'ml-[8vw] xs:ml-[6vw] md:ml-[3.5vw] lg:ml-[2.71vw]'}`}
       >
-        {isBot && !hideProfile && (
-          <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
-        )}
         <div
           className={`max-w-[60vw] xs:max-w-[75vw] md:max-w-[50vw] lg:max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 xs:pl-5 xs:pr-5 md:pl-4 md:pr-4 lg:pl-4 lg:pr-4 whitespace-pre-line text-base lg:text-lg ${
             isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
