@@ -172,7 +172,7 @@ export default function JobRecommendationsSection() {
               />
             ))}
           </div>
-          <div className="hidden md:flex flex-col gap-6 flex-1">
+          <div className="flex flex-col gap-6 flex-1">
             {jobs.slice(4, 8).map((job, index) => (
               <JobCard
                 key={job.jobId || index + 4}
