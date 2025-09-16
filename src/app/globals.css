@@ -386,13 +386,13 @@ body {
 }
 
 .ai-chat-input {
-  padding-left: 16px;
+  padding-left: 15px;
   font-family: 'Pretendard Variable', var(--font-family-primary);
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 140%;
-  letter-spacing: -2.5%;
+  line-height: 160%;
+  letter-spacing: -40%;
   color: var(--black);
   background-color: var(--background);
   border: 1px solid var(--gray-20);
@@ -403,25 +403,40 @@ body {
 .ai-chat-input::placeholder {
   color: var(--gray-50);
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
+  font-size: 14px;
   font-style: normal;
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
-  letter-spacing: -2.5%;
+  letter-spacing: -40%;
 }
 
 /* 작은 모바일 환경 (iPhone SE, 미니 등) */
-@media (max-width: 375px) {
+@media (min-width: 321px) and (max-width: 375px) {
   .ai-chat-input {
-    padding-left: 12px;
+    padding-left: 20px;
     font-size: 12px;
     line-height: 180%;
-    letter-spacing: -10%;
+    letter-spacing: -20%;
   }
 
   .ai-chat-input::placeholder {
     font-size: 12px;
-    letter-spacing: -10%;
+    letter-spacing: -20%;
+  }
+}
+
+/* 일반 모바일 환경 */
+@media (min-width: 376px) and (max-width: 767px) {
+  .ai-chat-input {
+    padding-left: 16px;
+    font-size: 16px;
+    line-height: 180%;
+    letter-spacing: -2.5%;
+  }
+
+  .ai-chat-input::placeholder {
+    font-size: var(--font-size-base);
+    letter-spacing: -2.5%;
   }
 }
 
