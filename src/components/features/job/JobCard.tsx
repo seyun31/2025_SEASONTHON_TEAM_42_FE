@@ -73,22 +73,22 @@ const styles = {
     } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
-    `flex px-2 py-1 rounded-full text-xs md:text-body-small-medium text-gray-50 transition-all duration-500 ease-out ${
+    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-500 ease-out ${
       isHovered ? 'bg-[B4E6CE]' : 'bg-primary-20'
     } ${
       isExpanded
         ? 'opacity-100 translate-y-0 scale-100'
         : isVisible
-          ? 'opacity-100 translate-y-0 scale-100'
+          ? 'opacity-0 translate-y-2 scale-95'
           : 'opacity-0 translate-y-2 scale-95'
     }`,
 
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
-    `flex px-2 py-1 rounded-full text-xs md:text-body-small-medium text-gray-800 transition-all duration-400 ease-in-out ${
+    `flex px-2 py-1 rounded-full ext-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
       isExpanded
-        ? 'bg-primary-30'
+        ? 'bg-primary-20'
         : isHovered
-          ? 'bg-primary-30'
+          ? 'bg-primary-20'
           : 'bg-primary-20'
     }`,
 
@@ -165,9 +165,7 @@ const RecommendationScore = ({
     }`}
     style={isExpanded ? { transitionDelay: '500ms' } : {}}
   >
-    <span className="text-xs md:text-body-large-medium text-gray-500">
-      직업 추천도
-    </span>
+    <span className="text-xs md:text-lg text-gray-500">직업 추천도</span>
     <span
       className={`font-bold text-black ${isExpanded ? 'text-2xl md:text-title-xlarge' : 'text-xl md:text-title-xlarge'}`}
       style={
