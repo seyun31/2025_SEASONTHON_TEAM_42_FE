@@ -44,12 +44,12 @@ export default function MessageSection({
 
   return (
     // <div className="max-w-[1200px] mx-auto">
-    <div className="max-w-[1200px] h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[25vh] flex flex-col gap-4">
+    <div className="max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-2 xs:px-3 md:px-0 lg:px-0">
       {/* 채팅 히스토리 */}
       {messages.map((message, index) => (
         <div
           key={message.id}
-          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp`}
+          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp px-1 xs:px-2 md:px-0 lg:px-0`}
           style={{
             animationDelay: `${index * 100}ms`,
             animationFillMode: 'both',
@@ -66,12 +66,12 @@ export default function MessageSection({
       {showStartButton && (
         <div className="flex justify-end">
           <div
-            className={`max-w-[30.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5`}
+            className={`max-w-[80vw] xs:max-w-[70vw] md:max-w-[40vw] lg:max-w-[30.21vw] rounded-[16px] xs:rounded-[20px] md:rounded-[24px] lg:rounded-[24px] pt-4 xs:pt-5 md:pt-6 lg:pt-6 pb-4 xs:pb-5 md:pb-6 lg:pb-6 pl-3 xs:pl-4 md:pl-5 lg:pl-5 pr-3 xs:pr-4 md:pr-5 lg:pr-5`}
             style={{ backgroundColor: '#9FC2FF66' }}
           >
             <button
               onClick={onStartClick}
-              className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] max-w-[30vw] px-4 py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white"
+              className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] w-full max-w-[70vw] xs:max-w-[60vw] md:max-w-[35vw] lg:max-w-[30vw] px-3 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white text-sm xs:text-base md:text-base lg:text-base"
             >
               시작하기
             </button>

@@ -6,6 +6,12 @@ module.exports = {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    screens: {
+      xs: '376px', // small mobile+
+      sm: '768px', // tablet
+      md: '768px', // tablet
+      lg: '1024px', // desktop
+    },
     extend: {
       colors: {
         // CSS 변수를 Tailwind 색상으로 매핑
