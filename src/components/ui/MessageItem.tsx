@@ -28,7 +28,7 @@ export default function MessageItem({
             height={0}
             className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]"
           />
-          <div className="text-chat-message text-[16px] xs:text-[16px] md:text-lg lg:text-lg">
+          <div className="text-chat-message text-[16px] xs:text-[16px] md:text-[18px] lg:text-[18px]">
             꿈별이
           </div>
         </div>
@@ -40,7 +40,7 @@ export default function MessageItem({
           <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
         )}
         <div
-          className={`max-w-[60vw] xs:max-w-[75vw] md:max-w-[50vw] lg:max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 xs:pl-5 xs:pr-5 md:pl-4 md:pr-4 lg:pl-4 lg:pr-4 whitespace-pre-line text-base ${
+          className={`max-w-[60vw] xs:max-w-[75vw] md:max-w-[50vw] lg:max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 xs:pl-5 xs:pr-5 md:pl-4 md:pr-4 lg:pl-4 lg:pr-4 whitespace-pre-line text-base lg:text-lg ${
             isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
           }`}
           style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}

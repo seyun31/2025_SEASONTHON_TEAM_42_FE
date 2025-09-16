@@ -403,7 +403,7 @@ function AIChatJobContent() {
 
       {/* 진행바 */}
       {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
-        <div className="absolute bottom-[13vh] xs:bottom-[13vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+        <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
           <ProgressBar
             currentStep={currentStep}
             totalSteps={aiChatFlow.questions.length}

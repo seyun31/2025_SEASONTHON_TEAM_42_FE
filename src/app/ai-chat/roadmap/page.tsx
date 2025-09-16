@@ -280,7 +280,7 @@ function AIChatRoadmapContent() {
   }
 
   return (
-    <div className="absolute top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[1200px] w-full">
+    <div className="absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0">
       <MessageSection
         messages={messages}
         showStartButton={showStartButton}
@@ -321,19 +321,22 @@ function AIChatRoadmapContent() {
                 />
               )}
 
-              <div
-                className="flex items-center justify-center w-[20vh] h-[6.7vh] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white mt-4 ml-[3.5vw]"
-                onClick={() => router.push('/career-roadmap')}
-              >
-                로드맵으로 이동하기
+              <div className="flex items-start gap-[1.5vw] xs:gap-[1.5vw] md:gap-[0vw] lg:gap-[0vw] mt-2">
+                <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
+                <div
+                  className="flex items-center justify-center w-[22vh] max-w-[280px] h-[8vh] max-h-[55px] xs:w-[25vh] xs:max-w-[280px] xs:h-[5.5vh] xs:max-h-[50px] md:w-[18vh] md:max-w-[180px] md:h-[5.5vh] md:max-h-[50px] lg:w-[20vh] lg:max-w-[200px] lg:h-[6.7vh] lg:max-h-[60px] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white"
+                  onClick={() => router.push('/career-roadmap')}
+                >
+                  로드맵으로 이동하기
+                </div>
               </div>
             </div>
           ))}
       </MessageSection>
 
       {/* 진행바 */}
-      {currentStep > 0 && (
-        <div className="absolute bottom-[19vh] left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] flex justify-center items-center animate-slide-up-fade">
+      {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+        <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
           <ProgressBar
             currentStep={currentStep}
             totalSteps={aiChatFlow.questions.length}
@@ -342,7 +345,7 @@ function AIChatRoadmapContent() {
       )}
 
       {/* 입력창 */}
-      <div className="absolute bottom-[4.8vh] w-full max-w-[1200px] flex justify-center animate-slide-up-bounce">
+      <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[12.5vh] xs:max-h-[12.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
         <ChatInput
           value={textInput}
           onChange={setTextInput}
