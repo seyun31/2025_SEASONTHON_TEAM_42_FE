@@ -177,3 +177,55 @@ export interface CardCoursePage {
   scn_cnt: number;
   srchList: CardCourseItem[];
 }
+
+// Education 관련 타입 정의
+export interface EducationSummary {
+  id: string;
+  trprId: string;
+  title: string;
+  subTitle: string;
+  institution: string;
+  address: string;
+  traStartDate: string;
+  traEndDate: string;
+  trainTarget: string;
+  contents: string;
+  certificate: string;
+  grade: string;
+  regCourseMan: string;
+  courseMan: string;
+  realMan: string;
+  yardMan: string;
+  telNo: string;
+  stdgScor: string;
+  eiEmplCnt3: string;
+  eiEmplRate3: string;
+  eiEmplCnt3Gt10: string;
+  eiEmplRate6: string;
+  ncsCd: string;
+  trprDegr: string;
+  instCd: string;
+  trngAreaCd: string;
+  trainTargetCd: string;
+  trainstCstId: string;
+  subTitleLink: string;
+  titleLink: string;
+  titleIcon: string;
+  isBookmark?: boolean;
+  recommendScore?: number;
+}
+
+// Education API 응답 타입
+export interface EducationApiResponse {
+  result: 'SUCCESS' | 'ERROR';
+  data: {
+    pageNum: number;
+    pageSize: number;
+    scn_cnt: number;
+    srchList: CardCourseItem[];
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
