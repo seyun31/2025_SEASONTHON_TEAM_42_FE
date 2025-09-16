@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { getUserData, clearAuthData, fetchUserData } from '@/lib/auth';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs';
+import MobileDropdown from '@/components/ui/MobileDropdown';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -102,6 +103,9 @@ export default function Header() {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    if (!isMobileMenuOpen) {
+      setIsDropdownOpen(false); // 네비게이션 메뉴가 열릴 때 프로필 드롭다운 닫기
+    }
   };
 
   const isActive = (path: string) => {
@@ -192,7 +196,12 @@ export default function Header() {
             <>
               <div
                 className="flex items-center gap-3 cursor-pointer"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={() => {
+                  setIsDropdownOpen(!isDropdownOpen);
+                  if (!isDropdownOpen) {
+                    setIsMobileMenuOpen(false); // 프로필 드롭다운이 열릴 때 네비게이션 메뉴 닫기
+                  }
+                }}
               >
                 {/* 사용자 프로필 이미지 */}
                 <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
@@ -334,7 +343,12 @@ export default function Header() {
           {isLoggedIn && (
             <div
               className="flex items-center gap-2 cursor-pointer relative"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => {
+                setIsDropdownOpen(!isDropdownOpen);
+                if (!isDropdownOpen) {
+                  setIsMobileMenuOpen(false); // 프로필 드롭다운이 열릴 때 네비게이션 메뉴 닫기
+                }
+              }}
             >
               <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-gray-100">
                 {isLoadingProfile ? (
@@ -367,85 +381,36 @@ export default function Header() {
               </div>
 
               {/* 모바일 프로필 드롭박스 모달 */}
-              {isDropdownOpen && (
-                <div
-                  className="absolute top-full -right-11 mt-2 w-[180px] bg-white rounded-[12px] z-50"
-                  style={{
-                    boxShadow: '0px 10px 20px 0px #11111126',
-                  }}
-                >
-                  <div className="p-2 flex flex-col space-y-1">
-                    <button
-                      onClick={() => {
-                        router.push('/my');
-                        setIsDropdownOpen(false);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
-                    >
-                      <Image
-                        src="/assets/Icons/drop-user.svg"
-                        alt="마이페이지"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      마이페이지
-                    </button>
-                    <button
-                      onClick={() => {
-                        router.push('/edit');
-                        setIsDropdownOpen(false);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-2 py-1.5 text-sm font-medium cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
-                    >
-                      <Image
-                        src="/assets/Icons/drop-edit.svg"
-                        alt="개인정보 수정"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      개인정보 수정
-                    </button>
-                    <button
-                      onClick={() => {
-                        router.push('/heart-lists');
-                        setIsDropdownOpen(false);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
-                    >
-                      <Image
-                        src="/assets/Icons/drop-star.svg"
-                        alt="관심 목록"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      관심 목록
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsDropdownOpen(false);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      className="w-full text-left px-2 py-1.5 text-sm font-medium text-black cursor-pointer flex items-center gap-2 hover:bg-gray-50 rounded-md transition-colors"
-                    >
-                      <Image
-                        src="/assets/Icons/drop-sign-out.svg"
-                        alt="로그아웃"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      로그아웃
-                    </button>
-                  </div>
-                </div>
-              )}
+              <MobileDropdown
+                isOpen={isDropdownOpen}
+                onClose={() => {
+                  setIsDropdownOpen(false);
+                  setIsMobileMenuOpen(false);
+                }}
+                items={[
+                  {
+                    label: '마이페이지',
+                    path: '/my',
+                    icon: '/assets/Icons/drop-user.svg',
+                  },
+                  {
+                    label: '개인정보 수정',
+                    path: '/edit',
+                    icon: '/assets/Icons/drop-edit.svg',
+                  },
+                  {
+                    label: '관심 목록',
+                    path: '/heart-lists',
+                    icon: '/assets/Icons/drop-star.svg',
+                  },
+                  {
+                    label: '로그아웃',
+                    path: '',
+                    icon: '/assets/Icons/drop-sign-out.svg',
+                    onClick: handleLogout,
+                  },
+                ]}
+              />
             </div>
           )}
 
@@ -486,71 +451,39 @@ export default function Header() {
       {/* 모바일 네비게이션 메뉴 */}
       {isMobileMenuOpen && (
         <div className="md:hidden w-full bg-white shadow-lg z-40 absolute top-full left-0 right-0">
-          <div className="px-2 pt-2 pb-6 space-y-1 border-t border-gray-200 bg-white shadow-md rounded-b-2xl">
-            <div
-              onClick={() => {
-                router.push('/job-postings');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-                isActive('/job-postings')
-                  ? 'text-green-600 bg-green-50 border-green-600'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-              }`}
-            >
-              채용 공고
-            </div>
-            <div
-              onClick={() => {
-                router.push('/education-programs');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-                isActive('/education-programs')
-                  ? 'text-green-600 bg-green-50 border-green-600'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-              }`}
-            >
-              교육 공고
-            </div>
-            <div
-              onClick={() => {
-                router.push('/ai-chat/job');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-                isActive('/ai-chat/job')
-                  ? 'text-green-600 bg-green-50 border-green-600'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-              }`}
-            >
-              AI 직업 추천
-            </div>
-            <div
-              onClick={() => {
-                router.push('/career-roadmap');
-                setIsMobileMenuOpen(false);
-              }}
-              className={`block px-4 py-3 text-base font-semibold cursor-pointer rounded-lg transition-all duration-200 border-l-4 ${
-                isActive('/career-roadmap')
-                  ? 'text-green-600 bg-green-50 border-green-600'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50 border-transparent hover:border-green-600'
-              }`}
-            >
-              커리어 로드맵
-            </div>
-
-            {/* 로그인되지 않았을 때만 로그인 버튼 표시 */}
-            {!isLoggedIn && (
-              <Link
-                href="/member/login"
-                className="block px-4 py-3 text-base font-semibold text-gray-700 hover:text-green-600 hover:bg-gray-50 rounded-lg transition-all duration-200 border-l-4 border-transparent hover:border-green-600"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                로그인
-              </Link>
-            )}
-          </div>
+          <MobileDropdown
+            isOpen={isMobileMenuOpen}
+            onClose={() => {
+              setIsMobileMenuOpen(false);
+            }}
+            items={[
+              {
+                label: '채용 공고',
+                path: '/job-postings',
+              },
+              {
+                label: '교육 공고',
+                path: '/education-programs',
+              },
+              {
+                label: 'AI 직업 추천',
+                path: '/ai-chat/job',
+              },
+              {
+                label: '커리어 로드맵',
+                path: '/career-roadmap',
+              },
+              ...(!isLoggedIn
+                ? [
+                    {
+                      label: '로그인',
+                      path: '/member/login',
+                    },
+                  ]
+                : []),
+            ]}
+            showIcons={false}
+          />
         </div>
       )}
     </header>
