@@ -42,12 +42,13 @@ export default function RegionSelectModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50"
+      className="fixed inset-0 flex items-center justify-center z-50 bg-white"
       style={{ transform: `translateY(${offsetY})` }}
     >
+      {/* 데스크톱 레이아웃 */}
       <div className="flex flex-col items-center justify-center gap-6">
         {/* 지역 선택 박스 */}
-        <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+        <div className="hidden lg:block relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           {/* 로고 이미지 */}
           <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
             <Image
@@ -135,6 +136,102 @@ export default function RegionSelectModal({
             ].join(' ')}
           >
             선택하기
+          </button>
+        </div>
+      </div>
+
+      {/* 모바일 레이아웃 */}
+      <div className="flex lg:hidden w-full h-full flex-col items-center justify-center p-4">
+        {/* 로고 이미지 */}
+        <div className="mt-19 mb-19">
+          <Image
+            src="/assets/logos/name-logo.svg"
+            alt="nextcareer 메인 로고"
+            width={0}
+            height={0}
+            className="w-23.25 h-auto"
+          />
+        </div>
+
+        {/* 지역 선택 박스 */}
+        <div
+          className="w-full max-w-sm bg-white border-2 border-primary-30 rounded-[12px] flex flex-col overflow-hidden mb-26"
+          style={{ height: 'calc(100vh - 500px)' }}
+        >
+          {/* 제목 바 */}
+          <div className="h-16 flex items-center justify-center px-4 border-b-2 border-primary-30 relative">
+            <span className="text-body-large-medium">거주지 선택</span>
+            <Image
+              src="/assets/Icons/cross.svg"
+              alt="닫기"
+              width={0}
+              height={0}
+              className="absolute right-4 w-6 h-6 cursor-pointer"
+              onClick={onClose}
+            />
+          </div>
+
+          {/* 본문 */}
+          <div className="grid grid-cols-[120px_1fr] flex-1 overflow-hidden">
+            {/* 좌측: 시/도 리스트 */}
+            <div className="overflow-y-auto max-h-full scrollbar-hide bg-white">
+              {REGIONS.map((r, i) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => {
+                    setRegion(r as RegionType);
+                    setCity('');
+                  }}
+                  className={[
+                    'w-full h-12 text-center px-2 flex-shrink-0 text-sm',
+                    i === 0 ? 'border-t-0' : 'border-t',
+                    'border-primary-30',
+                    'bg-white cursor-pointer hover:bg-primary-20/10',
+                  ].join(' ')}
+                  style={{ color: r === region ? undefined : '#869f8e' }}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            {/* 우측: 도시 리스트 */}
+            <div className="relative bg-white overflow-y-auto max-h-full scrollbar-hide border-l-2 border-primary-30">
+              <div className="h-full">
+                {(CITIES[region] || []).map((c: string) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCity(c)}
+                    className={[
+                      'w-full h-12 text-left px-4 flex-shrink-0 text-sm',
+                      'border-b border-primary-30',
+                      'bg-white cursor-pointer hover:bg-primary-20/10',
+                    ].join(' ')}
+                    style={{ color: city === c ? undefined : '#869f8e' }}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 선택하기 버튼 */}
+        <div className="w-[60vw] max-w-sm">
+          <button
+            type="button"
+            onClick={handleConfirm}
+            disabled={!region || ((CITIES[region] || []).length > 0 && !city)}
+            className={`w-full h-[6.5vh] rounded-[12px] text-[20px] font-semibold leading-[140%] tracking-[-2.5%] transition-colors ${
+              region && ((CITIES[region] || []).length === 0 || city)
+                ? 'bg-primary-90 text-white cursor-pointer'
+                : 'bg-primary-20 text-black cursor-not-allowed'
+            }`}
+          >
+            선택완료
           </button>
         </div>
       </div>

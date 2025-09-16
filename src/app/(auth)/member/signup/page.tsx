@@ -142,116 +142,226 @@ export default function Signup() {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-8">
-        {/* 사용자 정보 박스 */}
-        <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
-          {/* 로고 이미지 */}
-          <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
-            <Image
-              src="/assets/logos/name-logo.svg"
-              alt="nextcareer 메인 로고"
-              width={0}
-              height={0}
-              className="w-[6.4vw] h-[4.1vh]"
-            />
-          </div>
-
-          {/* 사용자 정보 영역 */}
-          <div className="absolute top-[16%] left-[8%] right-[8%] bottom-[12%] z-10 flex flex-col gap-4">
-            {/* 이름 입력 */}
-            <div>
-              <label className="block text-body-large-medium">이름 *</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  localStorage.setItem('signup-name', e.target.value);
-                }}
-                placeholder="이름을 입력해주세요"
-                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+    <>
+      {/* 데스크톱 레이아웃 */}
+      <div className="hidden xl:flex fixed inset-0 items-center justify-center">
+        <div className="flex flex-col items-center gap-8">
+          {/* 사용자 정보 박스 */}
+          <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+            {/* 로고 이미지 */}
+            <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
+              <Image
+                src="/assets/logos/name-logo.svg"
+                alt="nextcareer 메인 로고"
+                width={0}
+                height={0}
+                className="w-[6.4vw] h-[4.1vh]"
               />
             </div>
 
-            {/* 생년월일 입력 */}
-            <div>
-              <label className="block text-body-large-medium">생년월일 *</label>
-              <input
-                type="text"
-                value={birthDate}
-                onChange={handleBirthDateChange}
-                placeholder="1972 / 01 / 20"
-                className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
-                maxLength={14}
-              />
-            </div>
-
-            {/* 성별 선택 */}
-            <div>
-              <label className="block text-body-large-medium">성별 *</label>
-              <div className="flex gap-[1.5vw] relative top-2">
-                <button
-                  onClick={() => {
-                    setSelectedGender('남자');
-                    localStorage.setItem('signup-gender', '남자');
+            {/* 사용자 정보 영역 */}
+            <div className="absolute top-[16%] left-[8%] right-[8%] bottom-[12%] z-10 flex flex-col gap-4">
+              {/* 이름 입력 */}
+              <div>
+                <label className="block text-body-large-medium">이름 *</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    localStorage.setItem('signup-name', e.target.value);
                   }}
-                  className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
-                    selectedGender === '남자'
-                      ? 'bg-primary-90 text-white'
-                      : 'bg-white text-black hover:border-primary-300'
-                  }`}
-                >
-                  남자
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedGender('여자');
-                    localStorage.setItem('signup-gender', '여자');
-                  }}
-                  className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
-                    selectedGender === '여자'
-                      ? 'bg-primary-90 text-white'
-                      : 'bg-white text-black hover:border-primary-300'
-                  }`}
-                >
-                  여자
-                </button>
-              </div>
-            </div>
-
-            {/* 거주지 선택 */}
-            <div>
-              <label className="block text-body-large-medium">
-                거주지 (선택)
-              </label>
-              <div className="relative top-2">
-                <AddressButton
-                  value={address}
-                  onClick={() => {
-                    setIsModalOpen(true);
-                  }}
+                  placeholder="이름을 입력해주세요"
+                  className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
                 />
               </div>
+
+              {/* 생년월일 입력 */}
+              <div>
+                <label className="block text-body-large-medium">
+                  생년월일 *
+                </label>
+                <input
+                  type="text"
+                  value={birthDate}
+                  onChange={handleBirthDateChange}
+                  placeholder="1972 / 01 / 20"
+                  className="my-input relative top-2 w-full h-[5vh] py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                  maxLength={14}
+                />
+              </div>
+
+              {/* 성별 선택 */}
+              <div>
+                <label className="block text-body-large-medium">성별 *</label>
+                <div className="flex gap-[1.5vw] relative top-2">
+                  <button
+                    onClick={() => {
+                      setSelectedGender('남자');
+                      localStorage.setItem('signup-gender', '남자');
+                    }}
+                    className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                      selectedGender === '남자'
+                        ? 'bg-primary-90 text-white'
+                        : 'bg-white text-black hover:border-primary-300'
+                    }`}
+                  >
+                    남자
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedGender('여자');
+                      localStorage.setItem('signup-gender', '여자');
+                    }}
+                    className={`flex-1 h-[12.3vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                      selectedGender === '여자'
+                        ? 'bg-primary-90 text-white'
+                        : 'bg-white text-black hover:border-primary-300'
+                    }`}
+                  >
+                    여자
+                  </button>
+                </div>
+              </div>
+
+              {/* 거주지 선택 */}
+              <div>
+                <label className="block text-body-large-medium">
+                  거주지 (선택)
+                </label>
+                <div className="relative top-2">
+                  <AddressButton
+                    value={address}
+                    onClick={() => {
+                      setIsModalOpen(true);
+                    }}
+                  />
+                </div>
+              </div>
             </div>
+          </div>
+
+          {/* 시작하기 버튼 */}
+          <div className="relative">
+            <div className="absolute inset-0 rounded-[16px] bg-primary-30 opacity-50 pointer-events-none" />
+            <button
+              onClick={handleSubmit}
+              disabled={!isFormValid || isSubmitting}
+              className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium transition-colors ${
+                isFormValid && !isSubmitting
+                  ? 'bg-primary-90 text-white cursor-pointer'
+                  : 'bg-primary-20 text-black cursor-not-allowed'
+              }`}
+            >
+              넥스트 커리어 시작하기
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 모바일 레이아웃 */}
+      <div className="flex xl:hidden w-full h-full flex-col items-center justify-center">
+        {/* 로고 이미지 */}
+        <div className="mb-7">
+          <Image
+            src="/assets/logos/name-logo.svg"
+            alt="nextcareer 메인 로고"
+            width={0}
+            height={0}
+            className="w-23.25 h-auto"
+          />
+        </div>
+
+        {/* 이름 */}
+        <div className="w-full max-w-sm mt-5 mb-7">
+          <label className="block text-body-large-medium">이름 *</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value);
+              localStorage.setItem('signup-name', e.target.value);
+            }}
+            placeholder="이름을 입력해주세요"
+            className="my-input relative top-2 w-full h-12 px-4 py-3 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+          />
+        </div>
+
+        {/* 생년월일 */}
+        <div className="w-full max-w-sm mb-7">
+          <label className="block text-body-large-medium">생년월일 *</label>
+          <input
+            type="text"
+            value={birthDate}
+            onChange={handleBirthDateChange}
+            placeholder="1972 / 01 / 20"
+            className="my-input relative top-2 w-full h-12 py-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+            maxLength={14}
+          />
+        </div>
+
+        {/* 성별 */}
+        <div className="w-full max-w-sm mb-7">
+          <label className="block text-body-large-medium">성별 *</label>
+          <div className="flex gap-[1.5vw] relative top-2">
+            <button
+              onClick={() => {
+                setSelectedGender('남자');
+                localStorage.setItem('signup-gender', '남자');
+              }}
+              className={`flex-1 h-[14vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                selectedGender === '남자'
+                  ? 'bg-primary-90 text-white'
+                  : 'bg-white text-black hover:border-primary-300'
+              }`}
+            >
+              남자
+            </button>
+            <button
+              onClick={() => {
+                setSelectedGender('여자');
+                localStorage.setItem('signup-gender', '여자');
+              }}
+              className={`flex-1 h-[14vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                selectedGender === '여자'
+                  ? 'bg-primary-90 text-white'
+                  : 'bg-white text-black hover:border-primary-300'
+              }`}
+            >
+              여자
+            </button>
+          </div>
+        </div>
+
+        {/* 거주지 (선택) */}
+        <div className="w-full max-w-sm mb-16.5">
+          <label className="block text-body-large-medium">거주지 (선택)</label>
+          <div className="relative top-2">
+            <AddressButton
+              value={address}
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+            />
           </div>
         </div>
 
         {/* 시작하기 버튼 */}
-        <div className="relative">
-          <div className="absolute inset-0 rounded-[16px] bg-primary-30 opacity-50 pointer-events-none" />
-          <button
-            onClick={handleSubmit}
-            disabled={!isFormValid || isSubmitting}
-            className={`relative z-10 w-[30.5vw] h-[11.1vh] rounded-[24px] text-title-medium transition-colors ${
-              isFormValid && !isSubmitting
-                ? 'bg-primary-90 text-white cursor-pointer'
-                : 'bg-primary-20 text-black cursor-not-allowed'
-            }`}
-          >
-            넥스트 커리어 시작하기
-          </button>
-        </div>
+        {!isModalOpen && (
+          <div className="w-full max-w-sm mb-17.5">
+            <button
+              onClick={handleSubmit}
+              disabled={!isFormValid || isSubmitting}
+              className={`w-full h-[6.5vh] rounded-[12px] text-[20px] font-semibold leading-[140%] tracking-[-2.5%] transition-colors ${
+                isFormValid && !isSubmitting
+                  ? 'bg-primary-90 text-white cursor-pointer'
+                  : 'bg-primary-20 text-black cursor-not-allowed'
+              }`}
+            >
+              넥스트 커리어 시작하기
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 주소 선택 모달 */}
@@ -264,6 +374,6 @@ export default function Signup() {
         }}
         offsetY="-75px"
       />
-    </div>
+    </>
   );
 }

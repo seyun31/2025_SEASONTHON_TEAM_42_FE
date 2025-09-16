@@ -223,11 +223,12 @@ export default function EditPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-1 flex items-center justify-center py-8">
+    <>
+      {/* 데스크톱 레이아웃 */}
+      <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-10">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
-          <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+          <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
             {/* 로고 이미지 */}
             <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
               <Image
@@ -317,22 +318,20 @@ export default function EditPage() {
           </div>
 
           {/* 취소, 수정완료 버튼 */}
-          <div className="flex gap-4">
-            <div className="relative">
-              <div className="absolute inset-0 rounded-[24px] bg-gray-300 opacity-50" />
+          <div className="flex gap-4 w-[30.5vw]">
+            <div className="flex-1">
               <button
                 onClick={handleCancel}
-                className="relative z-10 px-8 py-4 rounded-[24px] w-[281px] h-[120px] bg-white text-gray-50 text-title-medium border-4 border-primary-40 cursor-pointer"
+                className="w-full px-8 py-4 rounded-[24px] h-[120px] bg-white text-gray-50 text-title-medium border-4 border-primary-40 cursor-pointer"
               >
                 취소
               </button>
             </div>
-            <div className="relative">
-              <div className="absolute inset-0 rounded-[24px] bg-primary-30 opacity-50" />
+            <div className="flex-1">
               <button
                 onClick={handleComplete}
                 disabled={!isFormValid}
-                className="relative z-10 px-8 py-4 rounded-[24px] w-[281px] h-[120px] bg-primary-90 text-white text-title-medium cursor-pointer"
+                className="w-full px-8 py-4 rounded-[24px] h-[120px] bg-primary-90 text-white text-title-medium cursor-pointer"
               >
                 수정 완료
               </button>
@@ -340,7 +339,6 @@ export default function EditPage() {
           </div>
         </div>
       </div>
-      <Footer />
 
       {/* 주소 선택 모달 */}
       <RegionSelectModal
@@ -348,6 +346,118 @@ export default function EditPage() {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleAddressSelect}
       />
-    </div>
+      {/* 모바일 레이아웃 */}
+      <div className="flex xl:hidden w-full h-full flex-col pt-16">
+        {/* 사용자 정보 영역 */}
+        <div className="flex-1 flex items-center justify-center px-8 py-8">
+          <div className="w-full max-w-md flex flex-col gap-4">
+            {/* 이름 입력 */}
+            <div>
+              <label className="block text-body-large-medium">이름 *</label>
+              <input
+                type="text"
+                value={useName}
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+                placeholder="이름을 입력해주세요"
+                className="my-input relative top-2 w-full h-[5vh] py-4 px-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+              />
+            </div>
+
+            {/* 생년월일 입력 */}
+            <div>
+              <label className="block text-body-large-medium">생년월일 *</label>
+              <input
+                type="text"
+                value={birthDate}
+                onChange={handleBirthDateChange}
+                placeholder="1972 / 01 / 20"
+                className="my-input relative top-2 w-full h-[5vh] py-4 px-4 bg-white border-2 border-primary-30 rounded-[12px] text-body-large-medium focus:outline-none focus:border-primary-300"
+                maxLength={14}
+              />
+            </div>
+
+            {/* 성별 선택 */}
+            <div>
+              <label className="block text-body-large-medium">성별 *</label>
+              <div className="flex gap-4 relative top-2">
+                <button
+                  onClick={() => {
+                    setSelectedGender('남자');
+                  }}
+                  className={`flex-1 h-[8vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                    selectedGender === '남자'
+                      ? 'bg-primary-90 text-white'
+                      : 'bg-white text-black hover:border-primary-300'
+                  }`}
+                >
+                  남자
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedGender('여자');
+                  }}
+                  className={`flex-1 h-[8vh] border-2 border-primary-30 rounded-[12px] text-body-large-medium text-gray-50 focus:outline-none transition-colors ${
+                    selectedGender === '여자'
+                      ? 'bg-primary-90 text-white'
+                      : 'bg-white text-black hover:border-primary-300'
+                  }`}
+                >
+                  여자
+                </button>
+              </div>
+            </div>
+
+            {/* 거주지 선택 */}
+            <div>
+              <label className="block text-body-large-medium">
+                거주지 (선택)
+              </label>
+              <div className="relative top-2">
+                <AddressButton
+                  value={address}
+                  onClick={() => setIsModalOpen(true)}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 취소, 수정완료 버튼 */}
+        <div className="flex gap-4 w-full max-w-md mx-auto px-8 pb-8">
+          <div className="relative flex-1">
+            <div className="absolute inset-0 rounded-[12px] bg-gray-300 opacity-50" />
+            <button
+              onClick={handleCancel}
+              className="relative z-10 w-full px-8 py-4 rounded-[12px] h-[8.5vh] bg-white text-gray-50 text-[20px] border-2 border-primary-40 cursor-pointer"
+            >
+              취소
+            </button>
+          </div>
+          <div className="relative flex-1">
+            <div className="absolute inset-0 rounded-[12px] bg-primary-30 opacity-50" />
+            <button
+              onClick={handleComplete}
+              disabled={!isFormValid}
+              className="relative z-10 w-full px-8 py-4 rounded-[12px] h-[8.5vh] bg-primary-90 text-white text-[20px] cursor-pointer"
+            >
+              수정 완료
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 주소 선택 모달 */}
+      <RegionSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={(selectedAddress) => {
+          setAddress(selectedAddress);
+          setIsModalOpen(false);
+        }}
+        offsetY="-75px"
+      />
+    </>
   );
 }
