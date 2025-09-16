@@ -44,7 +44,7 @@ export default function MessageSection({
 
   return (
     // <div className="max-w-[1200px] mx-auto">
-    <div className="max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[69.81vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-2 xs:px-3 md:px-0 lg:px-0">
+    <div className="max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 xs:px-3 md:px-0 lg:px-0">
       {/* 채팅 히스토리 */}
       {messages.map((message, index) => (
         <div

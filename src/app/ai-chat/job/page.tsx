@@ -402,8 +402,8 @@ function AIChatJobContent() {
       </MessageSection>
 
       {/* 진행바 */}
-      {currentStep > 0 && (
-        <div className="absolute bottom-[15vh] xs:bottom-[15vh] md:bottom-[14vh] lg:bottom-[15vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+      {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+        <div className="absolute bottom-[13vh] xs:bottom-[13vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
           <ProgressBar
             currentStep={currentStep}
             totalSteps={aiChatFlow.questions.length}
@@ -412,7 +412,7 @@ function AIChatJobContent() {
       )}
 
       {/* 입력창 */}
-      <div className="absolute bottom-[5vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
+      <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
         <ChatInput
           value={textInput}
           onChange={setTextInput}

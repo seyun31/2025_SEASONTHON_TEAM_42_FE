@@ -38,7 +38,7 @@ export default function ChatInput({
         onChange={(e) => onChange?.(e.target.value)}
         onKeyPress={handleKeyPress}
         placeholder={placeholder}
-        className="ai-chat-input flex-1 py-1 xs:py-1 md:py-2 lg:py-2 outline-none text-16px md:text-base lg:text-base"
+        className="ai-chat-input flex-1 py-1 xs:py-1 md:py-2 lg:py-2 outline-none text-16px"
       />
       <button
         type="submit"
