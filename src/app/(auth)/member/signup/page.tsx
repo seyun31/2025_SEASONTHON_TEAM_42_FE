@@ -144,7 +144,7 @@ export default function Signup() {
   return (
     <>
       {/* 데스크톱 레이아웃 */}
-      <div className="hidden md:flex fixed inset-0 items-center justify-center">
+      <div className="hidden xl:flex fixed inset-0 items-center justify-center">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
           <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
@@ -260,7 +260,7 @@ export default function Signup() {
       </div>
 
       {/* 모바일 레이아웃 */}
-      <div className="flex md:hidden w-full h-full flex-col items-center justify-center">
+      <div className="flex xl:hidden w-full h-full flex-col items-center justify-center">
         {/* 로고 이미지 */}
         <div className="mb-7">
           <Image
@@ -273,7 +273,7 @@ export default function Signup() {
         </div>
 
         {/* 이름 */}
-        <div className="w-full max-w-sm mb-7">
+        <div className="w-full max-w-sm mt-5 mb-7">
           <label className="block text-body-large-medium">이름 *</label>
           <input
             type="text"
@@ -347,19 +347,21 @@ export default function Signup() {
         </div>
 
         {/* 시작하기 버튼 */}
-        <div className="w-full max-w-sm mb-17.5">
-          <button
-            onClick={handleSubmit}
-            disabled={!isFormValid || isSubmitting}
-            className={`w-full h-[6.5vh] rounded-[12px] text-[20px] font-semibold leading-[140%] tracking-[-2.5%] transition-colors ${
-              isFormValid && !isSubmitting
-                ? 'bg-primary-90 text-white cursor-pointer'
-                : 'bg-primary-20 text-black cursor-not-allowed'
-            }`}
-          >
-            넥스트 커리어 시작하기
-          </button>
-        </div>
+        {!isModalOpen && (
+          <div className="w-full max-w-sm mb-17.5">
+            <button
+              onClick={handleSubmit}
+              disabled={!isFormValid || isSubmitting}
+              className={`w-full h-[6.5vh] rounded-[12px] text-[20px] font-semibold leading-[140%] tracking-[-2.5%] transition-colors ${
+                isFormValid && !isSubmitting
+                  ? 'bg-primary-90 text-white cursor-pointer'
+                  : 'bg-primary-20 text-black cursor-not-allowed'
+              }`}
+            >
+              넥스트 커리어 시작하기
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 주소 선택 모달 */}

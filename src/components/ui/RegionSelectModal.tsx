@@ -48,7 +48,7 @@ export default function RegionSelectModal({
       {/* 데스크톱 레이아웃 */}
       <div className="flex flex-col items-center justify-center gap-6">
         {/* 지역 선택 박스 */}
-        <div className="hidden md:block relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+        <div className="hidden lg:block relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           {/* 로고 이미지 */}
           <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
             <Image
@@ -141,9 +141,9 @@ export default function RegionSelectModal({
       </div>
 
       {/* 모바일 레이아웃 */}
-      <div className="flex md:hidden w-full h-full flex-col items-center justify-center p-4">
+      <div className="flex lg:hidden w-full h-full flex-col items-center justify-center p-4">
         {/* 로고 이미지 */}
-        <div className="mb-19">
+        <div className="mt-19 mb-19">
           <Image
             src="/assets/logos/name-logo.svg"
             alt="nextcareer 메인 로고"
