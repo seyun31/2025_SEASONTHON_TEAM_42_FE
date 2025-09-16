@@ -42,7 +42,7 @@ export default function RootLayout({
       <body>
         <QueryProvider>
           <div className="text-black bg-white flex flex-col items-start justify-start pt-24">
-            <div className="w-full  mx-auto px-8 text-lg font-medium">
+            <div className="w-full mx-auto px-4 md:px-8 text-lg font-medium">
               <ConditionalHeaderClient />
               {children}
             </div>

@@ -1,65 +1,55 @@
 'use client';
 
-import { JobSummary } from '@/types/job';
+import { EducationSummary } from '@/types/job';
 import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 
-// 디데이 계산 함수
-const calculateDaysLeft = (closingDate: string | null | undefined): string => {
-  if (!closingDate) return 'D-?';
+// 날짜 포맷팅 함수
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '날짜 미정';
 
   try {
-    // "마감일 (2025-11-11)" 형식에서 날짜 추출
-    let dateString = closingDate;
-    const dateInParentheses = closingDate.match(/\((\d{4}-\d{2}-\d{2})\)/);
-    if (dateInParentheses) {
-      dateString = dateInParentheses[1];
+    // YYYYMMDD 형식을 YYYY-MM-DD로 변환
+    if (dateString.length === 8) {
+      const year = dateString.substring(0, 4);
+      const month = dateString.substring(4, 6);
+      const day = dateString.substring(6, 8);
+      return `${year}-${month}-${day}`;
+    }
+    return dateString;
+  } catch (error) {
+    return '날짜 미정';
+  }
+};
+
+// 기간 계산 함수
+const calculateDuration = (startDate: string, endDate: string): string => {
+  if (!startDate || !endDate) return '기간 미정';
+
+  try {
+    const start = new Date(formatDate(startDate));
+    const end = new Date(formatDate(endDate));
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      return '기간 미정';
     }
 
-    // 다양한 날짜 형식 지원
-    const dateFormats = [
-      /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
-      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, // YYYY-MM-DD HH:MM:SS
-      /^\d{4}\/\d{2}\/\d{2}$/, // YYYY/MM/DD
-      /^\d{2}\/\d{2}\/\d{4}$/, // MM/DD/YYYY
-      /^\d{4}\.\d{2}\.\d{2}$/, // YYYY.MM.DD
-    ];
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    // 날짜 형식이 맞는지 확인
-    const isValidDate = dateFormats.some((format) => format.test(dateString));
-
-    if (!isValidDate) {
-      return 'D-?'; // 날짜 형식이 아니면 D-? 반환
-    }
-
-    const targetDate = new Date(dateString);
-    const today = new Date();
-
-    // 날짜 유효성 검사
-    if (isNaN(targetDate.getTime())) {
-      return 'D-?';
-    }
-
-    // 시간을 00:00:00으로 설정하여 정확한 일수 계산
-    today.setHours(0, 0, 0, 0);
-    targetDate.setHours(0, 0, 0, 0);
-
-    const timeDiff = targetDate.getTime() - today.getTime();
-    const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-    if (daysLeft < 0) {
-      return '마감됨';
-    } else if (daysLeft === 0) {
-      return '오늘 마감';
-    } else if (daysLeft === 1) {
-      return '내일 마감';
+    if (diffDays < 30) {
+      return `${diffDays}일`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months}개월`;
     } else {
-      return `D-${daysLeft}`;
+      const years = Math.floor(diffDays / 365);
+      return `${years}년`;
     }
   } catch (error) {
-    return 'D-?'; // 에러 발생 시 D-? 반환
+    return '기간 미정';
   }
 };
 
@@ -149,11 +139,11 @@ const Tag = ({
 
 // 추천도 표시 컴포넌트
 const RecommendationScore = ({
-  job,
+  education,
   isLoggedIn,
   isExpanded = false,
 }: {
-  job: JobSummary;
+  education: EducationSummary;
   isLoggedIn: boolean;
   isExpanded?: boolean;
 }) => (
@@ -165,7 +155,7 @@ const RecommendationScore = ({
     }`}
     style={isExpanded ? { transitionDelay: '500ms' } : {}}
   >
-    <span className="text-xs md:text-lg text-gray-500">직업 추천도</span>
+    <span className="text-xs md:text-lg text-gray-500">교육 추천도</span>
     <span
       className={`font-bold text-black ${isExpanded ? 'text-2xl md:text-title-xlarge' : 'text-xl md:text-title-xlarge'}`}
       style={
@@ -176,8 +166,9 @@ const RecommendationScore = ({
     >
       {!isLoggedIn
         ? '100%'
-        : job.jobRecommendScore !== null
-          ? `${job.jobRecommendScore}%`
+        : education.recommendScore !== null &&
+            education.recommendScore !== undefined
+          ? `${education.recommendScore}%`
           : '??%'}
     </span>
   </div>
@@ -203,30 +194,29 @@ const DetailItem = ({
   </div>
 );
 
-interface JobCardProps {
-  job: JobSummary;
-  onToggleScrap: (jobId: string) => void;
+interface EducationCardProps {
+  education: EducationSummary;
+  onToggleBookmark: (educationId: string) => void;
 }
 
-export default function JobCard({ job, onToggleScrap }: JobCardProps) {
+export default function EducationCard({
+  education,
+  onToggleBookmark,
+}: EducationCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isScrap, setIsScrap] = useState(job.isScrap);
+  const [isBookmark, setIsBookmark] = useState(education.isBookmark || false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  // 디버깅용 로그
-  console.log('Job data:', job);
-  console.log('Required skills:', job.requiredSkills);
 
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
   }, []);
 
-  const handleToggleScrap = (jobId: string) => {
-    setIsScrap(!isScrap);
-    onToggleScrap(jobId);
+  const handleToggleBookmark = (educationId: string) => {
+    setIsBookmark(!isBookmark);
+    onToggleBookmark(educationId);
   };
 
   const handleCardClick = () => {
@@ -247,8 +237,8 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
-    const categories = job.jobCategory?.split(',') || [];
-    const skills = job.requiredSkills?.split(',') || [];
+    const categories = education.trainTarget?.split(',') || [];
+    const certificates = education.certificate?.split(',') || [];
 
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
@@ -263,16 +253,16 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             {category.trim()}
           </Tag>
         ))}
-        {skills.map((skill, i) => (
+        {certificates.map((cert, i) => (
           <Tag
-            key={`skill-${i}`}
+            key={`cert-${i}`}
             isHovered={isHovered}
             isExpanded={isExpanded}
             isVisible={!isCompact}
             isCompact={isCompact}
             delay={(i + categories.length) * (isCompact ? 50 : 100)}
           >
-            {skill.trim()}
+            {cert.trim()}
           </Tag>
         ))}
       </div>
@@ -282,15 +272,20 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   // 상세 정보 렌더링 함수
   const renderDetails = () => (
     <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
-      <DetailItem label="디데이" value={calculateDaysLeft(job.closingDate)} />
       <DetailItem
-        label="경력"
-        value={job.experience || '경력 미정'}
+        label="기간"
+        value={calculateDuration(education.traStartDate, education.traEndDate)}
         isPrimary
       />
-      <DetailItem label="급여" value={job.salary || '급여 미정'} isPrimary />
-      <DetailItem label="근무기간" value={job.workPeriod} />
-      <DetailItem label="고용형태" value={job.employmentType} />
+      <DetailItem label="시작일" value={formatDate(education.traStartDate)} />
+      <DetailItem label="종료일" value={formatDate(education.traEndDate)} />
+      <DetailItem
+        label="등급"
+        value={education.grade || '등급 미정'}
+        isPrimary
+      />
+      <DetailItem label="정원" value={education.regCourseMan || '정원 미정'} />
+      <DetailItem label="연락처" value={education.telNo || '연락처 미정'} />
     </div>
   );
 
@@ -305,7 +300,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
       <div
         className="relative flex-shrink-0 rounded-lg md:rounded-xl transition-all duration-700 ease-in-out w-full h-[120px] md:h-[200px]"
         style={{
-          background: `url(${job.companyLogo || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
+          background: `url(${education.titleIcon || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
         }}
       >
         {/* Compact 오버레이 */}
@@ -322,15 +317,18 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           <div className="flex justify-between items-center text-white">
             <div className="flex flex-row gap-1 md:gap-3 flex-1 min-w-0">
               <div className="text-lg md:text-2xl flex items-center truncate font-medium">
-                {job.companyName || '회사명 미정'}
+                {education.title || '교육과정명 미정'}
               </div>
               <div className="text-xs md:text-base text-gray-300 flex items-center truncate">
-                {job.workLocation || '근무지 미정'}
+                {education.address || '위치 미정'}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className="text-sm md:text-xl font-medium">
-                {calculateDaysLeft(job.closingDate)}
+                {calculateDuration(
+                  education.traStartDate,
+                  education.traEndDate
+                )}
               </span>
             </div>
           </div>
@@ -347,15 +345,15 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                 : 'opacity-100 translate-y-0'
             }`}
           >
-            {/* 기업명, 위치, 태그 */}
+            {/* 교육과정명, 위치, 태그 */}
             <div className="flex justify-between items-start my-4 md:my-6">
               <div className="flex flex-col gap-2 md:gap-3 flex-1 min-w-0">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3 transition-all duration-500 ease-out">
                   <span className="text-xl md:text-2xl text-gray-800 truncate font-semibold">
-                    {job.companyName || '회사명 미정'}
+                    {education.title || '교육과정명 미정'}
                   </span>
                   <span className="text-base md:text-body-small-medium text-gray-500 truncate">
-                    {job.workLocation || '근무지 미정'}
+                    {education.address || '위치 미정'}
                   </span>
                 </div>
                 {renderTags()}
@@ -364,20 +362,20 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleToggleScrap(job.jobId);
+                    handleToggleBookmark(education.trprId);
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
-                    isScrap ? 'text-gray-300' : 'text-yellow-400'
+                    isBookmark ? 'text-gray-300' : 'text-yellow-400'
                   }`}
                 >
-                  {isScrap ? <PiStarThin /> : <HiStar />}
+                  {isBookmark ? <PiStarThin /> : <HiStar />}
                 </button>
               </div>
             </div>
 
-            {/* 직무 설명 */}
+            {/* 교육과정 설명 */}
             <p className="text-gray-800 text-xl md:text-title-large leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium">
-              {job.jobTitle || '직무명 미정'}
+              {education.subTitle || education.contents || '교육과정 설명 미정'}
             </p>
 
             {/* 상세 정보 */}
@@ -386,7 +384,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             {/* 추천도 */}
             <div className="flex justify-end">
               <RecommendationScore
-                job={job}
+                education={education}
                 isLoggedIn={isLoggedIn}
                 isExpanded
               />
@@ -395,7 +393,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             {/* 버튼 */}
             <div className="mt-4 md:mt-6 md:text-2xl transition-all duration-500 ease-out">
               <a
-                href={job.applyLink}
+                href={education.titleLink || education.subTitleLink || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-green-600 transition-all duration-300 block text-center"
@@ -409,7 +407,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
             <p className="text-gray-800 text-xl md:text-title-large text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
-              {job.jobTitle || '직무명 미정'}
+              {education.title || '교육과정명 미정'}
             </p>
 
             {renderTags(true)}
@@ -417,10 +415,13 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             <div className="flex justify-between items-center transition-all duration-400 ease-in-out">
               <div className="flex items-center gap-2 pt-1 md:pt-[10px]">
                 <span className="text-base md:text-body-medium-medium text-gray-500 font-medium">
-                  급여
+                  기간
                 </span>
                 <span className="text-base md:text-body-medium-medium text-primary-90 font-semibold">
-                  {job.salary || '급여 미정'}
+                  {calculateDuration(
+                    education.traStartDate,
+                    education.traEndDate
+                  )}
                 </span>
               </div>
             </div>
@@ -436,7 +437,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             : 'opacity-100 translate-x-0 translate-y-0 scale-100'
         }`}
       >
-        <RecommendationScore job={job} isLoggedIn={isLoggedIn} />
+        <RecommendationScore education={education} isLoggedIn={isLoggedIn} />
       </div>
     </div>
   );

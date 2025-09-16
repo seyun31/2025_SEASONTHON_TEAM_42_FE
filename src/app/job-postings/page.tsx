@@ -237,7 +237,7 @@ export default function JobPostings() {
               />
             )}
 
-            <div className="flex flex-row gap-6 mt-12">
+            <div className="flex flex-col md:flex-row gap-6 mt-12">
               <div className="flex flex-col gap-6 flex-1">
                 {jobs.slice(0, Math.ceil(jobs.length / 2)).map((job, index) => (
                   <JobCard
