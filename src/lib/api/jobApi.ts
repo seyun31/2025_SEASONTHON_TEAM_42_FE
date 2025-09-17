@@ -859,6 +859,66 @@ export const deleteRoadmapAction = async (
   }
 };
 
+// 로드맵 액션 추가
+export const addRoadmapAction = async (
+  roadmapId: number,
+  action: string
+): Promise<void> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    const requestBody = { action };
+
+    console.log(
+      `Making API request to /roadmap/${roadmapId}/roadmapAction (POST)`
+    );
+    console.log('Request body:', requestBody);
+
+    const response = await fetch(
+      `${backendUrl}/roadmap/${roadmapId}/roadmapAction`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    console.log('addRoadmapAction - API Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('addRoadmapAction - API Error Response:', errorText);
+      throw new Error(
+        `Failed to add roadmap action: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<object> = await response.json();
+    console.log('addRoadmapAction - API Response data:', result);
+
+    if (result.result !== 'SUCCESS') {
+      console.error('addRoadmapAction - API returned error:', result.error);
+      throw new Error(result.error?.message || 'API request failed');
+    }
+  } catch (error) {
+    console.error('Error adding roadmap action:', error);
+    throw error;
+  }
+};
+
 // 로드맵 액션 추천
 export const recommendRoadmapAction = async (
   category: string

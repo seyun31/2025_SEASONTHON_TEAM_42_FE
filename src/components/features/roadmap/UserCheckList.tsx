@@ -14,6 +14,7 @@ import {
   toggleRoadMapAction,
   updateRoadmapAction,
   deleteRoadmapAction,
+  addRoadmapAction,
 } from '@/lib/api/jobApi';
 import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
@@ -52,6 +53,8 @@ export default function UserCheckList({
   const [editText, setEditText] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isAddingNewItem, setIsAddingNewItem] = useState<boolean>(false);
+  const [newItemText, setNewItemText] = useState<string>('');
 
   // API 데이터를 UI용 데이터로 변환
   useEffect(() => {
@@ -63,7 +66,7 @@ export default function UserCheckList({
       roadmapData.steps.forEach((step, stepIndex) => {
         convertedChecklists[stepIndex + 1] = step.actions.map(
           (action, actionIndex) => ({
-            id: actionIndex + 1,
+            id: action.roadMapActionId, // roadMapActionId를 ID로 사용
             text: action.action,
             completed: action.isCompleted,
           })
@@ -88,19 +91,8 @@ export default function UserCheckList({
       setLoading(true);
       setError(null);
 
-      // RoadMapStep에서 roadMapId 가져오기
-      const step = apiRoadmapSteps[stepId - 1];
-      if (!step) {
-        throw new Error('Step not found');
-      }
-
-      // ActionDto의 roadMapActionId 필드 사용
-      const action = step.actions[itemId - 1];
-      if (!action) {
-        throw new Error('Action not found');
-      }
-
-      await toggleRoadMapAction(action.roadMapActionId);
+      // roadMapActionId를 직접 사용 (itemId가 이미 roadMapActionId)
+      await toggleRoadMapAction(itemId);
 
       // 성공 시 로컬 상태 업데이트
       setChecklistItems((prev: RoadmapChecklist) => ({
@@ -116,8 +108,8 @@ export default function UserCheckList({
           sIndex === stepId - 1
             ? {
                 ...s,
-                actions: s.actions.map((a, aIndex) =>
-                  aIndex === itemId - 1
+                actions: s.actions.map((a) =>
+                  a.roadMapActionId === itemId
                     ? { ...a, isCompleted: !a.isCompleted }
                     : a
                 ),
@@ -151,17 +143,8 @@ export default function UserCheckList({
       setLoading(true);
       setError(null);
 
-      const step = apiRoadmapSteps[stepId - 1];
-      if (!step) {
-        throw new Error('Step not found');
-      }
-
-      const action = step.actions[itemId - 1];
-      if (!action) {
-        throw new Error('Action not found');
-      }
-
-      await updateRoadmapAction(action.roadMapActionId, newText);
+      // roadMapActionId를 직접 사용 (itemId가 이미 roadMapActionId)
+      await updateRoadmapAction(itemId, newText);
 
       // 성공 시 로컬 상태 업데이트
       setChecklistItems((prev: RoadmapChecklist) => ({
@@ -177,8 +160,8 @@ export default function UserCheckList({
           sIndex === stepId - 1
             ? {
                 ...s,
-                actions: s.actions.map((a, aIndex) =>
-                  aIndex === itemId - 1 ? { ...a, action: newText } : a
+                actions: s.actions.map((a) =>
+                  a.roadMapActionId === itemId ? { ...a, action: newText } : a
                 ),
               }
             : s
@@ -206,17 +189,8 @@ export default function UserCheckList({
       setLoading(true);
       setError(null);
 
-      const step = apiRoadmapSteps[stepId - 1];
-      if (!step) {
-        throw new Error('Step not found');
-      }
-
-      const action = step.actions[itemId - 1];
-      if (!action) {
-        throw new Error('Action not found');
-      }
-
-      await deleteRoadmapAction(action.roadMapActionId);
+      // roadMapActionId를 직접 사용 (itemId가 이미 roadMapActionId)
+      await deleteRoadmapAction(itemId);
 
       // 성공 시 로컬 상태 업데이트
       setChecklistItems((prev: RoadmapChecklist) => ({
@@ -232,7 +206,7 @@ export default function UserCheckList({
           sIndex === stepId - 1
             ? {
                 ...s,
-                actions: s.actions.filter((a, aIndex) => aIndex !== itemId - 1),
+                actions: s.actions.filter((a) => a.roadMapActionId !== itemId),
               }
             : s
         )
@@ -283,6 +257,84 @@ export default function UserCheckList({
   const handleDelete = async (stepId: number, itemId: number) => {
     if (window.confirm('이 항목을 삭제하시겠습니까?')) {
       await deleteChecklistItem(stepId, itemId);
+    }
+  };
+
+  const startAddingNewItem = () => {
+    setIsAddingNewItem(true);
+    setNewItemText('');
+  };
+
+  const cancelAddingNewItem = () => {
+    setIsAddingNewItem(false);
+    setNewItemText('');
+  };
+
+  const addNewChecklistItem = async (stepId: number, actionText: string) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // roadmapId는 현재 선택된 단계의 roadmapId를 사용
+      const currentStep = apiRoadmapSteps[stepId - 1];
+      if (!currentStep || !currentStep.roadMapId) {
+        throw new Error('로드맵 ID를 찾을 수 없습니다.');
+      }
+
+      await addRoadmapAction(currentStep.roadMapId, actionText);
+
+      // 성공 시 로컬 상태 업데이트 (임시 ID로 추가, 실제로는 서버에서 받은 ID를 사용해야 함)
+      const tempId = Date.now(); // 임시 ID
+      const newItem: ChecklistItem = {
+        id: tempId,
+        text: actionText,
+        completed: false,
+      };
+
+      setChecklistItems((prev: RoadmapChecklist) => ({
+        ...prev,
+        [stepId]: [...(prev[stepId] || []), newItem],
+      }));
+
+      // API 데이터도 업데이트 (임시로 추가)
+      setApiRoadmapSteps((prev) =>
+        prev.map((s, sIndex) =>
+          sIndex === stepId - 1
+            ? {
+                ...s,
+                actions: [
+                  ...s.actions,
+                  {
+                    roadMapActionId: tempId,
+                    action: actionText,
+                    isCompleted: false,
+                  },
+                ],
+              }
+            : s
+        )
+      );
+
+      // 부모 컴포넌트에 업데이트 알림
+      if (onRoadmapUpdate) {
+        onRoadmapUpdate();
+      }
+
+      setIsAddingNewItem(false);
+      setNewItemText('');
+    } catch (error) {
+      console.error('새 항목 추가 실패:', error);
+      setError(
+        error instanceof Error ? error.message : '새 항목 추가에 실패했습니다.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveNewItem = async () => {
+    if (newItemText.trim() && selectedStepId) {
+      await addNewChecklistItem(selectedStepId, newItemText.trim());
     }
   };
 
@@ -506,7 +558,7 @@ export default function UserCheckList({
               <div className="flex flex-row items-end gap-2">
                 <div className="text-primary-90 text-header-medium">
                   {apiRoadmapSteps.length > 0
-                    ? apiRoadmapSteps[selectedStepId - 1]?.category || '단계'
+                    ? `${apiRoadmapSteps[selectedStepId - 1]?.period || ''} ${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
                     : mockRoadmapData.steps.find(
                         (step) => step.id === selectedStepId
                       )?.name || '단계'}
@@ -650,18 +702,65 @@ export default function UserCheckList({
                   })}
 
                   {/* 추가 목표 항목 */}
-                  <div className="flex items-center gap-4">
-                    <div className="flex flex-col items-center">
-                      <button className="hover:scale-110 transition-transform cursor-pointer">
-                        <PiStarThin className="w-8 h-8 text-gray-300" />
-                      </button>
+                  {isAddingNewItem ? (
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col items-center">
+                        <button className="hover:scale-110 transition-transform cursor-pointer">
+                          <PiStarThin className="w-8 h-8 text-gray-300" />
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newItemText}
+                            onChange={(e) => setNewItemText(e.target.value)}
+                            placeholder="새로운 목표를 입력하세요"
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-body-large"
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                saveNewItem();
+                              } else if (e.key === 'Escape') {
+                                cancelAddingNewItem();
+                              }
+                            }}
+                            autoFocus
+                          />
+                          <button
+                            onClick={saveNewItem}
+                            disabled={loading || !newItemText.trim()}
+                            className="px-3 py-1 bg-primary-90 text-white rounded text-body-medium hover:bg-primary-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            추가
+                          </button>
+                          <button
+                            onClick={cancelAddingNewItem}
+                            disabled={loading}
+                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-body-medium hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            취소
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <span className="text-body-large text-gray-800">
-                        별을 눌러 직접 목표를 추가해보세요!
-                      </span>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col items-center">
+                        <button
+                          onClick={startAddingNewItem}
+                          disabled={loading}
+                          className="hover:scale-110 transition-transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <PiStarThin className="w-8 h-8 text-gray-300" />
+                        </button>
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-body-large text-gray-800">
+                          별을 눌러 직접 목표를 추가해보세요!
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
