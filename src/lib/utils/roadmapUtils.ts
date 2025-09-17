@@ -54,7 +54,7 @@ export const convertApiDataToRoadmapSteps = (
       step.actions.every((action) => action.isCompleted);
 
     return {
-      id: step.roadMapId,
+      id: index + 1, // 인덱스 기반 ID 사용 (1, 2, 3, 4)
       name: step.category,
       position,
       completed: allActionsCompleted,
