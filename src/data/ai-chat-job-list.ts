@@ -19,10 +19,6 @@ export interface ChatFlow {
     optionalQuestions: number;
   };
   questions: ChatQuestion[];
-  strengthReport: {
-    speaker: string;
-    message: string[];
-  };
 }
 
 export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
@@ -199,12 +195,4 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       canSkip: true,
     },
   ],
-
-  strengthReport: {
-    speaker: 'AI 코치',
-    message: [
-      `수고 많으셨어요 ${userName}! 🙏`,
-      `${userName}은 **[사람과 데이터를 함께 다루는 분석형·조정형 전문가]**입니다.`,
-    ],
-  },
 });

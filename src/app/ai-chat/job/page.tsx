@@ -12,6 +12,7 @@ import ChatInput from '@/components/ui/ChatInput';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import { UserResponse } from '@/types/user';
+import { generateExpertType } from '@/utils/expertTypeGenerator';
 
 interface Occupation {
   imageUrl: string;
@@ -29,6 +30,20 @@ interface JobRecommendations {
   third: Occupation;
 }
 
+interface StrengthReport {
+  strength: string;
+  experience: string;
+  keyword: string[];
+  job: string[];
+}
+
+interface ApiStrengthReport {
+  strength: string;
+  experience: string;
+  keyword: string[];
+  job: string[];
+}
+
 function AIChatJobContent() {
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
@@ -39,6 +54,7 @@ function AIChatJobContent() {
   });
 
   const userName = userData?.data?.name ? `${userData.data.name}님` : '님';
+
   const aiChatFlow = createAiChatFlow(userName);
 
   const {
@@ -66,8 +82,10 @@ function AIChatJobContent() {
   const [, setShowJobCards] = useState(false);
   const [completionFlowStarted, setCompletionFlowStarted] = useState(false);
   const [jobMessageAdded, setJobMessageAdded] = useState(false);
+  const [strengthReports, setStrengthReports] = useState<StrengthReport[]>([]);
+  const [strengthReportAdded, setStrengthReportAdded] = useState(false);
 
-  // 초기 intro 메시지 추가 (사용자 데이터 로딩 후)
+  // 초기 intro 메시지
   useEffect(() => {
     if (messages.length === 0 && !userLoading && userData) {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
@@ -153,9 +171,43 @@ function AIChatJobContent() {
 
     try {
       // 1. 채팅 히스토리 조회
-      await fetch('/api/chat/jobs/history');
+      await fetch('/api/chat/jobs/history/answer');
 
-      // 2. 맞춤형 직업 추천 조회
+      // 2. 강점 리포트 조회
+      const strengthResponse = await fetch('/api/chat/strength/result', {
+        method: 'POST',
+      });
+      const strengthData = await strengthResponse.json();
+
+      if (
+        strengthData.result === 'SUCCESS' &&
+        strengthData.data?.reportList?.length > 0
+      ) {
+        const reports = strengthData.data.reportList.map(
+          (report: ApiStrengthReport) => ({
+            strength: report.strength.replace(/입니다\.$/, ''),
+            experience: report.experience,
+            keyword: report.keyword,
+            job: report.job,
+          })
+        );
+
+        setStrengthReports(reports);
+
+        // 로딩 메시지 제거
+        removeMessagesByType('loading');
+
+        // 강점 리포트 표시
+        const expertType = generateExpertType(reports[0].strength);
+        addBotMessage(
+          `수고 많으셨어요 ${userName}! 🙏\n${userName}은 **${expertType}**입니다.`
+        );
+      } else {
+        console.error('강점 리포트 조회 실패:', strengthData.error);
+        removeMessagesByType('loading');
+      }
+
+      // 3. 맞춤형 직업 추천 조회
       const recommendResponse = await fetch(
         '/api/chat/jobs/recommend/occupation'
       );
@@ -171,31 +223,21 @@ function AIChatJobContent() {
     } finally {
       setIsLoadingRecommendations(false);
     }
-  }, []);
+  }, [userName, addBotMessage, removeMessagesByType]);
 
   // 채팅 완료 시 결과 데이터 가져오기
   useEffect(() => {
     if (isCompleted && !completionFlowStarted) {
       setCompletionFlowStarted(true);
 
-      // 1단계: 강점 분석 완료 메시지 표시
+      // 1단계: 강점 리포트 생성 중 로딩
       setTimeout(() => {
-        addBotMessage(aiChatFlow.strengthReport.message.join('\n'));
+        addComponentMessage('loading', { loadingType: 'strengthReport' });
 
-        // 2단계: 강점 리포트 카드 컴포넌트 추가
+        // 2단계: 강점 리포트 데이터 가져오기
         setTimeout(() => {
-          addComponentMessage('strengthReport');
-
-          // 3단계: 로딩 메시지 추가
-          setTimeout(() => {
-            addComponentMessage('loading');
-
-            // 4단계: 직업 추천 데이터 가져오기
-            setTimeout(() => {
-              fetchJobRecommendations();
-            }, 1000);
-          }, 1500);
-        }, 1500);
+          fetchJobRecommendations();
+        }, 1000);
       }, 1000);
     }
   }, [isCompleted, completionFlowStarted]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -205,7 +247,7 @@ function AIChatJobContent() {
     if (jobRecommendations && !jobMessageAdded) {
       setJobMessageAdded(true);
 
-      // 로딩 메시지 제거
+      // 모든 로딩 메시지 즉시 제거
       removeMessagesByType('loading');
 
       setTimeout(() => {
@@ -216,10 +258,39 @@ function AIChatJobContent() {
         setTimeout(() => {
           addComponentMessage('jobCards', jobRecommendations);
           setShowJobCards(true);
+          removeMessagesByType('loading');
         }, 1500);
+      }, 100);
+    }
+  }, [jobRecommendations, jobMessageAdded, removeMessagesByType]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (strengthReports.length > 0 && !strengthReportAdded) {
+      setStrengthReportAdded(true);
+
+      removeMessagesByType('loading');
+
+      setTimeout(() => {
+        strengthReports.forEach((report, index) => {
+          setTimeout(() => {
+            addComponentMessage('strengthReport', report);
+          }, index);
+        });
+
+        // 직업 추천 로딩중
+        setTimeout(
+          () => {
+            if (!jobRecommendations) {
+              addComponentMessage('loading', {
+                loadingType: 'jobRecommendation',
+              });
+            }
+          },
+          strengthReports.length * 200 + 1500
+        );
       }, 500);
     }
-  }, [jobRecommendations, jobMessageAdded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [strengthReports, strengthReportAdded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;
