@@ -1,0 +1,66 @@
+name: Staging Deployment Workflow
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main, develop]
+
+concurrency:
+  group: staging-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+#    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    steps:
+      - name: Checkout code at CI commit
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.workflow_run.repository.full_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Set image tag (use CI head_sha)
+        run: echo "IMAGE_TAG=$(echo '${{ github.event.workflow_run.head_sha }}' | cut -c1-7)" >> $GITHUB_ENV
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/ncareer-fe:${{ env.IMAGE_TAG }} -f deploy/Dockerfile .
+
+      - name: Docker Hub push
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/ncareer-fe:${{ env.IMAGE_TAG }}
+
+      - name: Checkout manifest repository
+        uses: actions/checkout@v4
+        with:
+          repository: '9oormthon-univ/2025_SEASONTHON_TEAM_42_MANIFEST'
+          token: ${{ secrets.PAT }}
+          path: 'manifest'
+
+      - name: Update deployment.yml
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          # ncareer-fe로 통일
+          sed -i "s|image:.*|image: ${DOCKERHUB_USERNAME}/ncareer-fe:${IMAGE_TAG}|g" manifest/ncareer/frontend/deployment-fe.yaml
+
+          echo "Updated deployment.yaml:"
+          grep -n "image:" manifest/ncareer/frontend/deployment-fe.yaml || true
+
+      - name: Commit and push changes
+        env:
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+        run: |
+          cd manifest
+          git config --local user.email "kjeng7897@gmail.com"
+          git config --local user.name "SeongHo5356"
+          git add ncareer/frontend/deployment-fe.yaml
+          git commit -m "Update image tag to $IMAGE_TAG" || exit 0
+          git push
