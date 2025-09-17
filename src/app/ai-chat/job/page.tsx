@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import {
   useChatHistory,
   ChatHistoryProvider,
@@ -320,109 +321,135 @@ function AIChatJobContent() {
     );
   }
 
+  // 로그아웃 상태 확인
+  const isLoggedOut = !userData?.data;
+
   return (
-    <div className="absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0">
-      <MessageSection
-        messages={messages}
-        showStartButton={showStartButton}
-        showQuestionOptions={showQuestionOptions || false}
-        currentQuestionOptions={currentOptions}
-        selectedOptions={selectedOptions}
-        canSkip={currentQuestion?.canSkip || false}
-        onStartClick={handleStartClick}
-        onOptionClick={handleOptionClick}
-        onCompleteClick={handleCompleteClick}
-        onSkipClick={handleSkipClick}
-      >
-        {/* 완료된 경우 결과 표시 */}
-        {isCompleted && (
-          <div className="space-y-4">
-            {isLoadingRecommendations ? (
-              <div className="text-center p-4">
-                <p className="text-chat-message">
-                  맞춤형 직업을 추천하는 중...
-                </p>
-              </div>
-            ) : jobRecommendations ? (
-              <div className="ml-[0.5vw]">
-                <MessageItem
-                  message={`${userName}의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
-                  isBot={true}
-                  hideProfile={true}
-                  noTopMargin={true}
-                />
-
-                <div className="flex gap-4 w-full mt-4">
-                  {[
-                    jobRecommendations.first,
-                    jobRecommendations.second,
-                    jobRecommendations.third,
-                  ].map((occupation, index) => (
-                    <FlipCard
-                      key={index}
-                      imageUrl={occupation.imageUrl}
-                      jobTitle={occupation.occupationName}
-                      jobDescription={occupation.description}
-                      recommendationScore={parseInt(occupation.score) || 0}
-                      strengths={{
-                        title: occupation.strength,
-                        percentage: occupation.score,
-                        description: occupation.strength,
-                      }}
-                      workingConditions={{
-                        title: occupation.workCondition,
-                        percentage: occupation.score,
-                        description: occupation.workCondition,
-                      }}
-                      preferences={{
-                        title: occupation.wish,
-                        percentage: occupation.score,
-                        description: occupation.wish,
-                      }}
-                      userName={userName.replace('님', '')}
-                      onJobPostingClick={() => {
-                        console.log(
-                          '채용공고 확인하기 clicked for:',
-                          occupation.occupationName
-                        );
-                      }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center p-4">
-                <p className="text-chat-message">
-                  추천 결과를 불러올 수 없습니다.
-                </p>
-              </div>
-            )}
+    <>
+      {/* 로그아웃 상태일 때 표시할 에러 컴포넌트 */}
+      {isLoggedOut && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/logos/bad-gate-star.svg"
+              alt="꿈별이 error페이지 이미지"
+              width={375}
+              height={316}
+              className="max-w-full h-auto"
+            />
+            <div className="text-center">
+              <h1 className="text-lg lg:text-2xl font-bold text-gray-50 mb-2">
+                로그인 후 이용해보세요!
+              </h1>
+            </div>
           </div>
-        )}
-      </MessageSection>
-
-      {/* 진행바 및 입력창 컨테이너
-      <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
-      {/* 진행바 */}
-      {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
-        <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
-          <ProgressBar
-            currentStep={currentStep}
-            totalSteps={aiChatFlow.questions.length}
-          />
         </div>
       )}
 
-      {/* 입력창 */}
-      <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
-        <ChatInput
-          value={textInput}
-          onChange={setTextInput}
-          onSend={handleCompleteClick}
-        />
+      <div
+        className={`absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0 ${isLoggedOut ? 'blur-sm pointer-events-none' : ''}`}
+      >
+        <MessageSection
+          messages={messages}
+          showStartButton={showStartButton}
+          showQuestionOptions={showQuestionOptions || false}
+          currentQuestionOptions={currentOptions}
+          selectedOptions={selectedOptions}
+          canSkip={currentQuestion?.canSkip || false}
+          onStartClick={handleStartClick}
+          onOptionClick={handleOptionClick}
+          onCompleteClick={handleCompleteClick}
+          onSkipClick={handleSkipClick}
+        >
+          {/* 완료된 경우 결과 표시 */}
+          {isCompleted && (
+            <div className="space-y-4">
+              {isLoadingRecommendations ? (
+                <div className="text-center p-4">
+                  <p className="text-chat-message">
+                    맞춤형 직업을 추천하는 중...
+                  </p>
+                </div>
+              ) : jobRecommendations ? (
+                <div className="ml-[0.5vw]">
+                  <MessageItem
+                    message={`${userName}의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
+                    isBot={true}
+                    hideProfile={true}
+                    noTopMargin={true}
+                  />
+
+                  <div className="flex gap-4 w-full mt-4">
+                    {[
+                      jobRecommendations.first,
+                      jobRecommendations.second,
+                      jobRecommendations.third,
+                    ].map((occupation, index) => (
+                      <FlipCard
+                        key={index}
+                        imageUrl={occupation.imageUrl}
+                        jobTitle={occupation.occupationName}
+                        jobDescription={occupation.description}
+                        recommendationScore={parseInt(occupation.score) || 0}
+                        strengths={{
+                          title: occupation.strength,
+                          percentage: occupation.score,
+                          description: occupation.strength,
+                        }}
+                        workingConditions={{
+                          title: occupation.workCondition,
+                          percentage: occupation.score,
+                          description: occupation.workCondition,
+                        }}
+                        preferences={{
+                          title: occupation.wish,
+                          percentage: occupation.score,
+                          description: occupation.wish,
+                        }}
+                        userName={userName.replace('님', '')}
+                        onJobPostingClick={() => {
+                          console.log(
+                            '채용공고 확인하기 clicked for:',
+                            occupation.occupationName
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center p-4">
+                  <p className="text-chat-message">
+                    추천 결과를 불러올 수 없습니다.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </MessageSection>
+
+        {/* 진행바 및 입력창 컨테이너
+      <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
+        {/* 진행바 */}
+        {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+          <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+            <ProgressBar
+              currentStep={currentStep}
+              totalSteps={aiChatFlow.questions.length}
+            />
+          </div>
+        )}
+
+        {/* 입력창 */}
+        <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
+          <ChatInput
+            value={textInput}
+            onChange={setTextInput}
+            onSend={handleCompleteClick}
+          />
+        </div>
       </div>
-    </div>
-    // </div>
+    </>
   );
 }
 
