@@ -352,7 +352,12 @@ function AIChatJobContent() {
                   noTopMargin={true}
                 />
 
-                <div className="flex gap-4 w-full mt-4">
+                <div
+                  className="grid gap-4 w-full mt-4 justify-items-center"
+                  style={{
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(384px, 1fr))',
+                  }}
+                >
                   {[
                     jobRecommendations.first,
                     jobRecommendations.second,

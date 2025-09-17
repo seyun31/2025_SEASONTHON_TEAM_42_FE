@@ -8,34 +8,36 @@ interface FlipCardProps {
   jobTitle: string;
   jobDescription: string;
   recommendationScore: number;
-  strengths: {
-    title: string;
-    percentage: number;
-    description: string;
-  };
-  workingConditions: {
-    title: string;
-    percentage: number;
-    description: string;
-  };
-  preferences: {
-    title: string;
-    percentage: number;
-    description: string;
-  };
   userName: string;
   onJobPostingClick: () => void;
+  jobImage?: string; // 직업 이미지 URL (선택사항)
+  strengths?: {
+    title: string;
+    percentage: number;
+    description: string;
+  };
+  workingConditions?: {
+    title: string;
+    percentage: number;
+    description: string;
+  };
+  preferences?: {
+    title: string;
+    percentage: number;
+    description: string;
+  };
 }
 
 export default function FlipCard({
   jobTitle,
   jobDescription,
   recommendationScore,
+  userName,
+  onJobPostingClick,
+  jobImage,
   strengths,
   workingConditions,
   preferences,
-  userName,
-  onJobPostingClick,
 }: FlipCardProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isScrap, setIsScrap] = useState(false);
@@ -44,169 +46,139 @@ export default function FlipCard({
     setIsFlipped(!isFlipped);
   };
 
-  const handleToggleScrap = () => {
+  const handleToggleScrap = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsScrap(!isScrap);
   };
 
   return (
     <div
-      className="relative "
-      style={{ width: '384px', height: '595px', flexShrink: 0 }}
+      className="relative cursor-pointer w-96 h-[538px] flex-shrink-0 rounded-[24px] border-4 border-[#C7D6CC] bg-white shadow-[0_10px_10px_0_rgba(0,66,11,0.15)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_15px_20px_0_rgba(0,66,11,0.25)] hover:-rotate-1"
+      style={{ aspectRatio: '109/169' }}
       onClick={handleCardClick}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
+        className={`relative w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
           isFlipped ? 'rotate-y-180' : ''
         }`}
         style={{ transformStyle: 'preserve-3d' }}
       >
-        {/* 앞면 - 직업 추천 카드 */}
+        {/* 앞면 - 직업 정보 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-[16px] bg-white flex flex-col p-4"
-          style={{
-            backfaceVisibility: 'hidden',
-            background:
-              'linear-gradient(white, white) padding-box, linear-gradient(157.78deg, #E1DC53 0%, #F06F18 99.94%) border-box',
-            border: '4px solid transparent',
-          }}
+          className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-white relative overflow-hidden"
+          style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="w-[344px] h-[286px] bg-gray-200 rounded-lg relative">
-            <div className="absolute top-2 right-2 w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center">
-              <svg
-                className="w-6 h-6 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-            </div>
+          {/* 상단: 직업 이미지 배경 */}
+          <div
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(/assets/Icons/FlipCard_bg.png)',
+            }}
+          >
+            {/* 직업 이미지가 있다면 오버레이로 표시 */}
+            {jobImage && (
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{
+                  backgroundImage: `url(${jobImage})`,
+                }}
+              />
+            )}
           </div>
 
-          <div className="">
-            <div>
-              <div className="flex items-center justify-between mb-2 mt-[40px]">
-                <span className="text-title-large">{jobTitle}</span>
+          {/* 하단: 직업 정보 텍스트 - 이미지 위에 오버레이 */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 w-full h-[218px] bg-gradient-to-b from-transparent to-black">
+            <div className="flex flex-col">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-white self-stretch text-[32px] font-semibold leading-[140%] tracking-[-0.8px]">
+                  {jobTitle}
+                </h3>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleToggleScrap();
-                  }}
-                  className={`text-5xl transition-all duration-300 hover:scale-110 ${
-                    isScrap ? 'text-gray-300' : 'text-yellow-400'
+                  onClick={handleToggleScrap}
+                  className={`text-[45px] transition-all duration-300 hover:scale-110 ml-2 ${
+                    isScrap ? 'text-gray-400' : 'text-yellow-400'
                   }`}
                 >
                   {isScrap ? <PiStarThin /> : <HiStar />}
                 </button>
               </div>
-              <p className="text-gray-600 text-body-large-medium">
+              <p className="text-lg text-gray-20 leading-relaxed">
                 {jobDescription}
               </p>
-            </div>
-
-            <div className="flex items-end justify-between mt-[40px]">
-              <div>
-                <p className="text-body-medium-medium text-gray-600">
-                  직업 추천도
-                </p>
-                <p className="text-title-xlarge text-gray-800">
-                  {recommendationScore}%
-                </p>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onJobPostingClick();
-                }}
-                className="px-4 py-2 rounded-lg text-title-medium text-primary-90 transition-colors"
-              >
-                채용공고 확인하기
-              </button>
             </div>
           </div>
         </div>
 
-        {/* 뒷면 - 직업 적합성 카드 */}
+        {/* 뒷면 - AI 직업 추천도 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden border-2 border-yellow-200 rounded-lg p-4 bg-white rotate-y-180"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-white rotate-y-180 p-6 flex flex-col justify-between"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="flex items-center justify-between mb-6">
-            <h4 className="text-title-large">{userName}님과의 직업 적합성</h4>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleScrap();
-              }}
-              className={`text-5xl transition-all duration-300 hover:scale-110 ${
-                isScrap ? 'text-gray-300' : 'text-yellow-400'
-              }`}
-            >
-              {isScrap ? <PiStarThin /> : <HiStar />}
-            </button>
+          {/* 상단: 제목과 스크랩 버튼 */}
+          <div className="flex justify-center items-center">
+            <h4 className="text-2xl font-semibold text-gray-800 mt-5">
+              AI 직업 추천도
+            </h4>
           </div>
 
-          <div className="flex flex-col gap-6">
-            {/* 강점 섹션 */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-title-medium">강점</span>
-                <span className="text-body-small-medium text-gray-70">
-                  {strengths.title} {strengths.percentage}%
+          {/* 중간: 추천 점수와 설명 */}
+          <div className="flex-1 flex flex-col items-center mt-10">
+            {/* 추천 점수 */}
+            <div className="text-center mb-6">
+              <div className="text-8xl font-bold mb-2">
+                <span
+                  className="bg-clip-text text-transparent"
+                  style={{
+                    background:
+                      'linear-gradient(270deg, #E1DC53 3.6%, #9FC2FF 98.32%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  {recommendationScore}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${strengths.percentage}%` }}
-                ></div>
-              </div>
-              <p className="text-body-small-regular">{strengths.description}</p>
             </div>
 
-            {/* 근무조건 섹션 */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-title-medium">근무조건</span>
-                <span className="text-body-small-medium text-gray-70">
-                  {workingConditions.title} {workingConditions.percentage}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${workingConditions.percentage}%` }}
-                ></div>
-              </div>
-              <p className="text-body-small-regular">
-                {workingConditions.description}
-              </p>
-            </div>
-
-            {/* 희망사항 섹션 */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-title-medium">희망사항</span>
-                <span className="text-body-small-medium text-gray-70">
-                  {preferences.title} {preferences.percentage}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 mb-5">
-                <div
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${preferences.percentage}%` }}
-                ></div>
-              </div>
-              <p className="text-body-small-regular">
-                {preferences.description}
-              </p>
+            {/* 설명 텍스트 */}
+            <div className="text-lg text-gray-700 text-center leading-relaxed mb-6 space-y-4">
+              {strengths && (
+                <div>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    {strengths.title} ({strengths.percentage}%)
+                  </h5>
+                  <p className="text-sm">{strengths.description}</p>
+                </div>
+              )}
+              {workingConditions && (
+                <div>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    {workingConditions.title} ({workingConditions.percentage}%)
+                  </h5>
+                  <p className="text-sm">{workingConditions.description}</p>
+                </div>
+              )}
+              {preferences && (
+                <div>
+                  <h5 className="font-semibold text-gray-800 mb-2">
+                    {preferences.title} ({preferences.percentage}%)
+                  </h5>
+                  <p className="text-sm">{preferences.description}</p>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* 하단: 채용공고 확인 버튼 */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onJobPostingClick();
+            }}
+            className="w-full bg-primary-90 hover:bg-green-600 text-2xl text-white font-medium py-4 px-4 rounded-2xl transition-colors duration-200"
+          >
+            채용공고 확인하기
+          </button>
         </div>
       </div>
     </div>
