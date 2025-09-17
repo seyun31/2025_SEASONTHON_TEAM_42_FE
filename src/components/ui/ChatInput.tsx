@@ -43,7 +43,7 @@ export default function ChatInput({
       <button
         type="submit"
         disabled={!value.trim()}
-        className="absolute right-3 xs:right-4 top-1/2 transform -translate-y-1/2 w-[7vw] h-[3.5vh] xs:w-[15vw] xs:h-[4vh] md:w-[4.5vw] md:h-[5.5vh] lg:w-[2.81vw] lg:h-[5vh] flex items-center justify-center disabled:opacity-50 hover:bg-gray-50 rounded-full transition-colors"
+        className="absolute right-3 xs:right-4 top-1/2 transform -translate-y-1/2 w-[7vw] h-[3.5vh] xs:w-[15vw] xs:h-[4vh] md:w-[4.5vw] md:h-[5.5vh] lg:w-[2.81vw] lg:h-[5vh] flex items-center justify-center disabled:opacity-50"
       >
         <Image
           src="/assets/Icons/send.svg"

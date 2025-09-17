@@ -19,7 +19,7 @@ export interface ChatFlow {
     optionalQuestions: number;
   };
   questions: ChatQuestion[];
-  outro: {
+  strengthReport: {
     speaker: string;
     message: string[];
   };
@@ -48,9 +48,9 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: true,
       speaker: 'AI 코치',
       message: [
-        '[직업 경력]',
+        '**[직업 경력]**',
         '지금까지 어떤 일을 해오셨나요?',
-        '👉 이 답변으로 "어떤 경험을 강점으로 바꿀 수 있을지" 찾아드려요.',
+        '예시: “20년 동안 경찰로 근무했습니다. 주로 사건 조사, 민원 응대, 순찰 업무를 했어요.”',
       ],
       canSkip: false,
     },
@@ -62,9 +62,9 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: true,
       speaker: 'AI 코치',
       message: [
-        '가지고 계신 자격증이나 특별히 잘한다고 생각하는 기술이 있다면 알려주세요 ✍️',
-        '운전면허처럼 생활 속 자격증도 좋고, 컴퓨터·요리·안전관리 같은 기술도 좋아요.',
-        '👉 이걸 알려주시면, "자격증이 필요한 일자리"를 바로 보여드릴 수 있어요.',
+        '**[직업 외 경험]**',
+        '직업 외에 특별한 경험이 있으신가요?',
+        '예시: “동네 모임 총무로 4년 간 활동”, “복지센터에서 어르신 돌봄 봉사 활동”, “10년 차 주부”, “지역 행사 요원”',
       ],
       canSkip: false,
     },
@@ -72,12 +72,13 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
     {
       id: 3,
       step: 3,
-      type: 'mixed',
+      type: 'text',
       required: true,
       speaker: 'AI 코치',
       message: [
-        '일할 때 어떤 스타일이 편하세요?',
-        '👉 "성향에 맞는 일자리"를 찾는 데 도움이 돼요.',
+        '**[자격증·기술]**',
+        '자격증이나 특별히 자신 있는 기술이 있으신가요?',
+        '예: “사람들을 돕고, 제 경험을 나눌 수 있는 일이면 좋겠습니다.”',
       ],
       options: [],
       canSkip: false,
@@ -90,11 +91,11 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: false,
       speaker: 'AI 코치',
       message: [
-        '반대로, "이건 좀 피하고 싶다" 싶은 일이 있나요?',
-        '👉 미리 알려주시면 추천할 때 걸러드릴게요 🙂',
+        '**[원하는 일 스타일]**',
+        '예: “사람들을 돕고, 제 경험을 나눌 수 있는 일이면 좋겠습니다.”',
       ],
       options: [],
-      canSkip: true,
+      canSkip: false,
     },
 
     {
@@ -104,9 +105,8 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: false,
       speaker: 'AI 코치',
       message: [
-        '주변에서 자주 듣는 칭찬이나 성격을 선택해주세요!',
-        '👉 "성격에 맞는 직업"을 찾는 데 큰 힌트가 돼요.',
-        '(보기에 없다면 채팅으로 보내주세요! 😊)',
+        '**[피하고 싶은 일]**',
+        '반대로, “이건 좀 피하고 싶다” 하는 일이 있으신가요?',
       ],
       options: [],
       canSkip: true,
@@ -119,8 +119,8 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: false,
       speaker: 'AI 코치',
       message: [
-        '요즘 관심 있는 분야가 있으신가요?',
-        '👉 좋아하는 분야를 선택하면, "관심사 기반 직업"을 추천해드려요.',
+        '**[성격·성향]**',
+        '주변에서 자주 듣는 칭찬이나 성격을 선택해주세요!',
       ],
       options: [],
       canSkip: true,
@@ -132,10 +132,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       type: 'mixed',
       required: false,
       speaker: 'AI 코치',
-      message: [
-        '일할 때 어떤 스타일이 편하세요?',
-        '👉 “성향에 맞는 일자리”를 찾는 데 도움이 돼요.',
-      ],
+      message: ['**[관심 분야]**', '요즘 관심 있는 분야가 있으신가요?'],
       options: [],
       canSkip: true,
     },
@@ -147,9 +144,8 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: false,
       speaker: 'AI 코치',
       message: [
-        '근무 시간이나 방식은 어떻게 원하시나요? ⏰',
-        '👉 원하는 근무 조건에 맞는 채용만 보여드릴 수 있어요.',
-        '(보기에 없다면 채팅으로 보내주세요! 😊)',
+        '**[근무 시간·방식]**',
+        '근무 시간이나 방식은 어떤 형태를 원하시나요? ⏰',
       ],
       options: [
         '정해진 시간에',
@@ -170,10 +166,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       type: 'choice',
       required: false,
       speaker: 'AI 코치',
-      message: [
-        '체력은 어느 정도이신가요? 💪',
-        '👉 체력 조건에 맞는 일을 추천할 때 중요해요.',
-      ],
+      message: ['**[체력 상태]**', '체력은 어느 정도이신가요? 💪'],
       options: [
         '활동적인 편이에요',
         '보통이에요',
@@ -189,8 +182,10 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       required: false,
       speaker: 'AI 코치',
       message: [
-        '이제 마지막이에요! 🎉',
-        '교육 수강이나 자격증 취득이 필요한 직무도 괜찮으신가요?',
+        '**[교육·취업 목표]**',
+        '마지막 질문이에요! 🎉',
+        '새로운 일을 위해 교육이나 자격증 준비가 필요하다면 괜찮으신가요?',
+        '그리고 취업은 언제쯤 하고 싶으신가요?',
       ],
       options: [
         '교육/자격증: 예',
@@ -205,12 +200,11 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
     },
   ],
 
-  outro: {
+  strengthReport: {
     speaker: 'AI 코치',
     message: [
       `수고 많으셨어요 ${userName}! 🙏`,
-      `말씀해주신 내용을 토대로 ${userName}께 딱 맞는`,
-      '직업 3개를 추천해드릴게요 🚀',
+      `${userName}은 **[사람과 데이터를 함께 다루는 분석형·조정형 전문가]**입니다.`,
     ],
   },
 });

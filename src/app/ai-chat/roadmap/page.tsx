@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import {
   useChatHistory,
   ChatHistoryProvider,
@@ -23,7 +24,7 @@ function AIChatRoadmapContent() {
     queryKey: ['user', 'profile'],
     queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 데이터가 5분동안 fresh상태로 유지
+    staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
 
   const userName = userData?.data?.name ? `${userData.data.name}님` : '님';
@@ -279,80 +280,107 @@ function AIChatRoadmapContent() {
     );
   }
 
+  // 로그아웃 상태 확인
+  const isLoggedOut = !userData?.data;
+
   return (
-    <div className="absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0">
-      <MessageSection
-        messages={messages}
-        showStartButton={showStartButton}
-        showQuestionOptions={showQuestionOptions || false}
-        currentQuestionOptions={currentOptions}
-        selectedOptions={selectedOptions}
-        canSkip={currentQuestion?.canSkip || false}
-        onStartClick={handleStartClick}
-        onOptionClick={handleOptionClick}
-        onCompleteClick={handleCompleteClick}
-        onSkipClick={handleSkipClick}
-      >
-        {/* 완료된 경우 결과 표시 */}
-        {isCompleted &&
-          (isLoadingRecommendations ? (
-            <div className="text-center p-4">
-              <p className="text-chat-message">
-                맞춤형 로드맵을 생성하는 중...
-              </p>
+    <>
+      {/* 로그아웃 상태일 때 표시할 에러 컴포넌트 */}
+      {isLoggedOut && (
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/logos/bad-gate-star.svg"
+              alt="꿈별이 error페이지 이미지"
+              width={375}
+              height={316}
+              className="max-w-full h-auto"
+            />
+            <div className="text-center">
+              <h1 className="text-lg lg:text-2xl font-bold text-gray-50 mb-2">
+                로그인 후 이용해보세요!
+              </h1>
             </div>
-          ) : (
-            <div className="ml-[0.5vw]">
-              {roadmapData && roadmapData.steps && (
-                <MessageItem
-                  message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
-                    .map(
-                      (step, stepIndex) =>
-                        `${step.period} - ${step.category}\n${step.actions
-                          .map((action) => ` • ${action.action}`)
-                          .join('\n')}`
-                    )
-                    .join(
-                      '\n\n'
-                    )}\n\n아래 버튼을 눌러 상세 로드맵을 확인하세요!`}
-                  isBot={true}
-                  hideProfile={true}
-                  noTopMargin={true}
-                />
-              )}
-
-              <div className="flex items-start gap-[1.5vw] xs:gap-[1.5vw] md:gap-[0vw] lg:gap-[0vw] mt-2">
-                <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
-                <div
-                  className="flex items-center justify-center w-[22vh] max-w-[280px] h-[8vh] max-h-[55px] xs:w-[25vh] xs:max-w-[280px] xs:h-[5.5vh] xs:max-h-[50px] md:w-[18vh] md:max-w-[180px] md:h-[5.5vh] md:max-h-[50px] lg:w-[20vh] lg:max-w-[200px] lg:h-[6.7vh] lg:max-h-[60px] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white"
-                  onClick={() => router.push('/career-roadmap')}
-                >
-                  로드맵으로 이동하기
-                </div>
-              </div>
-            </div>
-          ))}
-      </MessageSection>
-
-      {/* 진행바 */}
-      {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
-        <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
-          <ProgressBar
-            currentStep={currentStep}
-            totalSteps={aiChatFlow.questions.length}
-          />
+          </div>
         </div>
       )}
 
-      {/* 입력창 */}
-      <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[12.5vh] xs:max-h-[12.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
-        <ChatInput
-          value={textInput}
-          onChange={setTextInput}
-          onSend={handleCompleteClick}
-        />
+      <div
+        className={`absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0 ${isLoggedOut ? 'blur-sm pointer-events-none' : ''}`}
+      >
+        <MessageSection
+          messages={messages}
+          showStartButton={showStartButton}
+          showQuestionOptions={showQuestionOptions || false}
+          currentQuestionOptions={currentOptions}
+          selectedOptions={selectedOptions}
+          canSkip={currentQuestion?.canSkip || false}
+          onStartClick={handleStartClick}
+          onOptionClick={handleOptionClick}
+          onCompleteClick={handleCompleteClick}
+          onSkipClick={handleSkipClick}
+        >
+          {/* 완료된 경우 결과 표시 */}
+          {isCompleted &&
+            (isLoadingRecommendations ? (
+              <div className="text-center p-4">
+                <p className="text-chat-message">
+                  맞춤형 로드맵을 생성하는 중...
+                </p>
+              </div>
+            ) : (
+              <div className="ml-[0.5vw]">
+                {roadmapData && roadmapData.steps && (
+                  <MessageItem
+                    message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
+                      .map(
+                        (step, stepIndex) =>
+                          `${step.period} - ${step.category}\n${step.actions
+                            .map((action) => ` • ${action.action}`)
+                            .join('\n')}`
+                      )
+                      .join(
+                        '\n\n'
+                      )}\n\n아래 버튼을 눌러 상세 로드맵을 확인하세요!`}
+                    isBot={true}
+                    hideProfile={true}
+                    noTopMargin={true}
+                  />
+                )}
+
+                <div className="flex items-start gap-[1.5vw] xs:gap-[1.5vw] md:gap-[0vw] lg:gap-[0vw] mt-2">
+                  <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
+                  <div
+                    className="flex items-center justify-center w-[22vh] max-w-[280px] h-[8vh] max-h-[55px] xs:w-[25vh] xs:max-w-[280px] xs:h-[5.5vh] xs:max-h-[50px] md:w-[18vh] md:max-w-[180px] md:h-[5.5vh] md:max-h-[50px] lg:w-[20vh] lg:max-w-[200px] lg:h-[6.7vh] lg:max-h-[60px] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white"
+                    onClick={() => router.push('/career-roadmap')}
+                  >
+                    로드맵으로 이동하기
+                  </div>
+                </div>
+              </div>
+            ))}
+        </MessageSection>
+
+        {/* 진행바 */}
+        {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+          <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+            <ProgressBar
+              currentStep={currentStep}
+              totalSteps={aiChatFlow.questions.length}
+            />
+          </div>
+        )}
+
+        {/* 입력창 */}
+        <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[12.5vh] xs:max-h-[12.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
+          <ChatInput
+            value={textInput}
+            onChange={setTextInput}
+            onSend={handleCompleteClick}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

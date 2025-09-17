@@ -85,9 +85,6 @@ module.exports = {
           },
         },
       },
-      animation: {
-        fadeInUp: 'fadeInUp 0.6s ease-out',
-      },
     },
   },
   plugins: [],

@@ -41,9 +41,10 @@ export default function MessageItem({
             isBot ? 'bg-primary-20 text-chat-message' : 'text-chat-message'
           }`}
           style={!isBot ? { backgroundColor: '#9FC2FF66' } : {}}
-        >
-          {message}
-        </div>
+          dangerouslySetInnerHTML={{
+            __html: message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'),
+          }}
+        />
       </div>
     </div>
   );

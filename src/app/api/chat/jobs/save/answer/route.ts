@@ -22,7 +22,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const { sequence, answer } = await request.json();
-    console.log('요청 데이터:', { sequence, answer, backendUrl });
+    // console.log('요청 데이터:', { sequence, answer, backendUrl });
 
     if (!sequence || answer === undefined || answer === null) {
       return Response.json(
@@ -40,8 +40,6 @@ export async function POST(request: Request): Promise<Response> {
 
     const url = new URL(`${backendUrl}/job/chat/${sequence}`);
     url.searchParams.append('answer', answer);
-
-    console.log('백엔드 URL:', url.toString());
 
     const response = await fetch(url.toString(), {
       method: 'POST',
@@ -83,7 +81,7 @@ export async function POST(request: Request): Promise<Response> {
 
     Sentry.captureException(error, {
       tags: {
-        api: 'chat/jobs/save',
+        api: 'chat/jobs/save/answer',
         method: 'POST',
       },
       extra: {
