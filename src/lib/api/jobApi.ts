@@ -1463,58 +1463,75 @@ export const getHrdEducations = async (filters?: {
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
-      console.log('getHrdEducations - Found educationDtoList, length:', result.data.educationDtoList.length);
+      console.log(
+        'getHrdEducations - Found educationDtoList, length:',
+        result.data.educationDtoList.length
+      );
       mappedData = result.data.educationDtoList;
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {
-      console.log('getHrdEducations - Found srchList, length:', result.data.srchList.length);
-      mappedData = result.data.srchList.map((item: CardCourseItem, index: number) => {
-        console.log(`getHrdEducations - Mapping CardCourseItem ${index}:`, item);
-        return {
-          id: item.trprId || index.toString(),
-          trprId: item.trprId || index.toString(),
-          title: item.title || '제목 없음',
-          subTitle: item.subTitle || '',
-          institution: item.instCd || '',
-          address: item.address || '',
-          traStartDate: item.traStartDate || '',
-          traEndDate: item.traEndDate || '',
-          trainTarget: item.trainTarget || '',
-          contents: item.contents || '',
-          certificate: item.certificate || '',
-          grade: item.grade || '',
-          regCourseMan: item.regCourseMan || '0',
-          courseMan: item.courseMan || '0',
-          realMan: item.realMan || '0',
-          yardMan: item.yardMan || '0',
-          telNo: item.telNo || '',
-          stdgScor: item.stdgScor || '0',
-          eiEmplCnt3: item.eiEmplCnt3 || '0',
-          eiEmplRate3: item.eiEmplRate3 || '0',
-          eiEmplCnt3Gt10: item.eiEmplCnt3Gt10 || '0',
-          eiEmplRate6: item.eiEmplRate6 || '0',
-          ncsCd: item.ncsCd || '',
-          trprDegr: item.trprDegr || '',
-          instCd: item.instCd || '',
-          trngAreaCd: item.trngAreaCd || '',
-          trainTargetCd: item.trainTargetCd || '',
-          trainstCstId: item.trainstCstId || '',
-          subTitleLink: item.subTitleLink || '',
-          titleLink: item.titleLink || '',
-          titleIcon: item.titleIcon || '',
-          isBookmark: false,
-          recommendScore: undefined,
-        };
-      });
+      console.log(
+        'getHrdEducations - Found srchList, length:',
+        result.data.srchList.length
+      );
+      mappedData = result.data.srchList.map(
+        (item: CardCourseItem, index: number) => {
+          console.log(
+            `getHrdEducations - Mapping CardCourseItem ${index}:`,
+            item
+          );
+          return {
+            id: item.trprId || index.toString(),
+            trprId: item.trprId || index.toString(),
+            title: item.title || '제목 없음',
+            subTitle: item.subTitle || '',
+            institution: item.instCd || '',
+            address: item.address || '',
+            traStartDate: item.traStartDate || '',
+            traEndDate: item.traEndDate || '',
+            trainTarget: item.trainTarget || '',
+            contents: item.contents || '',
+            certificate: item.certificate || '',
+            grade: item.grade || '',
+            regCourseMan: item.regCourseMan || '0',
+            courseMan: item.courseMan || '0',
+            realMan: item.realMan || '0',
+            yardMan: item.yardMan || '0',
+            telNo: item.telNo || '',
+            stdgScor: item.stdgScor || '0',
+            eiEmplCnt3: item.eiEmplCnt3 || '0',
+            eiEmplRate3: item.eiEmplRate3 || '0',
+            eiEmplCnt3Gt10: item.eiEmplCnt3Gt10 || '0',
+            eiEmplRate6: item.eiEmplRate6 || '0',
+            ncsCd: item.ncsCd || '',
+            trprDegr: item.trprDegr || '',
+            instCd: item.instCd || '',
+            trngAreaCd: item.trngAreaCd || '',
+            trainTargetCd: item.trainTargetCd || '',
+            trainstCstId: item.trainstCstId || '',
+            subTitleLink: item.subTitleLink || '',
+            titleLink: item.titleLink || '',
+            titleIcon: item.titleIcon || '',
+            isBookmark: false,
+            recommendScore: undefined,
+          };
+        }
+      );
     } else {
-      console.log('getHrdEducations - No educationDtoList or srchList found in result.data:', result.data);
+      console.log(
+        'getHrdEducations - No educationDtoList or srchList found in result.data:',
+        result.data
+      );
       return [];
     }
 
     console.log('getHrdEducations - Final mapped data:', mappedData);
-    console.log('getHrdEducations - Final mapped data length:', mappedData.length);
-    
+    console.log(
+      'getHrdEducations - Final mapped data length:',
+      mappedData.length
+    );
+
     return mappedData;
   } catch (error) {
     console.error('Error fetching HRD educations:', error);
