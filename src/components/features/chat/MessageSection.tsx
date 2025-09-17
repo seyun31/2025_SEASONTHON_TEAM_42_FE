@@ -44,6 +44,40 @@ export default function MessageSection({
 }: MessageSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const renderJobCards = (componentData: unknown): React.ReactNode => {
+    const jobData = componentData as {
+      first: Occupation;
+      second: Occupation;
+      third: Occupation;
+    };
+    return (
+      <div className="flex gap-4 w-full mt-4">
+        {[jobData.first, jobData.second, jobData.third].map(
+          (occupation: Occupation, jobIndex: number) => (
+            <FlipCard
+              key={jobIndex}
+              jobImage={occupation.imageUrl}
+              jobTitle={occupation.occupationName}
+              jobDescription={occupation.description}
+              recommendationScore={parseInt(occupation.score) || 0}
+              strengths={{
+                title: occupation.strength,
+                percentage: parseInt(occupation.score) || 0,
+                description: occupation.strength,
+              }}
+              onJobPostingClick={() => {
+                console.log(
+                  '채용공고 확인하기 clicked for:',
+                  occupation.occupationName
+                );
+              }}
+            />
+          )
+        )}
+      </div>
+    );
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -109,53 +143,9 @@ export default function MessageSection({
                 </div>
               )}
 
-              {message.componentType === 'jobCards' &&
-                message.componentData && (
-                  <div className="flex gap-4 w-full mt-4">
-                    {[
-                      (
-                        message.componentData as {
-                          first: Occupation;
-                          second: Occupation;
-                          third: Occupation;
-                        }
-                      ).first,
-                      (
-                        message.componentData as {
-                          first: Occupation;
-                          second: Occupation;
-                          third: Occupation;
-                        }
-                      ).second,
-                      (
-                        message.componentData as {
-                          first: Occupation;
-                          second: Occupation;
-                          third: Occupation;
-                        }
-                      ).third,
-                    ].map((occupation: Occupation, jobIndex: number) => (
-                      <FlipCard
-                        key={jobIndex}
-                        jobImage={occupation.imageUrl}
-                        jobTitle={occupation.occupationName}
-                        jobDescription={occupation.description}
-                        recommendationScore={parseInt(occupation.score) || 0}
-                        strengths={{
-                          title: occupation.strength,
-                          percentage: parseInt(occupation.score) || 0,
-                          description: occupation.strength,
-                        }}
-                        onJobPostingClick={() => {
-                          console.log(
-                            '채용공고 확인하기 clicked for:',
-                            occupation.occupationName
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
+              {message.componentType === 'jobCards' && message.componentData
+                ? renderJobCards(message.componentData)
+                : null}
             </div>
           );
         }
