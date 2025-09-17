@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import EducationCard from '@/components/features/job/EducationCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { getUserData } from '@/lib/auth';
-import { getEducationCourses } from '@/lib/api/jobApi';
+import {
+  getRecommendedEducations,
+  getAllEducationsAnonymous,
+} from '@/lib/api/jobApi';
 import { EducationSummary } from '@/types/job';
 
 export default function EducationRecommendationsSection() {
@@ -31,12 +34,15 @@ export default function EducationRecommendationsSection() {
           'EducationRecommendationsSection - Fetching education courses'
         );
 
-        const educationData = await getEducationCourses({
-          pageNo: 1,
-          pageSize: 8,
-          startYmd: '20250101',
-          endYmd: '20251231',
-        });
+        let educationData: EducationSummary[] = [];
+
+        if (isLoggedIn) {
+          // 로그인 시: /education/recommend API 사용
+          educationData = await getRecommendedEducations();
+        } else {
+          // 비로그인 시: /education/all/anonymous API 사용
+          educationData = await getAllEducationsAnonymous();
+        }
 
         console.log(
           'EducationRecommendationsSection - Education courses fetched:',
@@ -56,7 +62,7 @@ export default function EducationRecommendationsSection() {
     };
 
     fetchEducations();
-  }, []);
+  }, [isLoggedIn]);
 
   const toggleBookmark = (educationId: string) => {
     const newFavorites = new Set(favorites);

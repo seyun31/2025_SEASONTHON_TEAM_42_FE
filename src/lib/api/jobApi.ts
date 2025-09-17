@@ -4,7 +4,6 @@ import {
   ApiResponse,
   SearchAllResponse,
   AllResponse,
-  JobResponse,
   JobDetailResponse,
   RecommendJob,
   MemberJobMap,
@@ -13,11 +12,11 @@ import {
   CardCoursePage,
   EducationSummary,
   EducationApiResponse,
+  EducationDataResponse,
+  CardCourseItem,
 } from '@/types/job';
 import {
   RoadMapResponse,
-  RoadMapStep,
-  ActionDto,
   RoadMapRequest,
   ActionUpdateRequest,
   RoadmapActionRecommendResponse,
@@ -1172,6 +1171,370 @@ export const getEducationCourses = async (filters?: {
     }));
   } catch (error) {
     console.error('Error fetching education courses:', error);
+    throw error;
+  }
+};
+
+// 맞춤형 교육 추천 (로그인 시)
+export const getRecommendedEducations = async (): Promise<
+  EducationSummary[]
+> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    console.log('Making API request to /education/recommend');
+
+    const response = await fetch(`${backendUrl}/education/recommend`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      'getRecommendedEducations - API Response status:',
+      response.status
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        'getRecommendedEducations - API Error Response:',
+        errorText
+      );
+      throw new Error(
+        `Failed to fetch recommended educations: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: ApiResponse<SearchAllResponse> = await response.json();
+    console.log('getRecommendedEducations - API Response data:', result);
+
+    if (result.result !== 'SUCCESS') {
+      console.error(
+        'getRecommendedEducations - API returned error:',
+        result.error
+      );
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    // AllResponse를 EducationSummary로 변환
+    return result.data.jobDtoList.map((item) => ({
+      id: item.jobId.toString(),
+      trprId: item.jobId.toString(),
+      title: item.jobTitle || '제목 없음',
+      subTitle: item.requiredSkills || '',
+      institution: item.companyName || '',
+      address: item.workLocation || '',
+      traStartDate: item.postingDate || '',
+      traEndDate: item.closingDate || '',
+      trainTarget: '',
+      contents: item.requiredSkills || '',
+      certificate: '',
+      grade: '',
+      regCourseMan: '0',
+      courseMan: '0',
+      realMan: '0',
+      yardMan: '0',
+      telNo: '',
+      stdgScor: '0',
+      eiEmplCnt3: '0',
+      eiEmplRate3: '0',
+      eiEmplCnt3Gt10: '0',
+      eiEmplRate6: '0',
+      ncsCd: '',
+      trprDegr: '',
+      instCd: '',
+      trngAreaCd: '',
+      trainTargetCd: '',
+      trainstCstId: '',
+      subTitleLink: '',
+      titleLink: '',
+      titleIcon: '',
+      isBookmark: item.isBookmark || false,
+      recommendScore: item.score,
+    }));
+  } catch (error) {
+    console.error('Error fetching recommended educations:', error);
+    throw error;
+  }
+};
+
+// 전체 교육 조회 (비로그인 시)
+export const getAllEducationsAnonymous = async (filters?: {
+  keyword?: string;
+  workLocation?: string;
+}): Promise<EducationSummary[]> => {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    console.log('Making API request to /education/all/anonymous');
+
+    // 쿼리 파라미터 생성
+    const queryParams = new URLSearchParams();
+
+    if (filters?.keyword) {
+      queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.workLocation) {
+      queryParams.append('workLocation', filters.workLocation);
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `${backendUrl}/education/all/anonymous?${queryString}`
+      : `${backendUrl}/education/all/anonymous`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(
+      'getAllEducationsAnonymous - API Response status:',
+      response.status
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        'getAllEducationsAnonymous - API Error Response:',
+        errorText
+      );
+      throw new Error(
+        `Failed to fetch all educations: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: ApiResponse<SearchAllResponse> = await response.json();
+    console.log('getAllEducationsAnonymous - API Response data:', result);
+
+    if (result.result !== 'SUCCESS') {
+      console.error(
+        'getAllEducationsAnonymous - API returned error:',
+        result.error
+      );
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    // AllResponse를 EducationSummary로 변환
+    return result.data.jobDtoList.map((item) => ({
+      id: item.jobId.toString(),
+      trprId: item.jobId.toString(),
+      title: item.jobTitle || '제목 없음',
+      subTitle: item.requiredSkills || '',
+      institution: item.companyName || '',
+      address: item.workLocation || '',
+      traStartDate: item.postingDate || '',
+      traEndDate: item.closingDate || '',
+      trainTarget: '',
+      contents: item.requiredSkills || '',
+      certificate: '',
+      grade: '',
+      regCourseMan: '0',
+      courseMan: '0',
+      realMan: '0',
+      yardMan: '0',
+      telNo: '',
+      stdgScor: '0',
+      eiEmplCnt3: '0',
+      eiEmplRate3: '0',
+      eiEmplCnt3Gt10: '0',
+      eiEmplRate6: '0',
+      ncsCd: '',
+      trprDegr: '',
+      instCd: '',
+      trngAreaCd: '',
+      trainTargetCd: '',
+      trainstCstId: '',
+      subTitleLink: '',
+      titleLink: '',
+      titleIcon: '',
+      isBookmark: false,
+      recommendScore: undefined,
+    }));
+  } catch (error) {
+    console.error('Error fetching all educations:', error);
+    throw error;
+  }
+};
+
+// HRD 교육과정 조회 (로그인 시 전체 교육)
+export const getHrdEducations = async (filters?: {
+  keyword?: string;
+  pageNo?: number;
+  pageSize?: number;
+  startYmd?: string;
+  endYmd?: string;
+}): Promise<EducationSummary[]> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error(
+        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
+      );
+    }
+
+    console.log('Making API request to /education/hrd-course');
+
+    // 쿼리 파라미터 생성
+    const queryParams = new URLSearchParams();
+
+    if (filters?.keyword) {
+      queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.pageNo) {
+      queryParams.append('pageNo', filters.pageNo.toString());
+    }
+
+    if (filters?.pageSize) {
+      queryParams.append('pageSize', filters.pageSize.toString());
+    }
+
+    if (filters?.startYmd) {
+      queryParams.append('startYmd', filters.startYmd);
+    }
+
+    if (filters?.endYmd) {
+      queryParams.append('endYmd', filters.endYmd);
+    }
+
+    const queryString = queryParams.toString();
+    const url = queryString
+      ? `${backendUrl}/education/hrd-course?${queryString}`
+      : `${backendUrl}/education/hrd-course`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('getHrdEducations - API Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('getHrdEducations - API Error Response:', errorText);
+      throw new Error(
+        `Failed to fetch HRD educations: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result = (await response.json()) as
+      | EducationDataResponse
+      | EducationApiResponse;
+    console.log('getHrdEducations - API Response data:', result);
+    console.log('getHrdEducations - result.result:', result.result);
+    console.log('getHrdEducations - result.data:', result.data);
+
+    if (result.result !== 'SUCCESS') {
+      console.error('getHrdEducations - API returned error:', result.error);
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    let mappedData: EducationSummary[] = [];
+
+    // educationDtoList가 있는 경우 (EducationDataResponse)
+    if ('educationDtoList' in result.data && result.data.educationDtoList) {
+      console.log(
+        'getHrdEducations - Found educationDtoList, length:',
+        result.data.educationDtoList.length
+      );
+      mappedData = result.data.educationDtoList;
+    }
+    // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
+    else if ('srchList' in result.data && result.data.srchList) {
+      console.log(
+        'getHrdEducations - Found srchList, length:',
+        result.data.srchList.length
+      );
+      mappedData = result.data.srchList.map(
+        (item: CardCourseItem, index: number) => {
+          console.log(
+            `getHrdEducations - Mapping CardCourseItem ${index}:`,
+            item
+          );
+          return {
+            id: item.trprId || index.toString(),
+            trprId: item.trprId || index.toString(),
+            title: item.title || '제목 없음',
+            subTitle: item.subTitle || '',
+            institution: item.instCd || '',
+            address: item.address || '',
+            traStartDate: item.traStartDate || '',
+            traEndDate: item.traEndDate || '',
+            trainTarget: item.trainTarget || '',
+            contents: item.contents || '',
+            certificate: item.certificate || '',
+            grade: item.grade || '',
+            regCourseMan: item.regCourseMan || '0',
+            courseMan: item.courseMan || '0',
+            realMan: item.realMan || '0',
+            yardMan: item.yardMan || '0',
+            telNo: item.telNo || '',
+            stdgScor: item.stdgScor || '0',
+            eiEmplCnt3: item.eiEmplCnt3 || '0',
+            eiEmplRate3: item.eiEmplRate3 || '0',
+            eiEmplCnt3Gt10: item.eiEmplCnt3Gt10 || '0',
+            eiEmplRate6: item.eiEmplRate6 || '0',
+            ncsCd: item.ncsCd || '',
+            trprDegr: item.trprDegr || '',
+            instCd: item.instCd || '',
+            trngAreaCd: item.trngAreaCd || '',
+            trainTargetCd: item.trainTargetCd || '',
+            trainstCstId: item.trainstCstId || '',
+            subTitleLink: item.subTitleLink || '',
+            titleLink: item.titleLink || '',
+            titleIcon: item.titleIcon || '',
+            isBookmark: false,
+            recommendScore: undefined,
+          };
+        }
+      );
+    } else {
+      console.log(
+        'getHrdEducations - No educationDtoList or srchList found in result.data:',
+        result.data
+      );
+      return [];
+    }
+
+    console.log('getHrdEducations - Final mapped data:', mappedData);
+    console.log(
+      'getHrdEducations - Final mapped data length:',
+      mappedData.length
+    );
+
+    return mappedData;
+  } catch (error) {
+    console.error('Error fetching HRD educations:', error);
     throw error;
   }
 };

@@ -162,6 +162,7 @@ const RecommendationScore = ({
       style={isExpanded ? { transitionDelay: '500ms' } : {}}
     ></div>
   );
+
 };
 
 // 상세 정보 그리드 아이템 컴포넌트
@@ -193,71 +194,72 @@ export default function EducationCard({
   education,
   onToggleBookmark,
 }: EducationCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [isBookmark, setIsBookmark] = useState(education.isBookmark || false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [isBookmark, setIsBookmark] = useState(education.isBookmark || false);
+    const [isHovered, setIsHovered] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useEffect(() => {
-    const userData = getUserData();
-    setIsLoggedIn(!!userData);
-  }, []);
+    useEffect(() => {
+      const userData = getUserData();
+      setIsLoggedIn(!!userData);
+    }, []);
 
-  const handleToggleBookmark = (educationId: string) => {
-    setIsBookmark(!isBookmark);
-    onToggleBookmark(educationId);
-  };
+    const handleToggleBookmark = (educationId: string) => {
+      setIsBookmark(!isBookmark);
+      onToggleBookmark(educationId);
+    };
 
-  const handleCardClick = () => {
-    if (isExpanded) return;
+    const handleCardClick = () => {
+      if (isExpanded) return;
 
-    setIsAnimating(true);
-    setTimeout(() => setIsExpanded(true), 100);
-    setTimeout(() => setIsAnimating(false), 800);
-  };
+      setIsAnimating(true);
+      setTimeout(() => setIsExpanded(true), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    };
 
-  const handleClose = () => {
-    if (!isExpanded) return;
-    setIsAnimating(true);
+    const handleClose = () => {
+      if (!isExpanded) return;
+      setIsAnimating(true);
 
-    setTimeout(() => setIsExpanded(false), 100);
-    setTimeout(() => setIsAnimating(false), 800);
-  };
+      setTimeout(() => setIsExpanded(false), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    };
 
-  // 태그 렌더링 함수
-  const renderTags = (isCompact = false) => {
-    const categories = education.trainTarget?.split(',') || [];
-    const certificates = education.certificate?.split(',') || [];
+    // 태그 렌더링 함수
+    const renderTags = (isCompact = false) => {
+      const categories = education.trainTarget?.split(',') || [];
+      const certificates = education.certificate?.split(',') || [];
 
-    return (
-      <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
-        {categories.map((category, i) => (
-          <Tag
-            key={`category-${i}`}
-            isHovered={isHovered}
-            isExpanded={isExpanded}
-            isCompact={isCompact}
-            delay={i * (isCompact ? 50 : 100)}
-          >
-            {category.trim()}
-          </Tag>
-        ))}
-        {certificates.map((cert, i) => (
-          <Tag
-            key={`cert-${i}`}
-            isHovered={isHovered}
-            isExpanded={isExpanded}
-            isVisible={!isCompact}
-            isCompact={isCompact}
-            delay={(i + categories.length) * (isCompact ? 50 : 100)}
-          >
-            {cert.trim()}
-          </Tag>
-        ))}
-      </div>
-    );
-  };
+      return (
+        <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
+          {categories.map((category, i) => (
+            <Tag
+              key={`category-${i}`}
+              isHovered={isHovered}
+              isExpanded={isExpanded}
+              isCompact={isCompact}
+              delay={i * (isCompact ? 50 : 100)}
+            >
+              {category.trim()}
+            </Tag>
+          ))}
+          {certificates.map((cert, i) => (
+            <Tag
+              key={`cert-${i}`}
+              isHovered={isHovered}
+              isExpanded={isExpanded}
+              isVisible={!isCompact}
+              isCompact={isCompact}
+              delay={(i + categories.length) * (isCompact ? 50 : 100)}
+            >
+              {cert.trim()}
+            </Tag>
+          ))}
+        </div>
+      );
+    };
+  }
 
   // 상세 정보 렌더링 함수
   const renderDetails = () => (
