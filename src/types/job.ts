@@ -215,7 +215,7 @@ export interface EducationSummary {
   recommendScore?: number;
 }
 
-// Education API 응답 타입
+// Education API 응답 타입 (HRD Course)
 export interface EducationApiResponse {
   result: 'SUCCESS' | 'ERROR';
   data: {
@@ -223,6 +223,18 @@ export interface EducationApiResponse {
     pageSize: number;
     scn_cnt: number;
     srchList: CardCourseItem[];
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+// Education API 응답 타입 (교육 데이터)
+export interface EducationDataResponse {
+  result: 'SUCCESS' | 'ERROR';
+  data: {
+    educationDtoList: EducationSummary[];
   };
   error?: {
     code: string;
