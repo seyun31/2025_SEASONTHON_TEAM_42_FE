@@ -252,7 +252,7 @@ function AIChatJobContent() {
       // API로 답변 저장
       if (currentQuestion?.id) {
         try {
-          await fetch('/api/chat/jobs/save', {
+          await fetch('/api/chat/jobs/save/answer', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -288,7 +288,7 @@ function AIChatJobContent() {
     // API로 빈 답변 저장
     if (currentQuestion?.id) {
       try {
-        await fetch('/api/chat/jobs/save', {
+        await fetch('/api/chat/jobs/save/answer', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

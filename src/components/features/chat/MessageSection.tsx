@@ -13,6 +13,8 @@ interface Occupation {
   description: string;
   strength: string;
   score: string;
+  memberOccupationId?: number;
+  isBookmark?: boolean;
 }
 
 interface MessageSectionProps {
@@ -65,12 +67,9 @@ export default function MessageSection({
                 percentage: parseInt(occupation.score) || 0,
                 description: occupation.strength,
               }}
-              onJobPostingClick={() => {
-                console.log(
-                  '채용공고 확인하기 clicked for:',
-                  occupation.occupationName
-                );
-              }}
+              memberOccupationId={occupation.memberOccupationId}
+              isBookmark={occupation.isBookmark}
+              onJobPostingClick={() => {}}
             />
           )
         )}
