@@ -41,8 +41,10 @@ export default function FlipCard({
 
   return (
     <div
-      className="relative cursor-pointer w-96 h-[538px] flex-shrink-0 rounded-[24px] border-4 border-[#C7D6CC] bg-white shadow-[0_10px_10px_0_rgba(0,66,11,0.15)] transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_15px_20px_0_rgba(0,66,11,0.25)] hover:-rotate-1"
-      style={{ aspectRatio: '109/169' }}
+      className="flip-card relative cursor-pointer w-96 h-[538px] flex-shrink-0 rounded-[24px] border-4 border-[#C7D6CC] bg-white shadow-[0_10px_10px_0_rgba(0,66,11,0.15)] hover:shadow-[0_15px_20px_0_rgba(0,66,11,0.25)] transition-all duration-300"
+      style={{
+        aspectRatio: '109/169',
+      }}
       onClick={handleCardClick}
     >
       <div
