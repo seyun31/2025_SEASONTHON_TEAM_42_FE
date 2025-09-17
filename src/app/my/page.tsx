@@ -126,12 +126,7 @@ export default function My() {
                     }}
                     memberOccupationId={job.memberOccupationId}
                     isBookmark={job.isBookmark}
-                    onJobPostingClick={() => {
-                      console.log(
-                        '채용공고 확인하기 clicked for:',
-                        job.occupationName
-                      );
-                    }}
+                    onJobPostingClick={() => {}}
                   />
                 ))}
               </div>

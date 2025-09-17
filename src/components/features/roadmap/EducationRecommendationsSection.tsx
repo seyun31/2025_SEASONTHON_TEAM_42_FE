@@ -155,10 +155,10 @@ export default function EducationRecommendationsSection() {
         ) : (
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <p className="text-gray-500 text-lg mb-4">
+              <p className="text-gray-60 text-lg mb-4">
                 추천할 교육과정이 없습니다.
               </p>
-              <p className="text-gray-400 text-sm">
+              <p className="text-gray-50 text-sm">
                 다른 검색 조건을 시도해보세요.
               </p>
             </div>
