@@ -299,6 +299,24 @@ body {
   letter-spacing: -0.3px;
 }
 
+.text-strength-content {
+  font-family: 'Pretendard Variable';
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: -2.5%;
+}
+
+.text-strength-label {
+  font-family: 'Pretendard Variable';
+  font-weight: 500;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 150%;
+  letter-spacing: -2.5%;
+}
+
 /* ============================================
    유틸리티 클래스
    ============================================ */

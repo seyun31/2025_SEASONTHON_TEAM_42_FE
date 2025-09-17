@@ -13,6 +13,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import MessageItem from '@/components/ui/MessageItem';
 import FlipCard from '@/components/features/chat/AIChatJobCard';
+import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import { UserResponse } from '@/types/user';
 
 interface Occupation {
@@ -37,7 +38,7 @@ function AIChatJobContent() {
     queryKey: ['user', 'profile'],
     queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 데이터가 5분동안 fresh상태로 유지
+    staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
 
   const userName = userData?.data?.name ? `${userData.data.name}님` : '님';
@@ -372,13 +373,48 @@ function AIChatJobContent() {
                 </div>
               ) : jobRecommendations ? (
                 <div className="ml-[0.5vw]">
+                  {/* 강점 리포트 카드 4개 */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-6 ml-[-0.5vw]">
+                    <StrengthReportCard
+                      title="분석형 전문가"
+                      experience="데이터 분석 및 해석 경험"
+                      keywords={['논리적 사고', '문제 해결', '데이터 해석']}
+                      jobs={['데이터 분석가', '리서치 전문가']}
+                      iconType="dart"
+                    />
+                    <StrengthReportCard
+                      title="조정형 전문가"
+                      experience="팀 조율 및 의견 중재 경험"
+                      keywords={['소통 능력', '중재 역량', '팀워크']}
+                      jobs={['프로젝트 매니저', 'HR 전문가']}
+                      iconType="check"
+                    />
+
+                    <StrengthReportCard
+                      title="조정형 전문가"
+                      experience="팀 조율 및 의견 중재 경험"
+                      keywords={['소통 능력', '중재 역량', '팀워크']}
+                      jobs={['프로젝트 매니저', 'HR 전문가']}
+                      iconType="memo"
+                    />
+
+                    <StrengthReportCard
+                      title="조정형 전문가"
+                      experience="팀 조율 및 의견 중재 경험"
+                      keywords={['소통 능력', '중재 역량', '팀워크']}
+                      jobs={['프로젝트 매니저', 'HR 전문가']}
+                      iconType="led"
+                    />
+                  </div>
+
                   <MessageItem
-                    message={`${userName}의 추천 직업카드 3개에요! 별 아이콘을 눌러 관심목록에 저장하세요!`}
+                    message={`이 강점을 살려 추천드리는 직업 TOP 3입니다.`}
                     isBot={true}
                     hideProfile={true}
                     noTopMargin={true}
                   />
 
+                  {/* 직업 카드 3개 */}
                   <div className="flex gap-4 w-full mt-4">
                     {[
                       jobRecommendations.first,

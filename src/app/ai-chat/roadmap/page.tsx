@@ -24,7 +24,7 @@ function AIChatRoadmapContent() {
     queryKey: ['user', 'profile'],
     queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
     retry: 1,
-    staleTime: 5 * 60 * 1000, // 데이터가 5분동안 fresh상태로 유지
+    staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
 
   const userName = userData?.data?.name ? `${userData.data.name}님` : '님';
