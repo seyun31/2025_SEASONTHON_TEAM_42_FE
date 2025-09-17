@@ -4,26 +4,35 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface ChatMessage {
   id: string;
-  type: 'bot' | 'user';
+  type: 'bot' | 'user' | 'component';
   content: string;
   timestamp: number;
   questionId?: number;
   selectedOptions?: string[];
   isComplete?: boolean;
+  componentType?: 'strengthReport' | 'jobCards' | 'loading';
+  componentData?: unknown;
 }
 
 export interface ChatHistoryContextType {
   messages: ChatMessage[];
   currentStep: number;
   isCompleted: boolean;
+  showStrengthReport: boolean;
   addBotMessage: (content: string, questionId?: number) => void;
   addUserMessage: (
     content: string,
     questionId?: number,
     selectedOptions?: string[]
   ) => void;
+  addComponentMessage: (
+    componentType: 'strengthReport' | 'jobCards' | 'loading',
+    componentData?: unknown
+  ) => void;
+  removeMessagesByType: (componentType: string) => void;
   nextStep: () => void;
   completeChat: () => void;
+  showStrengthReportStep: () => void;
   resetChat: () => void;
 }
 
@@ -49,6 +58,7 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showStrengthReport, setShowStrengthReport] = useState(false);
 
   const addBotMessage = (content: string, questionId?: number) => {
     setMessages((prev) => {
@@ -84,6 +94,27 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
     setMessages((prev) => [...prev, newMessage]);
   };
 
+  const addComponentMessage = (
+    componentType: 'strengthReport' | 'jobCards' | 'loading',
+    componentData?: unknown
+  ) => {
+    const newMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'component',
+      content: '',
+      timestamp: Date.now(),
+      componentType,
+      componentData,
+    };
+    setMessages((prev) => [...prev, newMessage]);
+  };
+
+  const removeMessagesByType = (componentType: string) => {
+    setMessages((prev) =>
+      prev.filter((msg) => msg.componentType !== componentType)
+    );
+  };
+
   const nextStep = () => {
     setCurrentStep((prev) => prev + 1);
   };
@@ -93,10 +124,15 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
     setCurrentStep(11);
   };
 
+  const showStrengthReportStep = () => {
+    setShowStrengthReport(true);
+  };
+
   const resetChat = () => {
     setMessages([]);
     setCurrentStep(0);
     setIsCompleted(false);
+    setShowStrengthReport(false);
   };
 
   return (
@@ -105,10 +141,14 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
         messages,
         currentStep,
         isCompleted,
+        showStrengthReport,
         addBotMessage,
         addUserMessage,
+        addComponentMessage,
+        removeMessagesByType,
         nextStep,
         completeChat,
+        showStrengthReportStep,
         resetChat,
       }}
     >

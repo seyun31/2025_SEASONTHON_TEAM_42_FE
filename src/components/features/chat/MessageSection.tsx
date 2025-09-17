@@ -3,7 +3,17 @@
 import React, { useEffect, useRef } from 'react';
 import MessageItem from '@/components/ui/MessageItem';
 import MessageOptionItem from '@/components/ui/MessageOptionItem';
+import StrengthReportCard from '@/components/features/job/StrengthReportCard';
+import FlipCard from '@/components/common/FlipCard';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
+
+interface Occupation {
+  imageUrl: string;
+  occupationName: string;
+  description: string;
+  strength: string;
+  score: string;
+}
 
 interface MessageSectionProps {
   messages: ChatMessage[];
@@ -46,21 +56,127 @@ export default function MessageSection({
     // <div className="max-w-[1200px] mx-auto">
     <div className="w-full h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-4 md:px-8 lg:px-0">
       {/* 채팅 히스토리 */}
-      {messages.map((message, index) => (
-        <div
-          key={message.id}
-          className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp`}
-          style={{
-            animationDelay: `${index * 100}ms`,
-            animationFillMode: 'both',
-          }}
-        >
-          <MessageItem
-            message={message.content}
-            isBot={message.type === 'bot'}
-          />
-        </div>
-      ))}
+      {messages.map((message, index) => {
+        // 컴포넌트 타입 메시지 처리
+        if (message.type === 'component') {
+          return (
+            <div
+              key={message.id}
+              className="w-full animate-fadeInUp"
+              style={{
+                animationDelay: `${index * 100}ms`,
+                animationFillMode: 'both',
+              }}
+            >
+              {message.componentType === 'strengthReport' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-6">
+                  <StrengthReportCard
+                    title="분석형 전문가"
+                    experience="데이터 분석 및 해석 경험"
+                    keywords={['논리적 사고', '문제 해결', '데이터 해석']}
+                    jobs={['데이터 분석가', '리서치 전문가']}
+                    iconType="dart"
+                  />
+                  <StrengthReportCard
+                    title="조정형 전문가"
+                    experience="팀 조율 및 의견 중재 경험"
+                    keywords={['소통 능력', '중재 역량', '팀워크']}
+                    jobs={['프로젝트 매니저', 'HR 전문가']}
+                    iconType="check"
+                  />
+                  <StrengthReportCard
+                    title="조정형 전문가"
+                    experience="팀 조율 및 의견 중재 경험"
+                    keywords={['소통 능력', '중재 역량', '팀워크']}
+                    jobs={['프로젝트 매니저', 'HR 전문가']}
+                    iconType="memo"
+                  />
+                  <StrengthReportCard
+                    title="조정형 전문가"
+                    experience="팀 조율 및 의견 중재 경험"
+                    keywords={['소통 능력', '중재 역량', '팀워크']}
+                    jobs={['프로젝트 매니저', 'HR 전문가']}
+                    iconType="led"
+                  />
+                </div>
+              )}
+
+              {message.componentType === 'loading' && (
+                <div className="text-center p-4">
+                  <p className="text-chat-message">
+                    맞춤형 직업을 추천하는 중...
+                  </p>
+                </div>
+              )}
+
+              {message.componentType === 'jobCards' &&
+                message.componentData && (
+                  <div className="flex gap-4 w-full mt-4">
+                    {[
+                      (
+                        message.componentData as {
+                          first: Occupation;
+                          second: Occupation;
+                          third: Occupation;
+                        }
+                      ).first,
+                      (
+                        message.componentData as {
+                          first: Occupation;
+                          second: Occupation;
+                          third: Occupation;
+                        }
+                      ).second,
+                      (
+                        message.componentData as {
+                          first: Occupation;
+                          second: Occupation;
+                          third: Occupation;
+                        }
+                      ).third,
+                    ].map((occupation: Occupation, jobIndex: number) => (
+                      <FlipCard
+                        key={jobIndex}
+                        jobImage={occupation.imageUrl}
+                        jobTitle={occupation.occupationName}
+                        jobDescription={occupation.description}
+                        recommendationScore={parseInt(occupation.score) || 0}
+                        strengths={{
+                          title: occupation.strength,
+                          percentage: parseInt(occupation.score) || 0,
+                          description: occupation.strength,
+                        }}
+                        onJobPostingClick={() => {
+                          console.log(
+                            '채용공고 확인하기 clicked for:',
+                            occupation.occupationName
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+            </div>
+          );
+        }
+
+        // 일반 메시지 처리
+        return (
+          <div
+            key={message.id}
+            className={`flex ${message.type === 'bot' ? 'justify-start' : 'justify-end'} animate-fadeInUp`}
+            style={{
+              animationDelay: `${index * 100}ms`,
+              animationFillMode: 'both',
+            }}
+          >
+            <MessageItem
+              message={message.content}
+              isBot={message.type === 'bot'}
+            />
+          </div>
+        );
+      })}
 
       {/* 시작하기 버튼 */}
       {showStartButton && (

@@ -19,7 +19,7 @@ export interface ChatFlow {
     optionalQuestions: number;
   };
   questions: ChatQuestion[];
-  outro: {
+  strengthReport: {
     speaker: string;
     message: string[];
   };
@@ -200,7 +200,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
     },
   ],
 
-  outro: {
+  strengthReport: {
     speaker: 'AI 코치',
     message: [
       `수고 많으셨어요 ${userName}! 🙏`,

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 
@@ -8,20 +9,9 @@ interface FlipCardProps {
   jobTitle: string;
   jobDescription: string;
   recommendationScore: number;
-  userName: string;
   onJobPostingClick: () => void;
-  jobImage?: string; // 직업 이미지 URL (선택사항)
+  jobImage?: string;
   strengths?: {
-    title: string;
-    percentage: number;
-    description: string;
-  };
-  workingConditions?: {
-    title: string;
-    percentage: number;
-    description: string;
-  };
-  preferences?: {
     title: string;
     percentage: number;
     description: string;
@@ -32,13 +22,11 @@ export default function FlipCard({
   jobTitle,
   jobDescription,
   recommendationScore,
-  userName,
   onJobPostingClick,
   jobImage,
   strengths,
-  workingConditions,
-  preferences,
 }: FlipCardProps) {
+  const router = useRouter();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isScrap, setIsScrap] = useState(false);
 
@@ -111,74 +99,60 @@ export default function FlipCard({
 
         {/* 뒷면 - AI 직업 추천도 카드 */}
         <div
-          className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-white rotate-y-180 p-6 flex flex-col justify-between"
+          className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-white rotate-y-180 overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          {/* 상단: 제목과 스크랩 버튼 */}
-          <div className="flex justify-center items-center">
-            <h4 className="text-2xl font-semibold text-gray-800 mt-5">
-              AI 직업 추천도
-            </h4>
-          </div>
+          <div className="w-full h-full p-6 flex flex-col justify-between">
+            {/* 상단: 제목 */}
+            <div className="flex justify-center items-center">
+              <h4 className="text-2xl font-semibold text-gray-800 mt-2">
+                AI 직업 추천도
+              </h4>
+            </div>
 
-          {/* 중간: 추천 점수와 설명 */}
-          <div className="flex-1 flex flex-col items-center mt-10">
-            {/* 추천 점수 */}
-            <div className="text-center mb-6">
-              <div className="text-8xl font-bold mb-2">
-                <span
-                  className="bg-clip-text text-transparent"
-                  style={{
-                    background:
-                      'linear-gradient(270deg, #E1DC53 3.6%, #9FC2FF 98.32%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
-                >
-                  {recommendationScore}%
-                </span>
+            {/* 중간: 추천 점수와 설명 */}
+            <div className="flex-1 flex flex-col items-center justify-center px-4">
+              {/* 추천 점수 */}
+              <div className="text-center mb-4">
+                <div className="text-[100px] font-bold mb-2">
+                  <span
+                    className="bg-clip-text text-transparent"
+                    style={{
+                      background:
+                        'linear-gradient(270deg, #E1DC53 3.6%, #9FC2FF 98.32%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                    }}
+                  >
+                    {recommendationScore}%
+                  </span>
+                </div>
+              </div>
+
+              {/* 설명 텍스트 */}
+              <div className="text-center mb-4 max-w-full overflow-hidden">
+                {strengths && (
+                  <p className="text-sm leading-relaxed text-gray-700 break-words px-2">
+                    {strengths.description}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* 설명 텍스트 */}
-            <div className="text-lg text-gray-700 text-center leading-relaxed mb-6 space-y-4">
-              {strengths && (
-                <div>
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    {strengths.title} ({strengths.percentage}%)
-                  </h5>
-                  <p className="text-sm">{strengths.description}</p>
-                </div>
-              )}
-              {workingConditions && (
-                <div>
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    {workingConditions.title} ({workingConditions.percentage}%)
-                  </h5>
-                  <p className="text-sm">{workingConditions.description}</p>
-                </div>
-              )}
-              {preferences && (
-                <div>
-                  <h5 className="font-semibold text-gray-800 mb-2">
-                    {preferences.title} ({preferences.percentage}%)
-                  </h5>
-                  <p className="text-sm">{preferences.description}</p>
-                </div>
-              )}
+            {/* 하단: 채용공고 확인 버튼 */}
+            <div className="mt-auto">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onJobPostingClick();
+                  router.push('/job-postings');
+                }}
+                className="w-full bg-primary-90 hover:bg-green-600 text-xl text-white font-medium py-3 px-4 rounded-2xl transition-colors duration-200"
+              >
+                채용공고 확인하기
+              </button>
             </div>
           </div>
-
-          {/* 하단: 채용공고 확인 버튼 */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onJobPostingClick();
-            }}
-            className="w-full bg-primary-90 hover:bg-green-600 text-2xl text-white font-medium py-4 px-4 rounded-2xl transition-colors duration-200"
-          >
-            채용공고 확인하기
-          </button>
         </div>
       </div>
     </div>

@@ -11,9 +11,6 @@ import MessageSection from '@/components/features/chat/MessageSection';
 import ChatInput from '@/components/ui/ChatInput';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
-import MessageItem from '@/components/ui/MessageItem';
-import FlipCard from '@/components/features/chat/AIChatJobCard';
-import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import { UserResponse } from '@/types/user';
 
 interface Occupation {
@@ -50,6 +47,8 @@ function AIChatJobContent() {
     isCompleted,
     addBotMessage,
     addUserMessage,
+    addComponentMessage,
+    removeMessagesByType,
     nextStep,
     completeChat,
   } = useChatHistory();
@@ -64,6 +63,9 @@ function AIChatJobContent() {
     useState<JobRecommendations | null>(null);
   const [isLoadingRecommendations, setIsLoadingRecommendations] =
     useState(false);
+  const [, setShowJobCards] = useState(false);
+  const [completionFlowStarted, setCompletionFlowStarted] = useState(false);
+  const [jobMessageAdded, setJobMessageAdded] = useState(false);
 
   // 초기 intro 메시지 추가 (사용자 데이터 로딩 후)
   useEffect(() => {
@@ -94,7 +96,6 @@ function AIChatJobContent() {
       }
       setShowCurrentQuestion(false);
     } else if (currentStep > aiChatFlow.questions.length && !isCompleted) {
-      addBotMessage(aiChatFlow.outro.message.join('\n'));
       completeChat();
     }
   }, [
@@ -174,10 +175,51 @@ function AIChatJobContent() {
 
   // 채팅 완료 시 결과 데이터 가져오기
   useEffect(() => {
-    if (isCompleted && !jobRecommendations) {
-      fetchJobRecommendations();
+    if (isCompleted && !completionFlowStarted) {
+      setCompletionFlowStarted(true);
+
+      // 1단계: 강점 분석 완료 메시지 표시
+      setTimeout(() => {
+        addBotMessage(aiChatFlow.strengthReport.message.join('\n'));
+
+        // 2단계: 강점 리포트 카드 컴포넌트 추가
+        setTimeout(() => {
+          addComponentMessage('strengthReport');
+
+          // 3단계: 로딩 메시지 추가
+          setTimeout(() => {
+            addComponentMessage('loading');
+
+            // 4단계: 직업 추천 데이터 가져오기
+            setTimeout(() => {
+              fetchJobRecommendations();
+            }, 1000);
+          }, 1500);
+        }, 1500);
+      }, 1000);
     }
-  }, [isCompleted, jobRecommendations, fetchJobRecommendations]);
+  }, [isCompleted, completionFlowStarted]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 직업 추천 데이터가 로드되면 메시지와 카드 표시
+  useEffect(() => {
+    if (jobRecommendations && !jobMessageAdded) {
+      setJobMessageAdded(true);
+
+      // 로딩 메시지 제거
+      removeMessagesByType('loading');
+
+      setTimeout(() => {
+        addBotMessage(
+          '이 강점을 살려 추천드리는 직업 TOP 3입니다. 별 아이콘을 눌러 관심목록에 저장하세요!'
+        );
+
+        setTimeout(() => {
+          addComponentMessage('jobCards', jobRecommendations);
+          setShowJobCards(true);
+        }, 1500);
+      }, 500);
+    }
+  }, [jobRecommendations, jobMessageAdded]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;
@@ -361,108 +403,7 @@ function AIChatJobContent() {
           onOptionClick={handleOptionClick}
           onCompleteClick={handleCompleteClick}
           onSkipClick={handleSkipClick}
-        >
-          {/* 완료된 경우 결과 표시 */}
-          {isCompleted && (
-            <div className="space-y-4">
-              {isLoadingRecommendations ? (
-                <div className="text-center p-4">
-                  <p className="text-chat-message">
-                    맞춤형 직업을 추천하는 중...
-                  </p>
-                </div>
-              ) : jobRecommendations ? (
-                <div className="ml-[0.5vw]">
-                  {/* 강점 리포트 카드 4개 */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-6 ml-[-0.5vw]">
-                    <StrengthReportCard
-                      title="분석형 전문가"
-                      experience="데이터 분석 및 해석 경험"
-                      keywords={['논리적 사고', '문제 해결', '데이터 해석']}
-                      jobs={['데이터 분석가', '리서치 전문가']}
-                      iconType="dart"
-                    />
-                    <StrengthReportCard
-                      title="조정형 전문가"
-                      experience="팀 조율 및 의견 중재 경험"
-                      keywords={['소통 능력', '중재 역량', '팀워크']}
-                      jobs={['프로젝트 매니저', 'HR 전문가']}
-                      iconType="check"
-                    />
-
-                    <StrengthReportCard
-                      title="조정형 전문가"
-                      experience="팀 조율 및 의견 중재 경험"
-                      keywords={['소통 능력', '중재 역량', '팀워크']}
-                      jobs={['프로젝트 매니저', 'HR 전문가']}
-                      iconType="memo"
-                    />
-
-                    <StrengthReportCard
-                      title="조정형 전문가"
-                      experience="팀 조율 및 의견 중재 경험"
-                      keywords={['소통 능력', '중재 역량', '팀워크']}
-                      jobs={['프로젝트 매니저', 'HR 전문가']}
-                      iconType="led"
-                    />
-                  </div>
-
-                  <MessageItem
-                    message={`이 강점을 살려 추천드리는 직업 TOP 3입니다.`}
-                    isBot={true}
-                    hideProfile={true}
-                    noTopMargin={true}
-                  />
-
-                  {/* 직업 카드 3개 */}
-                  <div className="flex gap-4 w-full mt-4">
-                    {[
-                      jobRecommendations.first,
-                      jobRecommendations.second,
-                      jobRecommendations.third,
-                    ].map((occupation, index) => (
-                      <FlipCard
-                        key={index}
-                        imageUrl={occupation.imageUrl}
-                        jobTitle={occupation.occupationName}
-                        jobDescription={occupation.description}
-                        recommendationScore={parseInt(occupation.score) || 0}
-                        strengths={{
-                          title: occupation.strength,
-                          percentage: occupation.score,
-                          description: occupation.strength,
-                        }}
-                        workingConditions={{
-                          title: occupation.workCondition,
-                          percentage: occupation.score,
-                          description: occupation.workCondition,
-                        }}
-                        preferences={{
-                          title: occupation.wish,
-                          percentage: occupation.score,
-                          description: occupation.wish,
-                        }}
-                        userName={userName.replace('님', '')}
-                        onJobPostingClick={() => {
-                          console.log(
-                            '채용공고 확인하기 clicked for:',
-                            occupation.occupationName
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center p-4">
-                  <p className="text-chat-message">
-                    추천 결과를 불러올 수 없습니다.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </MessageSection>
+        />
 
         {/* 진행바 및 입력창 컨테이너
       <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
