@@ -6,9 +6,13 @@ import EducationTab from '@/components/ui/EducationTab';
 import EducationFilter from '@/components/ui/EducationFilter';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import Footer from '@/components/layout/Footer';
-import { educationRecommendations } from '@/data/educationData';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
+import {
+  getRecommendedEducations,
+  getAllEducationsAnonymous,
+  getHrdEducations,
+} from '@/lib/api/jobApi';
 import { EducationSummary } from '@/types/job';
 
 export default function EducationPrograms() {
@@ -72,51 +76,78 @@ export default function EducationPrograms() {
         });
         setIsLoading(true);
 
-        // 임시로 mock 데이터 사용 (실제 API 연동 시 교체)
-        const educationData = educationRecommendations.map((edu, index) => ({
-          id: edu.id,
-          trprId: edu.id,
-          title: edu.institutionName,
-          subTitle: edu.description,
-          institution: edu.institutionName,
-          address: edu.location,
-          traStartDate: '20250101',
-          traEndDate: '20251201',
-          trainTarget: '취업준비생,직장인',
-          contents: edu.description,
-          certificate: '자격증,수료증',
-          grade: 'A급',
-          regCourseMan: '30명',
-          courseMan: '30명',
-          realMan: '25명',
-          yardMan: '30명',
-          telNo: '02-1234-5678',
-          stdgScor: '4.5',
-          eiEmplCnt3: '20',
-          eiEmplRate3: '80%',
-          eiEmplCnt3Gt10: '15',
-          eiEmplRate6: '75%',
-          ncsCd: 'NCS001',
-          trprDegr: '1',
-          instCd: 'INST001',
-          trngAreaCd: 'AREA001',
-          trainTargetCd: 'TARGET001',
-          trainstCstId: 'COST001',
-          subTitleLink: '#',
-          titleLink: '#',
-          titleIcon: '/default-profile.png',
-          isBookmark: false,
-          recommendScore: Math.floor(Math.random() * 40) + 60, // 60-100 사이 랜덤
-        }));
+        let educationData: EducationSummary[] = [];
+
+        if (isLoggedIn) {
+          // 로그인 시
+          if (activeTab === 'custom') {
+            // 맞춤 교육: /education/recommend API 사용
+            console.log(
+              'EducationPrograms - Fetching recommended educations...'
+            );
+            educationData = await getRecommendedEducations();
+            console.log(
+              'EducationPrograms - Recommended educations result:',
+              educationData
+            );
+          } else {
+            // 전체 교육: /education/hrd-course API 사용
+            console.log('EducationPrograms - Fetching HRD educations...');
+            console.log('EducationPrograms - HRD API params:', {
+              keyword: debouncedSearchKeyword || undefined,
+              pageNo: 1,
+              pageSize: 20,
+              startYmd: '20250101',
+              endYmd: '20251231',
+            });
+            educationData = await getHrdEducations({
+              keyword: debouncedSearchKeyword || undefined,
+              pageNo: 1,
+              pageSize: 20,
+              startYmd: '20250101',
+              endYmd: '20251231',
+            });
+            console.log(
+              'EducationPrograms - HRD educations result:',
+              educationData
+            );
+          }
+        } else {
+          // 비로그인 시: /education/all/anonymous API 사용
+          console.log('EducationPrograms - Fetching anonymous educations...');
+          educationData = await getAllEducationsAnonymous({
+            keyword: debouncedSearchKeyword || undefined,
+            workLocation:
+              filters.selectedDistricts.length > 0
+                ? filters.selectedDistricts.join(',')
+                : undefined,
+          });
+          console.log(
+            'EducationPrograms - Anonymous educations result:',
+            educationData
+          );
+        }
 
         console.log(
-          'EducationPrograms - Educations fetched:',
-          educationData.length
+          'EducationPrograms - Final educations fetched:',
+          educationData.length,
+          educationData
         );
+
+        // 데이터가 제대로 있는지 확인
+        if (educationData.length > 0) {
+          console.log(
+            'EducationPrograms - First education item:',
+            educationData[0]
+          );
+        } else {
+          console.log('EducationPrograms - No education data received');
+        }
+
         setEducations(educationData);
       } catch (error) {
         console.error('Error fetching educations:', error);
-        // 에러 시 mock 데이터 사용
+        // 에러 시 빈 배열로 설정
         setEducations([]);
       } finally {
         setIsLoading(false);
@@ -192,30 +223,50 @@ export default function EducationPrograms() {
             )}
 
             <div className="flex flex-col md:flex-row gap-6 mt-12">
+              {(() => {
+                console.log(
+                  'EducationPrograms - Rendering educations:',
+                  educations.length,
+                  educations
+                );
+                return null;
+              })()}
               <div className="flex flex-col gap-6 flex-1">
                 {educations
                   .slice(0, Math.ceil(educations.length / 2))
-                  .map((education, index) => (
-                    <EducationCard
-                      key={education.trprId || index}
-                      education={education}
-                      onToggleBookmark={toggleFavorite}
-                    />
-                  ))}
+                  .map((education, index) => {
+                    console.log(
+                      `EducationPrograms - Rendering education ${index}:`,
+                      education
+                    );
+                    return (
+                      <EducationCard
+                        key={education.trprId || index}
+                        education={education}
+                        onToggleBookmark={toggleFavorite}
+                      />
+                    );
+                  })}
               </div>
               <div className="flex flex-col gap-6 flex-1">
                 {educations
                   .slice(Math.ceil(educations.length / 2))
-                  .map((education, index) => (
-                    <EducationCard
-                      key={
-                        education.trprId ||
-                        index + Math.ceil(educations.length / 2)
-                      }
-                      education={education}
-                      onToggleBookmark={toggleFavorite}
-                    />
-                  ))}
+                  .map((education, index) => {
+                    console.log(
+                      `EducationPrograms - Rendering education ${index + Math.ceil(educations.length / 2)}:`,
+                      education
+                    );
+                    return (
+                      <EducationCard
+                        key={
+                          education.trprId ||
+                          index + Math.ceil(educations.length / 2)
+                        }
+                        education={education}
+                        onToggleBookmark={toggleFavorite}
+                      />
+                    );
+                  })}
               </div>
             </div>
           </div>
