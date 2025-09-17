@@ -1072,6 +1072,11 @@ export const getEducationCourses = async (filters?: {
   endYmd?: string;
 }): Promise<EducationSummary[]> => {
   try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendUrl) {
       throw new Error(
@@ -1110,6 +1115,7 @@ export const getEducationCourses = async (filters?: {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
     });

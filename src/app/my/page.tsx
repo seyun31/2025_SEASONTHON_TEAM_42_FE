@@ -72,83 +72,24 @@ export default function My() {
               {userData?.name || '사용자'}님의 추천 직업 카드
             </h3>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
-              {/* 직업 추천 카드 1 */}
-              <div className="h-[595px]">
+            <div className="flex justify-center">
+              <div className="h-[538px]">
                 <FlipCard
                   jobTitle="직업명"
                   jobDescription="직업 한 줄 소개"
                   recommendationScore={100}
                   strengths={{
-                    title: '손재주',
+                    title: '강점',
                     percentage: 80,
                     description: `OO직업은 섬세한 손재주를 요하는 직업으로 OOO한 경험을 바탕으로 우수한 손재주를 지닌 ${userData?.name || '사용자'}님에게 적합해요.`,
                   }}
                   workingConditions={{
-                    title: '조건',
+                    title: '근무조건',
                     percentage: 60,
                     description: `OO직업은 주로 9-18시 사이에 근무가 이루어지며, 재택근무가 가능한 경우가 많아 ${userData?.name || '사용자'}님이 원하시는 근무 시간 조건에 적합해요.`,
                   }}
                   preferences={{
-                    title: '조건',
-                    percentage: 80,
-                    description: `OO직업은 OOO 자격증을 보유하고 있는 사람을 우대해요. 시간이 걸리더라도 교육을 수강한 후 전문성 있는 직업에 취업하고자 하는 ${userData?.name || '사용자'}님의 희망사항에 적합해요!`,
-                  }}
-                  userName={userData?.name || '사용자'}
-                  onJobPostingClick={() => {
-                    // 채용공고 확인하기 클릭 시 동작
-                    console.log('채용공고 확인하기');
-                  }}
-                />
-              </div>
-
-              {/* 직업 추천 카드 2 */}
-              <div className="h-80">
-                <FlipCard
-                  jobTitle="직업명"
-                  jobDescription="직업 한 줄 소개"
-                  recommendationScore={100}
-                  strengths={{
-                    title: '손재주',
-                    percentage: 80,
-                    description: `OO직업은 섬세한 손재주를 요하는 직업으로 OOO한 경험을 바탕으로 우수한 손재주를 지닌 ${userData?.name || '사용자'}님에게 적합해요.`,
-                  }}
-                  workingConditions={{
-                    title: '조건',
-                    percentage: 60,
-                    description: `OO직업은 주로 9-18시 사이에 근무가 이루어지며, 재택근무가 가능한 경우가 많아 ${userData?.name || '사용자'}님이 원하시는 근무 시간 조건에 적합해요.`,
-                  }}
-                  preferences={{
-                    title: '조건',
-                    percentage: 80,
-                    description: `OO직업은 OOO 자격증을 보유하고 있는 사람을 우대해요. 시간이 걸리더라도 교육을 수강한 후 전문성 있는 직업에 취업하고자 하는 ${userData?.name || '사용자'}님의 희망사항에 적합해요!`,
-                  }}
-                  userName={userData?.name || '사용자'}
-                  onJobPostingClick={() => {
-                    // 채용공고 확인하기 클릭 시 동작
-                    console.log('채용공고 확인하기');
-                  }}
-                />
-              </div>
-
-              {/* 직업 추천 카드 3 */}
-              <div className="h-80">
-                <FlipCard
-                  jobTitle="직업명"
-                  jobDescription="직업 한 줄 소개"
-                  recommendationScore={100}
-                  strengths={{
-                    title: '손재주',
-                    percentage: 80,
-                    description: `OO직업은 섬세한 손재주를 요하는 직업으로 OOO한 경험을 바탕으로 우수한 손재주를 지닌 ${userData?.name || '사용자'}님에게 적합해요.`,
-                  }}
-                  workingConditions={{
-                    title: '조건',
-                    percentage: 60,
-                    description: `OO직업은 주로 9-18시 사이에 근무가 이루어지며, 재택근무가 가능한 경우가 많아 ${userData?.name || '사용자'}님이 원하시는 근무 시간 조건에 적합해요.`,
-                  }}
-                  preferences={{
-                    title: '조건',
+                    title: '자격요건',
                     percentage: 80,
                     description: `OO직업은 OOO 자격증을 보유하고 있는 사람을 우대해요. 시간이 걸리더라도 교육을 수강한 후 전문성 있는 직업에 취업하고자 하는 ${userData?.name || '사용자'}님의 희망사항에 적합해요!`,
                   }}
