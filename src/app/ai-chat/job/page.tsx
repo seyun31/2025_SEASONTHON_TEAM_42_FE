@@ -210,7 +210,7 @@ function AIChatJobContent() {
 
       setTimeout(() => {
         addBotMessage(
-          '이 강점을 살려 추천드리는 직업 TOP 3입니다. 별 아이콘을 눌러 관심목록에 저장하세요!'
+          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n별 아이콘을 눌러 관심목록에 저장하세요!'
         );
 
         setTimeout(() => {

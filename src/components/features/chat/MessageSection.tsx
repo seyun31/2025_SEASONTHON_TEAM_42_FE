@@ -214,6 +214,5 @@ export default function MessageSection({
       {/* 스크롤을 위한 빈 div */}
       <div ref={messagesEndRef} />
     </div>
-    // </div>
   );
 }
