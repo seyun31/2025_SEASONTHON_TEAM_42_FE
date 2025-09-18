@@ -67,6 +67,7 @@ function AIChatJobContent() {
     removeMessagesByType,
     nextStep,
     completeChat,
+    resetChat,
   } = useChatHistory();
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -216,9 +217,11 @@ function AIChatJobContent() {
         }
       }
 
-      // 모든 기록 불러오기 완료 후 intro 메시지 표시
+      // 모든 기록 불러오기 완료 후 새로운 대화 시작을 위한 준비
+      addBotMessage(
+        '이전 대화 기록입니다.😊 \n아래에서 새로운 상담을 시작하세요!'
+      );
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
-      setShowCurrentQuestion(true);
     } catch (error) {
       console.error('이전 대화 기록 불러오기 전체 실패:', error);
       // 실패 시에도 intro 메시지 표시
@@ -290,9 +293,15 @@ function AIChatJobContent() {
     }
   }, [userLoading, userData, historyChecked, checkChatHistory]);
 
-  // 초기 intro 메시지 표시
+  // 초기 intro 메시지 표시 (이전 대화가 없는 경우에만)
   useEffect(() => {
-    if (messages.length === 0 && !userLoading && userData && historyChecked) {
+    if (
+      messages.length === 0 &&
+      !userLoading &&
+      userData &&
+      historyChecked &&
+      !hasExistingConversation
+    ) {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
       setShowCurrentQuestion(true);
     }
@@ -301,6 +310,7 @@ function AIChatJobContent() {
     userLoading,
     userData,
     historyChecked,
+    hasExistingConversation,
     aiChatFlow.intro.messages,
     addBotMessage,
   ]);
@@ -311,6 +321,7 @@ function AIChatJobContent() {
       const currentQuestion = aiChatFlow.questions.find(
         (q) => q.step === currentStep
       );
+
       if (currentQuestion) {
         addBotMessage(currentQuestion.message.join('\n'), currentQuestion.id);
       }
@@ -598,11 +609,26 @@ function AIChatJobContent() {
   };
 
   const handleStartClick = () => {
-    addUserMessage('시작하기');
+    // 새로운 대화 시작을 위해 기존 메시지 초기화
+    resetChat();
 
-    // 항상 새로운 대화 시작 (이전 대화 여부와 관계없이)
-    nextStep(); // step 1로 이동
-    setShowCurrentQuestion(true);
+    // 상태 초기화
+    setSelectedOptions([]);
+    setTextInput('');
+    setJobRecommendations(null);
+    setStrengthReports([]);
+    setJobMessageAdded(false);
+    setStrengthReportAdded(false);
+    setCompletionFlowStarted(false);
+    setHasExistingConversation(false); // 새로운 대화로 간주
+
+    // intro 메시지부터 시작
+    setTimeout(() => {
+      addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
+      addUserMessage('시작하기');
+      nextStep(); // step 1로 이동
+      setShowCurrentQuestion(true);
+    }, 100);
   };
 
   const currentQuestion = getCurrentQuestion();
