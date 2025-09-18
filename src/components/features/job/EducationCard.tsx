@@ -177,7 +177,7 @@ const DetailItem = ({
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
     <span className="text-gray-500 text-sm md:text-xl">{label}</span>
     <span
-      className={`text-sm md:text-body-large-medium ${isPrimary ? 'text-primary-90' : 'text-black'}`}
+      className={`text-sm md:text-xl ${isPrimary ? 'text-primary-90' : 'text-black'}`}
     >
       {value}
     </span>
@@ -234,7 +234,10 @@ export default function EducationCard({
 
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
-    const categories = education.trainTarget?.split(',') || [];
+    const categories =
+      education.trainTarget && education.trainTarget.trim() !== ''
+        ? education.trainTarget.split(',')
+        : [];
     const certificates = education.certificate?.split(',') || [];
 
     return (
@@ -347,7 +350,7 @@ export default function EducationCard({
               <div className="flex flex-col gap-2 md:gap-3 flex-1 min-w-0">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3 transition-all duration-500 ease-out">
                   <span className="text-xl md:text-2xl text-gray-800 truncate font-semibold">
-                    {education.title || '교육과정명 미정'}
+                    {education.subTitle || '교육과정명 미정'}
                   </span>
                   <span className="text-base md:text-body-small-medium text-gray-500 truncate">
                     {education.address || '위치 미정'}
@@ -371,8 +374,8 @@ export default function EducationCard({
             </div>
 
             {/* 교육과정 설명 */}
-            <p className="text-gray-800 text-xl md:text-title-large leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium">
-              {education.subTitle || education.contents || '교육과정 설명 미정'}
+            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium">
+              {education.title || education.contents || '교육과정 설명 미정'}
             </p>
 
             {/* 상세 정보 */}

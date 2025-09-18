@@ -196,7 +196,7 @@ const DetailItem = ({
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
     <span className="text-gray-500 text-sm md:text-xl">{label}</span>
     <span
-      className={`text-sm md:text-body-large-medium ${isPrimary ? 'text-primary-90' : 'text-black'}`}
+      className={`text-sm md:text-xl ${isPrimary ? 'text-primary-90' : 'text-black'}`}
     >
       {value}
     </span>
@@ -247,7 +247,10 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
-    const categories = job.jobCategory?.split(',') || [];
+    const categories =
+      job.jobCategory && job.jobCategory.trim() !== ''
+        ? job.jobCategory.split(',')
+        : [];
     const skills = job.requiredSkills?.split(',') || [];
 
     return (
@@ -376,7 +379,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
             </div>
 
             {/* 직무 설명 */}
-            <p className="text-gray-800 text-xl md:text-title-large leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium">
+            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-semibold">
               {job.jobTitle || '직무명 미정'}
             </p>
 
