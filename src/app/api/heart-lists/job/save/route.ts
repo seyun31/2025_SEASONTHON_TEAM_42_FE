@@ -21,17 +21,17 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const { educationId } = await request.json();
-    // console.log('요청 데이터:', { educationId });
+    const { jobId } = await request.json();
+    // console.log('요청 데이터:', { jobId });
 
-    if (educationId === undefined || educationId === null) {
+    if (jobId === undefined || jobId === null) {
       return Response.json(
         {
           result: 'ERROR',
           data: null,
           error: {
             code: 'BAD_REQUEST',
-            message: 'educationId가 필요합니다.',
+            message: 'jobId가 필요합니다.',
           },
         },
         { status: 400 }
@@ -39,7 +39,7 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const url = new URL(`${backendUrl}/v1/bookmark/job`);
-    url.searchParams.append('educationId', educationId.toString());
+    url.searchParams.append('jobId', jobId.toString());
 
     const response = await fetch(url.toString(), {
       method: 'POST',

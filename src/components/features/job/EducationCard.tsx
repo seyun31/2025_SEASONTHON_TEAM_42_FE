@@ -195,7 +195,7 @@ export default function EducationCard({
       if (isBookmark) {
         // 북마크 삭제
         const response = await fetch(
-          `/api/heart-lists/job/delete?educationId=${educationId}`,
+          `/api/heart-lists/edu/delete?educationId=${educationId}`,
           {
             method: 'DELETE',
           }
@@ -205,7 +205,7 @@ export default function EducationCard({
         }
       } else {
         // 북마크 저장
-        const response = await fetch('/api/heart-lists/job/save', {
+        const response = await fetch('/api/heart-lists/edu/save', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
