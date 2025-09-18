@@ -4,6 +4,17 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getUserData } from '@/lib/auth';
 import Footer from '@/components/layout/Footer';
+import FlipCard from '@/components/common/FlipCard';
+
+interface Occupation {
+  imageUrl: string | null;
+  occupationName: string;
+  description: string;
+  strength: string;
+  score: string;
+  memberOccupationId: number;
+  isBookmark: boolean;
+}
 
 export default function My() {
   const [userData, setUserData] = useState<{
@@ -15,10 +26,34 @@ export default function My() {
     profileImage: string;
   } | null>(null);
 
+  const [bookmarkedJobs, setBookmarkedJobs] = useState<Occupation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchBookmarkedJobs = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/chat/jobs/history/job-card');
+      const data = await response.json();
+
+      if (data.result === 'SUCCESS' && data.data?.occupationList) {
+        setBookmarkedJobs(data.data.occupationList);
+      } else {
+        console.error('북마크된 직업 조회 실패:', data.error);
+        setBookmarkedJobs([]);
+      }
+    } catch (error) {
+      console.error('API 호출 실패:', error);
+      setBookmarkedJobs([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const user = getUserData();
     if (user) {
       setUserData(user);
+      fetchBookmarkedJobs();
     }
   }, []);
 
@@ -71,9 +106,42 @@ export default function My() {
               {userData?.name || '사용자'}님의 추천 직업 카드
             </h3>
 
-            <div className="flex justify-center">
-              <div className="h-[538px]">{/* 카드 영역 */}</div>
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center items-center h-[538px]">
+                <p className="text-gray-60">북마크된 직업을 불러오는 중...</p>
+              </div>
+            ) : bookmarkedJobs.length > 0 ? (
+              <div className="flex gap-4 justify-center flex-wrap">
+                {bookmarkedJobs.map((job, index) => (
+                  <FlipCard
+                    key={job.memberOccupationId || index}
+                    jobImage={job.imageUrl || undefined}
+                    jobTitle={job.occupationName}
+                    jobDescription={job.description}
+                    recommendationScore={parseInt(job.score) || 0}
+                    strengths={{
+                      title: job.strength,
+                      percentage: parseInt(job.score) || 0,
+                      description: job.strength,
+                    }}
+                    memberOccupationId={job.memberOccupationId}
+                    isBookmark={job.isBookmark}
+                    onJobPostingClick={() => {}}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="flex justify-center items-center h-[538px]">
+                <div className="text-center">
+                  <p className="text-gray-60 mb-2">
+                    아직 북마크된 직업이 없습니다.
+                  </p>
+                  <p className="text-gray-50 text-sm">
+                    AI 채팅에서 직업을 추천받고 별표를 눌러 저장해보세요!
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>

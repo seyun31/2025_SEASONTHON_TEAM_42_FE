@@ -16,6 +16,8 @@ interface FlipCardProps {
     percentage: number;
     description: string;
   };
+  memberOccupationId?: number;
+  isBookmark?: boolean;
 }
 
 export default function FlipCard({
@@ -25,18 +27,46 @@ export default function FlipCard({
   onJobPostingClick,
   jobImage,
   strengths,
+  memberOccupationId,
+  isBookmark = false,
 }: FlipCardProps) {
   const router = useRouter();
   const [isFlipped, setIsFlipped] = useState(false);
-  const [isScrap, setIsScrap] = useState(false);
+  const [isScrap, setIsScrap] = useState(isBookmark);
 
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
   };
 
-  const handleToggleScrap = (e: React.MouseEvent) => {
+  const handleToggleScrap = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsScrap(!isScrap);
+
+    if (!memberOccupationId) {
+      console.error('memberOccupationId가 필요합니다.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/chat/jobs/save/job-card', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          occupationId: memberOccupationId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.result === 'SUCCESS') {
+        setIsScrap(!isScrap);
+      } else {
+        console.error('북마크 저장 실패:', data.error);
+      }
+    } catch (error) {
+      console.error('북마크 API 호출 실패:', error);
+    }
   };
 
   return (
@@ -86,10 +116,10 @@ export default function FlipCard({
                 <button
                   onClick={handleToggleScrap}
                   className={`text-[45px] transition-all duration-300 hover:scale-110 ml-2 ${
-                    isScrap ? 'text-gray-400' : 'text-yellow-400'
+                    isScrap ? 'text-yellow-400' : 'text-gray-400'
                   }`}
                 >
-                  {isScrap ? <PiStarThin /> : <HiStar />}
+                  {isScrap ? <HiStar /> : <PiStarThin />}
                 </button>
               </div>
               <p className="text-lg text-gray-20 leading-relaxed">

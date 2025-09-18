@@ -7,12 +7,21 @@ import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import FlipCard from '@/components/common/FlipCard';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
 
+interface StrengthReportData {
+  strength: string;
+  experience: string;
+  keyword: string[];
+  job: string[];
+}
+
 interface Occupation {
   imageUrl: string;
   occupationName: string;
   description: string;
   strength: string;
   score: string;
+  memberOccupationId?: number;
+  isBookmark?: boolean;
 }
 
 interface MessageSectionProps {
@@ -44,6 +53,59 @@ export default function MessageSection({
 }: MessageSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 강점 리포트 메시지들 그룹화 (순서대로 정렬)
+  const groupStrengthReports = (msgs: ChatMessage[]): ChatMessage[] => {
+    const grouped: ChatMessage[] = [];
+    const strengthReports: ChatMessage[] = [];
+
+    for (let i = 0; i < msgs.length; i++) {
+      const msg = msgs[i];
+      if (msg.componentType === 'strengthReport') {
+        strengthReports.push(msg);
+      } else {
+        if (strengthReports.length > 0) {
+          const reportDataArray = strengthReports
+            .map((r) => r.componentData)
+            .filter(
+              (data): data is StrengthReportData =>
+                data !== null && data !== undefined && 'strength' in data
+            );
+
+          const groupedMessage: ChatMessage = {
+            ...strengthReports[0],
+            id: 'strength-reports-group',
+            componentData: reportDataArray,
+            componentType: 'strengthReportGroup',
+          };
+          grouped.push(groupedMessage);
+          strengthReports.length = 0;
+        }
+        grouped.push(msg);
+      }
+    }
+
+    if (strengthReports.length > 0) {
+      const reportDataArray = strengthReports
+        .map((r) => r.componentData)
+        .filter(
+          (data): data is StrengthReportData =>
+            data !== null && data !== undefined && 'strength' in data
+        );
+
+      const groupedMessage: ChatMessage = {
+        ...strengthReports[0],
+        id: 'strength-reports-group',
+        componentData: reportDataArray,
+        componentType: 'strengthReportGroup',
+      };
+      grouped.push(groupedMessage);
+    }
+
+    return grouped;
+  };
+
+  const groupedMessages = groupStrengthReports(messages);
+
   const renderJobCards = (componentData: unknown): React.ReactNode => {
     const jobData = componentData as {
       first: Occupation;
@@ -65,12 +127,9 @@ export default function MessageSection({
                 percentage: parseInt(occupation.score) || 0,
                 description: occupation.strength,
               }}
-              onJobPostingClick={() => {
-                console.log(
-                  '채용공고 확인하기 clicked for:',
-                  occupation.occupationName
-                );
-              }}
+              memberOccupationId={occupation.memberOccupationId}
+              isBookmark={occupation.isBookmark}
+              onJobPostingClick={() => {}}
             />
           )
         )}
@@ -84,13 +143,13 @@ export default function MessageSection({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [groupedMessages]);
 
   return (
     // <div className="max-w-[1200px] mx-auto">
     <div className="w-full h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-4 md:px-8 lg:px-0">
       {/* 채팅 히스토리 */}
-      {messages.map((message, index) => {
+      {groupedMessages.map((message, index) => {
         // 컴포넌트 타입 메시지 처리
         if (message.type === 'component') {
           return (
@@ -102,43 +161,58 @@ export default function MessageSection({
                 animationFillMode: 'both',
               }}
             >
-              {message.componentType === 'strengthReport' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 mb-6">
-                  <StrengthReportCard
-                    title="분석형 전문가"
-                    experience="데이터 분석 및 해석 경험"
-                    keywords={['논리적 사고', '문제 해결', '데이터 해석']}
-                    jobs={['데이터 분석가', '리서치 전문가']}
-                    iconType="dart"
-                  />
-                  <StrengthReportCard
-                    title="조정형 전문가"
-                    experience="팀 조율 및 의견 중재 경험"
-                    keywords={['소통 능력', '중재 역량', '팀워크']}
-                    jobs={['프로젝트 매니저', 'HR 전문가']}
-                    iconType="check"
-                  />
-                  <StrengthReportCard
-                    title="조정형 전문가"
-                    experience="팀 조율 및 의견 중재 경험"
-                    keywords={['소통 능력', '중재 역량', '팀워크']}
-                    jobs={['프로젝트 매니저', 'HR 전문가']}
-                    iconType="memo"
-                  />
-                  <StrengthReportCard
-                    title="조정형 전문가"
-                    experience="팀 조율 및 의견 중재 경험"
-                    keywords={['소통 능력', '중재 역량', '팀워크']}
-                    jobs={['프로젝트 매니저', 'HR 전문가']}
-                    iconType="led"
-                  />
-                </div>
-              )}
+              {message.componentType === 'strengthReportGroup' &&
+                Array.isArray(message.componentData) && (
+                  <div className="w-full mt-4 mb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      {message.componentData.map(
+                        (reportData, cardIndex) =>
+                          reportData &&
+                          'strength' in reportData && (
+                            <StrengthReportCard
+                              key={cardIndex}
+                              title={reportData.strength}
+                              experience={reportData.experience}
+                              keywords={reportData.keyword}
+                              jobs={reportData.job}
+                              iconType={
+                                (['dart', 'check', 'memo', 'led'] as const)[
+                                  cardIndex % 4
+                                ]
+                              }
+                            />
+                          )
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {message.componentType === 'strengthReport' &&
+                message.componentData &&
+                'strength' in message.componentData && (
+                  <div className="w-full max-w-[600px] mt-4 mb-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <StrengthReportCard
+                        title={message.componentData.strength}
+                        experience={message.componentData.experience}
+                        keywords={message.componentData.keyword}
+                        jobs={message.componentData.job}
+                        iconType={
+                          (['dart', 'check', 'memo', 'led'] as const)[index % 4]
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
 
               {message.componentType === 'loading' && (
                 <div className="text-center p-4">
                   <p className="text-chat-message">
-                    맞춤형 직업을 추천하는 중...
+                    {message.componentData &&
+                    'loadingType' in message.componentData &&
+                    message.componentData.loadingType === 'jobRecommendation'
+                      ? '맞춤형 직업 추천중...'
+                      : '강점 리포트 생성중...'}
                   </p>
                 </div>
               )}
