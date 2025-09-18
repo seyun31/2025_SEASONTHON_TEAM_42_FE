@@ -34,6 +34,24 @@ export interface ApiResponse<T> {
   };
 }
 
+// 교육 DTO 타입 정의
+export interface EducationDto {
+  educationId: number;
+  title: string;
+  subTitle: string;
+  traStartDate: string;
+  traEndDate: string;
+  address: string;
+  courseMan: string;
+  keyword1: string;
+  keyword2: string;
+  trprDegr: string;
+  imageUrl: string;
+  titleLink: string;
+  isBookmark: boolean;
+  score: number | null;
+}
+
 // 전체 채용 조회 API 응답 타입
 export interface AllResponse {
   managerPhone: string;

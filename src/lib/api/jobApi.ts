@@ -14,6 +14,7 @@ import {
   EducationApiResponse,
   EducationDataResponse,
   CardCourseItem,
+  EducationDto,
 } from '@/types/job';
 import {
   RoadMapResponse,
@@ -1337,17 +1338,11 @@ export const getRecommendedEducations = async (): Promise<
 // 전체 교육 조회 (비로그인 시)
 export const getAllEducationsAnonymous = async (filters?: {
   keyword?: string;
-  workLocation?: string;
+  startYmd?: string;
+  endYmd?: string;
 }): Promise<EducationSummary[]> => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log('Making API request to /education/all/anonymous');
+    console.log('Making API request to /api/education/anonymous');
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
@@ -1356,14 +1351,18 @@ export const getAllEducationsAnonymous = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.workLocation) {
-      queryParams.append('workLocation', filters.workLocation);
+    if (filters?.startYmd) {
+      queryParams.append('startYmd', filters.startYmd);
+    }
+
+    if (filters?.endYmd) {
+      queryParams.append('endYmd', filters.endYmd);
     }
 
     const queryString = queryParams.toString();
     const url = queryString
-      ? `${backendUrl}/education/all/anonymous?${queryString}`
-      : `${backendUrl}/education/all/anonymous`;
+      ? `/api/education/anonymous?${queryString}`
+      : `/api/education/anonymous`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -1388,7 +1387,7 @@ export const getAllEducationsAnonymous = async (filters?: {
       );
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
+    const result = await response.json();
     console.log('getAllEducationsAnonymous - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
@@ -1399,23 +1398,23 @@ export const getAllEducationsAnonymous = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // AllResponse를 EducationSummary로 변환
-    return result.data.jobDtoList.map((item) => ({
-      id: item.jobId.toString(),
-      educationId: item.jobId,
-      trprId: item.jobId.toString(),
-      title: item.jobTitle || '제목 없음',
-      subTitle: item.requiredSkills || '',
-      institution: item.companyName || '',
-      address: item.workLocation || '',
-      traStartDate: item.postingDate || '',
-      traEndDate: item.closingDate || '',
+    // 새로운 response 구조에 맞게 변환
+    return result.data.educationDtoList.map((item: EducationDto) => ({
+      id: item.educationId.toString(),
+      educationId: item.educationId,
+      trprId: item.educationId.toString(),
+      title: item.title || '제목 없음',
+      subTitle: item.subTitle || '',
+      institution: item.subTitle || '',
+      address: item.address || '',
+      traStartDate: item.traStartDate || '',
+      traEndDate: item.traEndDate || '',
       trainTarget: '',
-      contents: item.requiredSkills || '',
+      contents: item.keyword1 || item.keyword2 || '',
       certificate: '',
       grade: '',
       regCourseMan: '0',
-      courseMan: '0',
+      courseMan: item.courseMan || '0',
       realMan: '0',
       yardMan: '0',
       telNo: '',
@@ -1425,16 +1424,17 @@ export const getAllEducationsAnonymous = async (filters?: {
       eiEmplCnt3Gt10: '0',
       eiEmplRate6: '0',
       ncsCd: '',
-      trprDegr: '',
+      trprDegr: item.trprDegr || '',
       instCd: '',
       trngAreaCd: '',
       trainTargetCd: '',
       trainstCstId: '',
       subTitleLink: '',
-      titleLink: '',
+      titleLink: item.titleLink || '',
       titleIcon: '',
-      isBookmark: false,
-      recommendScore: undefined,
+      imageUrl: item.imageUrl || '',
+      isBookmark: item.isBookmark || false,
+      recommendScore: item.score || undefined,
     }));
   } catch (error) {
     console.error('Error fetching all educations:', error);

@@ -51,8 +51,14 @@ export default function EducationPrograms() {
     });
     setIsLoggedIn(loggedIn);
 
-    // 비로그인 시 전체교육 탭으로 설정
-    if (!loggedIn) {
+    // URL 파라미터에서 탭 확인
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+
+    if (tabParam === 'all') {
+      setActiveTab('all');
+    } else if (!loggedIn) {
+      // 비로그인 시 전체교육 탭으로 설정
       setActiveTab('all');
     }
 
@@ -135,10 +141,8 @@ export default function EducationPrograms() {
           console.log('EducationPrograms - Fetching anonymous educations...');
           educationData = await getAllEducationsAnonymous({
             keyword: debouncedSearchKeyword || undefined,
-            workLocation:
-              filters.selectedDistricts.length > 0
-                ? filters.selectedDistricts.join(',')
-                : undefined,
+            startYmd: '',
+            endYmd: '',
           });
           console.log(
             'EducationPrograms - Anonymous educations result:',

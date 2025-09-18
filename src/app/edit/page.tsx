@@ -228,7 +228,7 @@ export default function EditPage() {
       <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-10">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
-          <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
+          <div className="relative w-[26vw] h-[60vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
             {/* 로고 이미지 */}
             <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
               <Image
@@ -303,22 +303,24 @@ export default function EditPage() {
               </div>
 
               {/* 거주지 선택 */}
-              <div>
+              <div className="min-w-0">
                 <label className="block text-body-large-medium">
                   거주지 (선택)
                 </label>
                 <div className="relative top-2">
-                  <AddressButton
-                    value={address}
-                    onClick={() => setIsModalOpen(true)}
-                  />
+                  <div className="overflow-hidden">
+                    <AddressButton
+                      value={address}
+                      onClick={() => setIsModalOpen(true)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* 취소, 수정완료 버튼 */}
-          <div className="flex gap-4 w-[30.5vw]">
+          <div className="flex gap-4 w-[26.8vw]">
             <div className="flex-1">
               <button
                 onClick={handleCancel}
@@ -410,22 +412,24 @@ export default function EditPage() {
             </div>
 
             {/* 거주지 선택 */}
-            <div>
+            <div className="min-w-0">
               <label className="block text-body-large-medium">
                 거주지 (선택)
               </label>
               <div className="relative top-2">
-                <AddressButton
-                  value={address}
-                  onClick={() => setIsModalOpen(true)}
-                />
+                <div className="overflow-hidden">
+                  <AddressButton
+                    value={address}
+                    onClick={() => setIsModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* 취소, 수정완료 버튼 */}
-        <div className="flex gap-4 w-full max-w-md mx-auto px-8 pb-8">
+        <div className="flex gap-4 w-[26vw] items-center justify-center px-8 pb-8 mx-auto">
           <div className="relative flex-1">
             <div className="absolute inset-0 rounded-[12px] bg-gray-300 opacity-50" />
             <button
