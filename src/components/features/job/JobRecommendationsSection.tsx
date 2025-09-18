@@ -49,7 +49,8 @@ export default function JobRecommendationsSection() {
           console.log(
             'JobRecommendationsSection - Fetching all jobs for anonymous user'
           );
-          jobData = await getAllJobs();
+          const result = await getAllJobs();
+          jobData = result.jobDtoList || [];
           console.log(
             'JobRecommendationsSection - All jobs fetched:',
             jobData.length,
