@@ -181,7 +181,7 @@ export interface CardCoursePage {
 // Education 관련 타입 정의
 export interface EducationSummary {
   id: string;
-  educationId: number;
+  educationId?: number;
   trprId: string;
   title: string;
   subTitle: string;
