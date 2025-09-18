@@ -112,27 +112,47 @@ export default function MessageSection({
       second: Occupation;
       third: Occupation;
     };
+
+    // jobData가 유효한지 확인
+    if (!jobData || typeof jobData !== 'object') {
+      return null;
+    }
+
+    // 각 직업 데이터가 유효한지 확인
+    const validOccupations = [
+      jobData.first,
+      jobData.second,
+      jobData.third,
+    ].filter(
+      (occupation) =>
+        occupation &&
+        typeof occupation === 'object' &&
+        occupation.occupationName
+    );
+
+    if (validOccupations.length === 0) {
+      return null;
+    }
+
     return (
       <div className="flex gap-4 w-full mt-4">
-        {[jobData.first, jobData.second, jobData.third].map(
-          (occupation: Occupation, jobIndex: number) => (
-            <FlipCard
-              key={jobIndex}
-              jobImage={occupation.imageUrl}
-              jobTitle={occupation.occupationName}
-              jobDescription={occupation.description}
-              recommendationScore={parseInt(occupation.score) || 0}
-              strengths={{
-                title: occupation.strength,
-                percentage: parseInt(occupation.score) || 0,
-                description: occupation.strength,
-              }}
-              memberOccupationId={occupation.memberOccupationId}
-              isBookmark={occupation.isBookmark}
-              onJobPostingClick={() => {}}
-            />
-          )
-        )}
+        {validOccupations.map((occupation: Occupation, jobIndex: number) => (
+          <FlipCard
+            key={jobIndex}
+            jobImage={occupation.imageUrl}
+            jobTitle={occupation.occupationName}
+            jobDescription={occupation.description}
+            recommendationScore={parseInt(occupation.score) || 0}
+            strengths={{
+              title: occupation.strength,
+              percentage: parseInt(occupation.score) || 0,
+              description: occupation.strength,
+            }}
+            memberOccupationId={occupation.memberOccupationId}
+            isBookmark={occupation.isBookmark}
+            onJobPostingClick={() => {}}
+          />
+        ))}
       </div>
     );
   };
@@ -147,7 +167,7 @@ export default function MessageSection({
 
   return (
     // <div className="max-w-[1200px] mx-auto">
-    <div className="w-full h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-4 md:px-8 lg:px-0">
+    <div className="w-full h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-4 md:px-8 xl:px-0">
       {/* 채팅 히스토리 */}
       {groupedMessages.map((message, index) => {
         // 컴포넌트 타입 메시지 처리
@@ -164,23 +184,27 @@ export default function MessageSection({
               {message.componentType === 'strengthReportGroup' &&
                 Array.isArray(message.componentData) && (
                   <div className="w-full mt-4 mb-4">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex gap-3 overflow-x-auto scrollbar-hide md:grid md:grid-cols-2 md:overflow-visible">
                       {message.componentData.map(
                         (reportData, cardIndex) =>
                           reportData &&
                           'strength' in reportData && (
-                            <StrengthReportCard
+                            <div
                               key={cardIndex}
-                              title={reportData.strength}
-                              experience={reportData.experience}
-                              keywords={reportData.keyword}
-                              jobs={reportData.job}
-                              iconType={
-                                (['dart', 'check', 'memo', 'led'] as const)[
-                                  cardIndex % 4
-                                ]
-                              }
-                            />
+                              className="flex-shrink-0 w-[360px] md:w-auto"
+                            >
+                              <StrengthReportCard
+                                title={reportData.strength}
+                                experience={reportData.experience}
+                                keywords={reportData.keyword}
+                                jobs={reportData.job}
+                                iconType={
+                                  (['dart', 'check', 'memo', 'led'] as const)[
+                                    cardIndex % 4
+                                  ]
+                                }
+                              />
+                            </div>
                           )
                       )}
                     </div>
@@ -190,7 +214,7 @@ export default function MessageSection({
               {message.componentType === 'strengthReport' &&
                 message.componentData &&
                 'strength' in message.componentData && (
-                  <div className="w-full max-w-[600px] mt-4 mb-4">
+                  <div className="w-full max-w-[360px] md:max-w-[600px] mt-4 mb-4">
                     <div className="grid grid-cols-2 gap-3">
                       <StrengthReportCard
                         title={message.componentData.strength}
@@ -217,9 +241,12 @@ export default function MessageSection({
                 </div>
               )}
 
-              {message.componentType === 'jobCards' && message.componentData
-                ? renderJobCards(message.componentData)
-                : null}
+              {message.componentType === 'jobCards' &&
+                message.componentData && (
+                  <div className="mt-4">
+                    {renderJobCards(message.componentData)}
+                  </div>
+                )}
             </div>
           );
         }

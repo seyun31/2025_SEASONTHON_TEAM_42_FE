@@ -105,6 +105,11 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
   const [showStrengthReport, setShowStrengthReport] = useState(false);
 
+  // 고유한 ID 생성 함수
+  const generateUniqueId = () => {
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  };
+
   const addBotMessage = (content: string, questionId?: number) => {
     setMessages((prev) => {
       const isDuplicate = prev.some(
@@ -113,7 +118,7 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
       if (isDuplicate) return prev;
 
       const newMessage: ChatMessage = {
-        id: Date.now().toString(),
+        id: generateUniqueId(),
         type: 'bot',
         content,
         timestamp: Date.now(),
@@ -129,7 +134,7 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
     selectedOptions?: string[]
   ) => {
     const newMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: generateUniqueId(),
       type: 'user',
       content,
       timestamp: Date.now(),
@@ -153,7 +158,7 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
       | null
   ) => {
     const newMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: generateUniqueId(),
       type: 'component',
       content: '',
       timestamp: Date.now(),
