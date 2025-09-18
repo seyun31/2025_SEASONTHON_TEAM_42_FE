@@ -22,7 +22,7 @@ export default function MessageItem({
       {isBot && !hideProfile && (
         <div className="flex items-center gap-[3vw] xs:gap-[3vw] md:gap-[1.5vw] lg:gap-[1.25vw] md:mb-2 lg:mb-2">
           <Image
-            src="/assets/Icons/ai-chat-profile.svg"
+            src="/assets/Icons/ai-chat-profile.webp"
             alt="AI 프로필"
             width={0}
             height={0}

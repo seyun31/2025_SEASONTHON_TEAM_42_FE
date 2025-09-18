@@ -19,7 +19,7 @@ export default function RoadmapBackground({
     <div
       className={`relative rounded-2xl p-8 text-white overflow-hidden ${className}`}
       style={{
-        backgroundImage: 'url(/assets/Icons/roadmap_bg.png)',
+        backgroundImage: 'url(/assets/Icons/roadmap_bg.svg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

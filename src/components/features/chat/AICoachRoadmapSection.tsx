@@ -110,8 +110,8 @@ export default function AICoachRoadmapSection() {
                   <Image
                     src={
                       index % 2 === 0
-                        ? '/assets/Icons/character_hi.png'
-                        : '/assets/Icons/character_running.png'
+                        ? '/assets/Icons/character_hi.webp'
+                        : '/assets/Icons/character_running.webp'
                     }
                     alt={`캐릭터 ${index % 2 === 0 ? 'hi' : 'running'}`}
                     width={160}
