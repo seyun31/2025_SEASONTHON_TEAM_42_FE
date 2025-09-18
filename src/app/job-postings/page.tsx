@@ -7,7 +7,7 @@ import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
 import { jobRecommendations } from '@/data/jobData';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import {
   getRecommendedJobs,
@@ -145,14 +145,17 @@ export default function JobPostings() {
         jobCategory: job.jobCategory,
         workLocation: job.workLocation,
         employmentType: job.employmentType,
-        salary: job.salary,
-        workPeriod: job.workPeriod,
-        experience: job.experience,
-        requiredSkills: job.requiredSkills,
-        preferredSkills: job.preferredSkills,
+        salary: (job as { wage?: string }).wage || job.salary || '급여 미정',
+        workPeriod:
+          (job as { workTime?: string }).workTime ||
+          job.workPeriod ||
+          '근무기간 미정',
+        experience: job.experience || '경력 무관',
+        requiredSkills: job.requiredSkills || job.jobCategory || '',
+        preferredSkills: job.preferredSkills || '',
         postingDate: job.postingDate,
         closingDate: job.closingDate,
-        applyLink: job.applyLink,
+        applyLink: job.applyLink || '#',
         jobRecommendScore: job.score || null,
         isScrap: job.isBookmark,
       };

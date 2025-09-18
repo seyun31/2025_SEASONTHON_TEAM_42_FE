@@ -156,32 +156,37 @@ const RecommendationScore = ({
   job: JobSummary;
   isLoggedIn: boolean;
   isExpanded?: boolean;
-}) => (
-  <div
-    className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
-      isExpanded
-        ? 'opacity-100 translate-x-0 translate-y-0'
-        : 'opacity-100 translate-x-0 translate-y-0 scale-100'
-    }`}
-    style={isExpanded ? { transitionDelay: '500ms' } : {}}
-  >
-    <span className="text-xs md:text-lg text-gray-500">직업 추천도</span>
-    <span
-      className={`font-bold text-black ${isExpanded ? 'text-2xl md:text-title-xlarge' : 'text-xl md:text-title-xlarge'}`}
-      style={
+}) => {
+  // 추천도가 ??%일 때는 아예 렌더링하지 않음
+  const shouldShowRecommendation = isLoggedIn && job.jobRecommendScore !== null;
+
+  if (!shouldShowRecommendation) {
+    return null;
+  }
+
+  return (
+    <div
+      className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
         isExpanded
-          ? styles.expandedRecommendationScore(isLoggedIn)
-          : styles.recommendationScore(isLoggedIn)
-      }
+          ? 'opacity-100 translate-x-0 translate-y-0'
+          : 'opacity-100 translate-x-0 translate-y-0 scale-100'
+      }`}
+      style={isExpanded ? { transitionDelay: '500ms' } : {}}
     >
-      {!isLoggedIn
-        ? '100%'
-        : job.jobRecommendScore !== null
-          ? `${job.jobRecommendScore}%`
-          : '??%'}
-    </span>
-  </div>
-);
+      <span className="text-xs md:text-lg text-gray-500">직업 추천도</span>
+      <span
+        className={`font-bold text-black ${isExpanded ? 'text-2xl md:text-title-xlarge' : 'text-xl md:text-title-xlarge'}`}
+        style={
+          isExpanded
+            ? styles.expandedRecommendationScore(isLoggedIn)
+            : styles.recommendationScore(isLoggedIn)
+        }
+      >
+        {job.jobRecommendScore}%
+      </span>
+    </div>
+  );
+};
 
 // 상세 정보 그리드 아이템 컴포넌트
 const DetailItem = ({
