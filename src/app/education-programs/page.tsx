@@ -5,7 +5,7 @@ import EmptyEducations from '@/components/features/job/EmptyEducations';
 import SearchBar from '@/components/ui/SearchBar';
 import EducationTab from '@/components/ui/EducationTab';
 import EducationFilter from '@/components/ui/EducationFilter';
-import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
@@ -198,12 +198,12 @@ export default function EducationPrograms() {
               <div className="flex flex-col md:flex-row gap-6 mt-12">
                 <div className="flex flex-col gap-6 flex-1">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <JobCardSkeleton key={index} />
+                    <EducationCardSkeleton key={index} />
                   ))}
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <JobCardSkeleton key={index + 4} />
+                    <EducationCardSkeleton key={index + 4} />
                   ))}
                 </div>
               </div>

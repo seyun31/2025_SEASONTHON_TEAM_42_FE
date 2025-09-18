@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import EducationCard from '@/components/features/job/EducationCard';
 import EmptyEducations from '@/components/features/job/EmptyEducations';
-import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import { getUserData } from '@/lib/auth';
 import {
   getRecommendedEducations,
@@ -102,15 +102,15 @@ export default function EducationRecommendationsSection() {
             </a>
           </div>
 
-          <div className="flex flex-row gap-6">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="flex flex-col gap-6 flex-1">
               {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index} />
+                <EducationCardSkeleton key={index} />
               ))}
             </div>
             <div className="flex flex-col gap-6 flex-1">
               {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index + 4} />
+                <EducationCardSkeleton key={index + 4} />
               ))}
             </div>
           </div>

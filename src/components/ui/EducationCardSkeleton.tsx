@@ -1,4 +1,4 @@
-export default function JobCardSkeleton() {
+export default function EducationCardSkeleton() {
   return (
     <div className="relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto bg-white">
       {/* Shimmer overlay */}
@@ -39,7 +39,7 @@ export default function JobCardSkeleton() {
           ></div>
         </div>
 
-        {/* 급여 정보 스켈레톤 */}
+        {/* 기간 정보 스켈레톤 */}
         <div className="flex justify-between items-center pt-1 md:pt-2">
           <div className="flex items-center gap-2">
             <div
