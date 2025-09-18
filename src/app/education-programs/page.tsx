@@ -19,7 +19,7 @@ import { EducationSummary } from '@/types/job';
 
 export default function EducationPrograms() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'custom' | 'all'>('custom');
+  const [activeTab, setActiveTab] = useState<'custom' | 'all'>('all');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [educations, setEducations] = useState<EducationSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -51,15 +51,11 @@ export default function EducationPrograms() {
     });
     setIsLoggedIn(loggedIn);
 
-    // URL 파라미터에서 탭 확인
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-
-    if (tabParam === 'all') {
+    // 비로그인 시 전체교육 탭으로 설정, 로그인 시 맞춤교육으로 설정
+    if (!loggedIn) {
       setActiveTab('all');
-    } else if (!loggedIn) {
-      // 비로그인 시 전체교육 탭으로 설정
-      setActiveTab('all');
+    } else {
+      setActiveTab('custom');
     }
 
     // 로그인된 경우 찜 목록 로드
@@ -253,10 +249,10 @@ export default function EducationPrograms() {
               />
             )}
 
-            {/* 빈 상태 처리 */}
-            {educations.length === 0 ? (
+            {/* 빈 상태 처리 - 로그인 상태에서만 표시 */}
+            {educations.length === 0 && isLoggedIn ? (
               <EmptyEducations isLoggedIn={isLoggedIn} activeTab={activeTab} />
-            ) : (
+            ) : educations.length > 0 ? (
               <div className="flex flex-col md:flex-row gap-6 mt-12">
                 {(() => {
                   console.log(
@@ -306,7 +302,7 @@ export default function EducationPrograms() {
                     })}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </section>
       </main>

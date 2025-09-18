@@ -1531,7 +1531,43 @@ export const getHrdEducations = async (filters?: {
         'getHrdEducations - Found educationDtoList, length:',
         result.data.educationDtoList.length
       );
-      mappedData = result.data.educationDtoList;
+      mappedData = result.data.educationDtoList.map((item: EducationDto) => ({
+        id: item.educationId.toString(),
+        educationId: item.educationId,
+        trprId: item.educationId.toString(),
+        title: item.title || '제목 없음',
+        subTitle: item.subTitle || '',
+        institution: item.subTitle || '',
+        address: item.address || '',
+        traStartDate: item.traStartDate || '',
+        traEndDate: item.traEndDate || '',
+        trainTarget: '',
+        contents: item.keyword1 || item.keyword2 || '',
+        certificate: '',
+        grade: '',
+        regCourseMan: '0',
+        courseMan: item.courseMan || '0',
+        realMan: '0',
+        yardMan: '0',
+        telNo: '',
+        stdgScor: '0',
+        eiEmplCnt3: '0',
+        eiEmplRate3: '0',
+        eiEmplCnt3Gt10: '0',
+        eiEmplRate6: '0',
+        ncsCd: '',
+        trprDegr: item.trprDegr || '',
+        instCd: '',
+        trngAreaCd: '',
+        trainTargetCd: '',
+        trainstCstId: '',
+        subTitleLink: '',
+        titleLink: item.titleLink || '',
+        titleIcon: '',
+        imageUrl: item.imageUrl || '',
+        isBookmark: item.isBookmark || false,
+        recommendScore: item.score || undefined,
+      }));
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {

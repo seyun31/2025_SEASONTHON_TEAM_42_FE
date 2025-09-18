@@ -8,17 +8,6 @@ export async function GET(request: Request): Promise<Response> {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    if (!accessToken) {
-      return Response.json(
-        {
-          result: 'ERROR',
-          data: null,
-          error: { code: 'UNAUTHORIZED', message: '인증 토큰이 필요합니다.' },
-        },
-        { status: 401 }
-      );
-    }
-
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('keyword') || '';
     const startYmd = searchParams.get('startYmd') || '';
@@ -33,7 +22,7 @@ export async function GET(request: Request): Promise<Response> {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        Authorization: `Bearer ${accessToken}`,
+        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
       },
     });
 

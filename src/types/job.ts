@@ -261,7 +261,9 @@ export interface EducationApiResponse {
 export interface EducationDataResponse {
   result: 'SUCCESS' | 'ERROR';
   data: {
-    educationDtoList: EducationSummary[];
+    totalElements: number;
+    numberOfElements: number;
+    educationDtoList: EducationDto[];
   };
   error?: {
     code: string;
