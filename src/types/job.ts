@@ -211,6 +211,7 @@ export interface EducationSummary {
   subTitleLink: string;
   titleLink: string;
   titleIcon: string;
+  imageUrl?: string;
   isBookmark?: boolean;
   recommendScore?: number;
 }

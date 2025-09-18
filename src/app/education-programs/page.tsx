@@ -1,10 +1,11 @@
 'use client';
 
 import EducationCard from '@/components/features/job/EducationCard';
+import EmptyEducations from '@/components/features/job/EmptyEducations';
 import SearchBar from '@/components/ui/SearchBar';
 import EducationTab from '@/components/ui/EducationTab';
 import EducationFilter from '@/components/ui/EducationFilter';
-import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
@@ -144,6 +145,15 @@ export default function EducationPrograms() {
           console.log('EducationPrograms - No education data received');
         }
 
+        // null이나 빈 배열인 경우 처리
+        if (!educationData || educationData.length === 0) {
+          console.log(
+            'EducationPrograms - No educations found, setting empty array'
+          );
+          setEducations([]);
+          return;
+        }
+
         setEducations(educationData);
       } catch (error) {
         console.error('Error fetching educations:', error);
@@ -188,12 +198,12 @@ export default function EducationPrograms() {
               <div className="flex flex-col md:flex-row gap-6 mt-12">
                 <div className="flex flex-col gap-6 flex-1">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <JobCardSkeleton key={index} />
+                    <EducationCardSkeleton key={index} />
                   ))}
                 </div>
                 <div className="flex flex-col gap-6 flex-1">
                   {Array.from({ length: 4 }).map((_, index) => (
-                    <JobCardSkeleton key={index + 4} />
+                    <EducationCardSkeleton key={index + 4} />
                   ))}
                 </div>
               </div>
@@ -222,53 +232,58 @@ export default function EducationPrograms() {
               />
             )}
 
-            <div className="flex flex-col md:flex-row gap-6 mt-12">
-              {(() => {
-                console.log(
-                  'EducationPrograms - Rendering educations:',
-                  educations.length,
-                  educations
-                );
-                return null;
-              })()}
-              <div className="flex flex-col gap-6 flex-1">
-                {educations
-                  .slice(0, Math.ceil(educations.length / 2))
-                  .map((education, index) => {
-                    console.log(
-                      `EducationPrograms - Rendering education ${index}:`,
-                      education
-                    );
-                    return (
-                      <EducationCard
-                        key={education.trprId || index}
-                        education={education}
-                        onToggleBookmark={toggleFavorite}
-                      />
-                    );
-                  })}
+            {/* 빈 상태 처리 */}
+            {educations.length === 0 ? (
+              <EmptyEducations isLoggedIn={isLoggedIn} activeTab={activeTab} />
+            ) : (
+              <div className="flex flex-col md:flex-row gap-6 mt-12">
+                {(() => {
+                  console.log(
+                    'EducationPrograms - Rendering educations:',
+                    educations.length,
+                    educations
+                  );
+                  return null;
+                })()}
+                <div className="flex flex-col gap-6 flex-1">
+                  {educations
+                    .slice(0, Math.ceil(educations.length / 2))
+                    .map((education, index) => {
+                      console.log(
+                        `EducationPrograms - Rendering education ${index}:`,
+                        education
+                      );
+                      return (
+                        <EducationCard
+                          key={education.trprId || index}
+                          education={education}
+                          onToggleBookmark={toggleFavorite}
+                        />
+                      );
+                    })}
+                </div>
+                <div className="flex flex-col gap-6 flex-1">
+                  {educations
+                    .slice(Math.ceil(educations.length / 2))
+                    .map((education, index) => {
+                      console.log(
+                        `EducationPrograms - Rendering education ${index + Math.ceil(educations.length / 2)}:`,
+                        education
+                      );
+                      return (
+                        <EducationCard
+                          key={
+                            education.trprId ||
+                            index + Math.ceil(educations.length / 2)
+                          }
+                          education={education}
+                          onToggleBookmark={toggleFavorite}
+                        />
+                      );
+                    })}
+                </div>
               </div>
-              <div className="flex flex-col gap-6 flex-1">
-                {educations
-                  .slice(Math.ceil(educations.length / 2))
-                  .map((education, index) => {
-                    console.log(
-                      `EducationPrograms - Rendering education ${index + Math.ceil(educations.length / 2)}:`,
-                      education
-                    );
-                    return (
-                      <EducationCard
-                        key={
-                          education.trprId ||
-                          index + Math.ceil(educations.length / 2)
-                        }
-                        education={education}
-                        onToggleBookmark={toggleFavorite}
-                      />
-                    );
-                  })}
-              </div>
-            </div>
+            )}
           </div>
         </section>
       </main>
