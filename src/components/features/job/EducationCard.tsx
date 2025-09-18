@@ -368,7 +368,7 @@ export default function EducationCard({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleToggleBookmark(education.trprId);
+                    handleToggleBookmark(education.educationId.toString());
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
                     isBookmark ? 'text-yellow-400' : 'text-gray-300'
