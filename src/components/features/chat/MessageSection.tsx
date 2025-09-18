@@ -164,23 +164,27 @@ export default function MessageSection({
               {message.componentType === 'strengthReportGroup' &&
                 Array.isArray(message.componentData) && (
                   <div className="w-full mt-4 mb-4">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="flex gap-3 overflow-x-auto scrollbar-hide md:grid md:grid-cols-2 md:overflow-visible">
                       {message.componentData.map(
                         (reportData, cardIndex) =>
                           reportData &&
                           'strength' in reportData && (
-                            <StrengthReportCard
+                            <div
                               key={cardIndex}
-                              title={reportData.strength}
-                              experience={reportData.experience}
-                              keywords={reportData.keyword}
-                              jobs={reportData.job}
-                              iconType={
-                                (['dart', 'check', 'memo', 'led'] as const)[
-                                  cardIndex % 4
-                                ]
-                              }
-                            />
+                              className="flex-shrink-0 w-[360px] md:w-auto"
+                            >
+                              <StrengthReportCard
+                                title={reportData.strength}
+                                experience={reportData.experience}
+                                keywords={reportData.keyword}
+                                jobs={reportData.job}
+                                iconType={
+                                  (['dart', 'check', 'memo', 'led'] as const)[
+                                    cardIndex % 4
+                                  ]
+                                }
+                              />
+                            </div>
                           )
                       )}
                     </div>
@@ -190,7 +194,7 @@ export default function MessageSection({
               {message.componentType === 'strengthReport' &&
                 message.componentData &&
                 'strength' in message.componentData && (
-                  <div className="w-full max-w-[600px] mt-4 mb-4">
+                  <div className="w-full max-w-[360px] md:max-w-[600px] mt-4 mb-4">
                     <div className="grid grid-cols-2 gap-3">
                       <StrengthReportCard
                         title={message.componentData.strength}

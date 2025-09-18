@@ -317,6 +317,25 @@ body {
   letter-spacing: -2.5%;
 }
 
+/* 모바일 전용 강점 리포트 텍스트 스타일 */
+.text-strength-label-mobile {
+  font-family: 'Pretendard Variable';
+  font-weight: 500;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 150%;
+  letter-spacing: -2.5%;
+}
+
+.text-strength-content-mobile {
+  font-family: 'Pretendard Variable';
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 140%;
+  letter-spacing: -2.5%;
+}
+
 /* ============================================
    유틸리티 클래스
    ============================================ */
