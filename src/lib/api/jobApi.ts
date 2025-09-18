@@ -1598,3 +1598,40 @@ export const getHrdEducations = async (filters?: {
     throw error;
   }
 };
+
+// 교육 프로그램 찜 목록 조회
+export const getEducationBookmarks = async (): Promise<string[]> => {
+  try {
+    const token = getAccessToken();
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const response = await fetch('/api/heart-lists/edu/history', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch education bookmarks');
+    }
+
+    const result = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+
+    // API 응답에서 교육 프로그램 ID 목록 추출
+    return (
+      result.data?.map(
+        (item: { trprId?: string; id?: string }) => item.trprId || item.id
+      ) || []
+    );
+  } catch (error) {
+    console.error('Error fetching education bookmarks:', error);
+    throw error;
+  }
+};
