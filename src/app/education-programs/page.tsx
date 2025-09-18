@@ -13,6 +13,7 @@ import {
   getRecommendedEducations,
   getAllEducationsAnonymous,
   getHrdEducations,
+  getEducationBookmarks,
 } from '@/lib/api/jobApi';
 import { EducationSummary } from '@/types/job';
 
@@ -54,7 +55,23 @@ export default function EducationPrograms() {
     if (!loggedIn) {
       setActiveTab('all');
     }
+
+    // 로그인된 경우 찜 목록 로드
+    if (loggedIn) {
+      loadBookmarks();
+    }
   }, []);
+
+  // 찜 목록 로드 함수
+  const loadBookmarks = async () => {
+    try {
+      const bookmarkIds = await getEducationBookmarks();
+      setFavorites(new Set(bookmarkIds));
+      console.log('EducationPrograms - Loaded bookmarks:', bookmarkIds);
+    } catch (error) {
+      console.error('Error loading education bookmarks:', error);
+    }
+  };
 
   // 검색어 디바운싱 (500ms 지연)
   useEffect(() => {
@@ -258,6 +275,7 @@ export default function EducationPrograms() {
                           key={education.trprId || index}
                           education={education}
                           onToggleBookmark={toggleFavorite}
+                          isBookmarked={favorites.has(education.trprId || '')}
                         />
                       );
                     })}
@@ -278,6 +296,7 @@ export default function EducationPrograms() {
                           }
                           education={education}
                           onToggleBookmark={toggleFavorite}
+                          isBookmarked={favorites.has(education.trprId || '')}
                         />
                       );
                     })}

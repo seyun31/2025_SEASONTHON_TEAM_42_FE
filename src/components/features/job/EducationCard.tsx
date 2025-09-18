@@ -187,15 +187,17 @@ const DetailItem = ({
 interface EducationCardProps {
   education: EducationSummary;
   onToggleBookmark: (educationId: string) => void;
+  isBookmarked?: boolean;
 }
 
 export default function EducationCard({
   education,
   onToggleBookmark,
+  isBookmarked = false,
 }: EducationCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isBookmark, setIsBookmark] = useState(education.isBookmark || false);
+  const [isBookmark, setIsBookmark] = useState(isBookmarked);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -203,6 +205,11 @@ export default function EducationCard({
     const userData = getUserData();
     setIsLoggedIn(!!userData);
   }, []);
+
+  // isBookmarked prop이 변경될 때 isBookmark 상태 업데이트
+  useEffect(() => {
+    setIsBookmark(isBookmarked);
+  }, [isBookmarked]);
 
   const handleToggleBookmark = (educationId: string) => {
     setIsBookmark(!isBookmark);
@@ -355,10 +362,10 @@ export default function EducationCard({
                     handleToggleBookmark(education.trprId);
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
-                    isBookmark ? 'text-gray-300' : 'text-yellow-400'
+                    isBookmark ? 'text-yellow-400' : 'text-gray-300'
                   }`}
                 >
-                  {isBookmark ? <PiStarThin /> : <HiStar />}
+                  {isBookmark ? <HiStar /> : <PiStarThin />}
                 </button>
               </div>
             </div>
