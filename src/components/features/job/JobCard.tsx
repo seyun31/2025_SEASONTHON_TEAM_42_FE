@@ -229,9 +229,36 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
     setIsLoggedIn(!!userData);
   }, []);
 
-  const handleToggleScrap = (jobId: string) => {
-    setIsScrap(!isScrap);
-    onToggleScrap(jobId);
+  const handleToggleScrap = async (jobId: string) => {
+    try {
+      if (isScrap) {
+        // 북마크 삭제
+        const response = await fetch(
+          `/api/heart-lists/job/delete?jobId=${jobId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+        if (response.ok) {
+          setIsScrap(false);
+        }
+      } else {
+        // 북마크 저장
+        const response = await fetch('/api/heart-lists/job/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ jobId }),
+        });
+        if (response.ok) {
+          setIsScrap(true);
+        }
+      }
+      onToggleScrap(jobId);
+    } catch (error) {
+      console.error('북마크 처리 중 오류:', error);
+    }
   };
 
   const handleCardClick = () => {

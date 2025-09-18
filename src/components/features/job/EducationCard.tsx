@@ -192,35 +192,33 @@ export default function EducationCard({
 
   const handleToggleBookmark = async (educationId: string) => {
     try {
-      const endpoint = isBookmark
-        ? `/api/heart-lists/edu/delete?jobId=${educationId}`
-        : '/api/heart-lists/edu/save';
-
-      const requestOptions: RequestInit = {
-        method: isBookmark ? 'DELETE' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      };
-
-      // POST 요청인 경우에만 body 추가
-      if (!isBookmark) {
-        requestOptions.body = JSON.stringify({ jobId: parseInt(educationId) });
-      }
-
-      const response = await fetch(endpoint, requestOptions);
-      const data = await response.json();
-
-      if (data.result === 'SUCCESS') {
-        // 성공 시 상태 업데이트
-        setIsBookmark(!isBookmark);
-        onToggleBookmark(educationId);
-        console.log(isBookmark ? '북마크 해제 성공' : '북마크 추가 성공');
+      if (isBookmark) {
+        // 북마크 삭제
+        const response = await fetch(
+          `/api/heart-lists/job/delete?educationId=${educationId}`,
+          {
+            method: 'DELETE',
+          }
+        );
+        if (response.ok) {
+          setIsBookmark(false);
+        }
       } else {
-        console.error('북마크 토글 실패:', data.error);
+        // 북마크 저장
+        const response = await fetch('/api/heart-lists/job/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ educationId }),
+        });
+        if (response.ok) {
+          setIsBookmark(true);
+        }
       }
+      onToggleBookmark(educationId);
     } catch (error) {
-      console.error('북마크 토글 에러:', error);
+      console.error('북마크 처리 중 오류:', error);
     }
   };
 
