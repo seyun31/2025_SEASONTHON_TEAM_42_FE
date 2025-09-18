@@ -21,8 +21,12 @@ export default function EducationPrograms() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>('custom');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
   const [educations, setEducations] = useState<EducationSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalElements, setTotalElements] = useState<number>(0);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] =
     useState<string>('');
@@ -44,16 +48,14 @@ export default function EducationPrograms() {
     const token = getAccessToken();
     const loggedIn = !!(userData?.name && token);
 
-    console.log('EducationPrograms - Login check:', {
-      userData,
-      token,
-      loggedIn,
-    });
     setIsLoggedIn(loggedIn);
+    setIsAuthChecked(true);
 
-    // 비로그인 시 전체교육 탭으로 설정
+    // 비로그인 시 전체교육 탭으로 설정, 로그인 시 맞춤교육으로 설정
     if (!loggedIn) {
       setActiveTab('all');
+    } else {
+      setActiveTab('custom');
     }
 
     // 로그인된 경우 찜 목록 로드
@@ -67,7 +69,6 @@ export default function EducationPrograms() {
     try {
       const bookmarkIds = await getEducationBookmarks();
       setFavorites(new Set(bookmarkIds));
-      console.log('EducationPrograms - Loaded bookmarks:', bookmarkIds);
     } catch (error) {
       console.error('Error loading education bookmarks:', error);
     }
@@ -82,107 +83,143 @@ export default function EducationPrograms() {
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
-  // 탭 변경 시 데이터 로드
-  useEffect(() => {
-    const fetchEducations = async () => {
-      try {
-        console.log('EducationPrograms - Fetching educations:', {
-          activeTab,
-          isLoggedIn,
-          filters,
-          debouncedSearchKeyword,
-        });
-        setIsLoading(true);
+  // 데이터 로드 함수
+  const fetchEducations = async (page: number = 1) => {
+    try {
+      setIsLoading(true);
+      let educationData: EducationSummary[] = [];
+      let totalElements = 0;
 
-        let educationData: EducationSummary[] = [];
-
-        if (isLoggedIn) {
-          // 로그인 시
-          if (activeTab === 'custom') {
-            // 맞춤 교육: /education/recommend API 사용
-            console.log(
-              'EducationPrograms - Fetching recommended educations...'
-            );
-            educationData = await getRecommendedEducations();
-            console.log(
-              'EducationPrograms - Recommended educations result:',
-              educationData
-            );
-          } else {
-            // 전체 교육: /education/hrd-course API 사용
-            console.log('EducationPrograms - Fetching HRD educations...');
-            console.log('EducationPrograms - HRD API params:', {
-              keyword: debouncedSearchKeyword || undefined,
-              pageNo: 1,
-              pageSize: 20,
-              startYmd: '20250101',
-              endYmd: '20251231',
-            });
-            educationData = await getHrdEducations({
-              keyword: debouncedSearchKeyword || undefined,
-              pageNo: 1,
-              pageSize: 20,
-              startYmd: '20250101',
-              endYmd: '20251231',
-            });
-            console.log(
-              'EducationPrograms - HRD educations result:',
-              educationData
-            );
-          }
+      if (isLoggedIn) {
+        // 로그인 시
+        if (activeTab === 'custom') {
+          // 맞춤 교육: /education/recommend API 사용
+          educationData = await getRecommendedEducations();
+          totalElements = educationData.length; // 맞춤 교육은 페이지네이션이 없을 수 있음
         } else {
-          // 비로그인 시: /education/all/anonymous API 사용
-          console.log('EducationPrograms - Fetching anonymous educations...');
-          educationData = await getAllEducationsAnonymous({
+          // 전체 교육: /education/hrd-course API 사용
+          const result = await getHrdEducations({
             keyword: debouncedSearchKeyword || undefined,
-            workLocation:
-              filters.selectedDistricts.length > 0
-                ? filters.selectedDistricts.join(',')
-                : undefined,
+            pageNo: page,
+            pageSize: 10,
+            startYmd: '20250101',
+            endYmd: '20251231',
           });
-          console.log(
-            'EducationPrograms - Anonymous educations result:',
-            educationData
-          );
+          // EducationDto를 EducationSummary 형식으로 변환
+          educationData = (result.educationDtoList || []).map((edu) => ({
+            id: edu.educationId.toString(),
+            educationId: edu.educationId,
+            trprId: edu.educationId.toString(),
+            title: edu.title,
+            subTitle: edu.subTitle,
+            institution: '',
+            address: edu.address,
+            traStartDate: edu.traStartDate,
+            traEndDate: edu.traEndDate,
+            trainTarget: '',
+            contents: '',
+            certificate: '',
+            grade: '',
+            regCourseMan: '',
+            courseMan: edu.courseMan,
+            realMan: '',
+            yardMan: '',
+            telNo: '',
+            stdgScor: '',
+            eiEmplCnt3: '',
+            eiEmplRate3: '',
+            eiEmplCnt3Gt10: '',
+            eiEmplRate6: '',
+            ncsCd: '',
+            trprDegr: edu.trprDegr,
+            instCd: '',
+            trngAreaCd: '',
+            trainTargetCd: '',
+            trainstCstId: '',
+            subTitleLink: '',
+            titleLink: edu.titleLink,
+            titleIcon: '',
+            imageUrl: edu.imageUrl,
+            isBookmark: edu.isBookmark,
+            recommendScore: edu.score ?? undefined,
+          }));
+          totalElements = result.totalElements || 0;
         }
-
-        console.log(
-          'EducationPrograms - Final educations fetched:',
-          educationData.length,
-          educationData
-        );
-
-        // 데이터가 제대로 있는지 확인
-        if (educationData.length > 0) {
-          console.log(
-            'EducationPrograms - First education item:',
-            educationData[0]
-          );
-        } else {
-          console.log('EducationPrograms - No education data received');
-        }
-
-        // null이나 빈 배열인 경우 처리
-        if (!educationData || educationData.length === 0) {
-          console.log(
-            'EducationPrograms - No educations found, setting empty array'
-          );
-          setEducations([]);
-          return;
-        }
-
-        setEducations(educationData);
-      } catch (error) {
-        console.error('Error fetching educations:', error);
-        // 에러 시 빈 배열로 설정
-        setEducations([]);
-      } finally {
-        setIsLoading(false);
+      } else {
+        // 비로그인 시: /education/all/anonymous API 사용
+        const result = await getAllEducationsAnonymous({
+          keyword: debouncedSearchKeyword || undefined,
+          startYmd: '',
+          endYmd: '',
+        });
+        // EducationDto를 EducationSummary 형식으로 변환
+        educationData = (result.educationDtoList || []).map((edu) => ({
+          id: edu.educationId.toString(),
+          educationId: edu.educationId,
+          trprId: edu.educationId.toString(),
+          title: edu.title,
+          subTitle: edu.subTitle,
+          institution: '',
+          address: edu.address,
+          traStartDate: edu.traStartDate,
+          traEndDate: edu.traEndDate,
+          trainTarget: '',
+          contents: '',
+          certificate: '',
+          grade: '',
+          regCourseMan: '',
+          courseMan: edu.courseMan,
+          realMan: '',
+          yardMan: '',
+          telNo: '',
+          stdgScor: '',
+          eiEmplCnt3: '',
+          eiEmplRate3: '',
+          eiEmplCnt3Gt10: '',
+          eiEmplRate6: '',
+          ncsCd: '',
+          trprDegr: edu.trprDegr,
+          instCd: '',
+          trngAreaCd: '',
+          trainTargetCd: '',
+          trainstCstId: '',
+          subTitleLink: '',
+          titleLink: edu.titleLink,
+          titleIcon: '',
+          imageUrl: edu.imageUrl,
+          isBookmark: edu.isBookmark,
+          recommendScore: edu.score ?? undefined,
+        }));
+        totalElements = result.totalElements || 0;
       }
-    };
 
-    fetchEducations();
-  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
+      setEducations(educationData);
+      setTotalElements(totalElements);
+      setTotalPages(Math.ceil(totalElements / 10));
+    } catch (error) {
+      console.error('Error fetching educations:', error);
+      setEducations([]);
+      setTotalElements(0);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 탭, 필터, 검색어 변경 시 첫 페이지로 데이터 로드
+  useEffect(() => {
+    if (!isAuthChecked) return;
+
+    setCurrentPage(1);
+    fetchEducations(1);
+  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword, isAuthChecked]);
+
+  // 페이지 변경 시 데이터 로드
+  useEffect(() => {
+    if (currentPage > 1 && isAuthChecked) {
+      fetchEducations(currentPage);
+    }
+  }, [currentPage]);
 
   const toggleFavorite = (educationId: string) => {
     const newFavorites = new Set(favorites);
@@ -249,46 +286,28 @@ export default function EducationPrograms() {
               />
             )}
 
-            {/* 빈 상태 처리 */}
-            {educations.length === 0 ? (
+            {/* 빈 상태 처리 - 로그인 상태에서만 표시 */}
+            {educations.length === 0 && isLoggedIn ? (
               <EmptyEducations isLoggedIn={isLoggedIn} activeTab={activeTab} />
-            ) : (
-              <div className="flex flex-col md:flex-row gap-6 mt-12">
-                {(() => {
-                  console.log(
-                    'EducationPrograms - Rendering educations:',
-                    educations.length,
-                    educations
-                  );
-                  return null;
-                })()}
-                <div className="flex flex-col gap-6 flex-1">
-                  {educations
-                    .slice(0, Math.ceil(educations.length / 2))
-                    .map((education, index) => {
-                      console.log(
-                        `EducationPrograms - Rendering education ${index}:`,
-                        education
-                      );
-                      return (
+            ) : educations.length > 0 ? (
+              <>
+                <div className="flex flex-col md:flex-row gap-6 mt-12">
+                  <div className="flex flex-col gap-6 flex-1">
+                    {educations
+                      .slice(0, Math.ceil(educations.length / 2))
+                      .map((education, index) => (
                         <EducationCard
                           key={education.trprId || index}
                           education={education}
                           onToggleBookmark={toggleFavorite}
                           isBookmarked={favorites.has(education.trprId || '')}
                         />
-                      );
-                    })}
-                </div>
-                <div className="flex flex-col gap-6 flex-1">
-                  {educations
-                    .slice(Math.ceil(educations.length / 2))
-                    .map((education, index) => {
-                      console.log(
-                        `EducationPrograms - Rendering education ${index + Math.ceil(educations.length / 2)}:`,
-                        education
-                      );
-                      return (
+                      ))}
+                  </div>
+                  <div className="flex flex-col gap-6 flex-1">
+                    {educations
+                      .slice(Math.ceil(educations.length / 2))
+                      .map((education, index) => (
                         <EducationCard
                           key={
                             education.trprId ||
@@ -298,11 +317,83 @@ export default function EducationPrograms() {
                           onToggleBookmark={toggleFavorite}
                           isBookmarked={favorites.has(education.trprId || '')}
                         />
+                      ))}
+                  </div>
+                </div>
+                {/* 페이지네이션 */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+                    {/* 첫 페이지 버튼 */}
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      &lt;&lt;
+                    </button>
+
+                    {/* 이전 버튼 */}
+                    <button
+                      onClick={() =>
+                        setCurrentPage(Math.max(1, currentPage - 1))
+                      }
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      &lt;
+                    </button>
+
+                    {/* 페이지 번호들 */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          className={`min-w-[40px] px-4 py-2 rounded-lg border font-medium ${
+                            currentPage === pageNum
+                              ? 'bg-primary-90 text-white border-primary-90 shadow-md'
+                              : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
                       );
                     })}
-                </div>
-              </div>
-            )}
+
+                    {/* 다음 버튼 */}
+                    <button
+                      onClick={() =>
+                        setCurrentPage(Math.min(totalPages, currentPage + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      &gt;
+                    </button>
+
+                    {/* 마지막 페이지 버튼 */}
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      &gt;&gt;
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : null}
           </div>
         </section>
       </main>

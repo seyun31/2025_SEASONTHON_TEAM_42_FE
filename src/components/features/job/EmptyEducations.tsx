@@ -37,7 +37,7 @@ export default function EmptyEducations({
     if (isLoggedIn && activeTab === 'custom') {
       return '/ai-chat/roadmap';
     }
-    return '/education-programs';
+    return '/education-programs?tab=all';
   };
 
   return (

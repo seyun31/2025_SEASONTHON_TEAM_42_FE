@@ -7,6 +7,16 @@ import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
 
+// 급여 포맷팅 함수
+const formatSalary = (salary: string | null | undefined): string => {
+  if (!salary) return '급여 미정';
+
+  // 숫자와 원 패턴 찾기 (예: "시급 10030원" -> "시급 10,030원")
+  return salary.replace(/(\d+)원/g, (match, number) => {
+    return parseInt(number).toLocaleString('ko-KR') + '원';
+  });
+};
+
 // 디데이 계산 함수
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
   if (!closingDate) return 'D-?';
@@ -224,7 +234,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
-  }, []);
+    // job.isScrap 속성으로 초기 북마크 상태 설정
+    setIsScrap(job.isScrap || false);
+  }, [job.isScrap]);
 
   const handleToggleScrap = async (jobId: string) => {
     try {
@@ -357,7 +369,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
         value={job.experience || '경력 미정'}
         isPrimary
       />
-      <DetailItem label="급여" value={job.salary || '급여 미정'} isPrimary />
+      <DetailItem label="급여" value={formatSalary(job.salary)} isPrimary />
       <DetailItem label="근무기간" value={job.workPeriod} />
       <DetailItem label="고용형태" value={job.employmentType} />
     </div>
@@ -490,7 +502,7 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                   급여
                 </span>
                 <span className="text-base md:text-body-medium-medium text-primary-90 font-semibold">
-                  {job.salary || '급여 미정'}
+                  {formatSalary(job.salary)}
                 </span>
               </div>
             </div>
