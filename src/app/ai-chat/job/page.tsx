@@ -13,6 +13,11 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatFlow } from '@/data/ai-chat-job-list';
 import { UserResponse } from '@/types/user';
 import { generateExpertType } from '@/utils/expertTypeGenerator';
+import {
+  loadPreviousConversation,
+  checkChatHistory as checkChatHistoryUtil,
+} from '@/utils/chatHistory';
+import ReJobCardModal from '@/components/features/chat/ReJobCardModal';
 
 interface Occupation {
   imageUrl: string;
@@ -88,191 +93,52 @@ function AIChatJobContent() {
   const [historyChecked, setHistoryChecked] = useState(false);
   const [hasExistingConversation, setHasExistingConversation] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showMoreJobCardsButton, setShowMoreJobCardsButton] = useState(false);
+  const [showReJobCardModal, setShowReJobCardModal] = useState(false);
 
   // 이전 대화 기록 불러오기 함수
-  const loadPreviousConversation = useCallback(async () => {
+  const loadPreviousConversationHandler = useCallback(async () => {
     if (isLoadingHistory) return; // 이미 로딩 중이면 중복 호출 방지
     setIsLoadingHistory(true);
 
     try {
-      // 1. 채팅 대화 기록 불러오기
-      try {
-        const chatResponse = await fetch('/api/chat/jobs/history/answer');
-        const chatData = await chatResponse.json();
-
-        if (
-          chatData.result === 'SUCCESS' &&
-          chatData.data &&
-          Object.keys(chatData.data).length > 0
-        ) {
-          // 실제 대화 기록이 있는지 확인 (예: answers 배열 등)
-
-          // 실제 API 응답 구조에 따라 대화 복원
-          const data = chatData.data;
-
-          // 각 필드에 대응하는 질문 ID로 대화 복원 (순서대로)
-          const questionsToRestore = [
-            { field: 'job', step: 1 },
-            { field: 'experience', step: 2 },
-            { field: 'certificateOrSkill', step: 3 },
-            { field: 'personalityType', step: 4 },
-            { field: 'interests', step: 5 },
-            { field: 'preferredWorkStyles', step: 6 },
-            { field: 'avoidConditions', step: 7 },
-            { field: 'preferredWorkStyles', step: 8 }, // 근무 시간·방식
-            { field: 'physicalCondition', step: 9 }, // 체력 상태
-            { field: 'educationAndCareerGoal', step: 10 },
-          ];
-
-          questionsToRestore.forEach(({ field, step }) => {
-            if (data[field] && data[field].trim() !== '') {
-              const question = aiChatFlow.questions.find(
-                (q) => q.step === step
-              );
-              if (question) {
-                addBotMessage(question.message.join('\n'), question.id);
-                addUserMessage(data[field], step);
-              }
-            }
-          });
-        } else {
-        }
-      } catch (chatError) {
-        console.warn('채팅 기록 불러오기 실패:', chatError);
-        // 채팅 기록 실패는 무시하고 계속 진행
-      }
-
-      // 2. 강점 리포트 기록 불러오기 (아직 로드되지 않은 경우에만)
-      if (strengthReports.length === 0) {
-        try {
-          const strengthHistoryResponse = await fetch(
-            '/api/chat/strength/history'
-          );
-          const strengthHistoryData = await strengthHistoryResponse.json();
-
-          if (
-            strengthHistoryData.result === 'SUCCESS' &&
-            strengthHistoryData.data &&
-            strengthHistoryData.data.reportList &&
-            strengthHistoryData.data.reportList.length > 0
-          ) {
-            const reports = strengthHistoryData.data.reportList.map(
-              (report: ApiStrengthReport) => ({
-                strength: report.strength.replace(/입니다\.$/, ''),
-                experience: report.experience,
-                keyword: report.keyword,
-                job: report.job,
-              })
-            );
-
-            setStrengthReports(reports);
-
-            // 강점 리포트 완료 메시지 추가
-            const expertType = generateExpertType(reports[0].strength);
-            addBotMessage(
-              `수고 많으셨어요 ${userName}! 🙏\n${userName}은 **${expertType}**입니다.`
-            );
-
-            // 강점 리포트 카드들 추가
-            reports.forEach((report: StrengthReport) => {
-              addComponentMessage('strengthReport', report);
-            });
-
-            setStrengthReportAdded(true);
-          }
-        } catch (strengthError) {
-          console.warn('강점 리포트 기록 불러오기 실패:', strengthError);
-          // 강점 리포트 실패는 무시하고 계속 진행
-        }
-      }
-
-      // 3. 직업 카드 기록 불러오기 (아직 로드되지 않은 경우에만)
-      if (!jobRecommendations) {
-        try {
-          const jobCardResponse = await fetch(
-            '/api/chat/jobs/recommend/occupation'
-          );
-          const jobCardData = await jobCardResponse.json();
-
-          if (
-            jobCardData.result === 'SUCCESS' &&
-            jobCardData.data &&
-            Object.keys(jobCardData.data).length > 0
-          ) {
-            // 직업 추천 완료 메시지 추가
-            addBotMessage(
-              '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n별 아이콘을 눌러 관심목록에 저장하세요!'
-            );
-
-            // 직업 카드 추가
-            addComponentMessage('jobCards', jobCardData.data);
-            setJobRecommendations(jobCardData.data);
-            setJobMessageAdded(true);
-            setShowJobCards(true);
-          } else {
-          }
-        } catch (jobCardError) {
-          console.warn('직업 카드 기록 불러오기 실패:', jobCardError);
-          // 직업 카드 실패는 무시하고 계속 진행
-        }
-      }
-
-      // 모든 기록 불러오기 완료 후 새로운 대화 시작을 위한 준비
-      addBotMessage(
-        '이전 대화 기록입니다.😊 \n아래에서 새로운 상담을 시작하세요!'
-      );
-      addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
-    } catch (error) {
-      console.error('이전 대화 기록 불러오기 전체 실패:', error);
-      // 실패 시에도 intro 메시지 표시
-      addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
-      setShowCurrentQuestion(true);
+      await loadPreviousConversation({
+        userName,
+        aiChatFlow,
+        strengthReports,
+        jobRecommendations,
+        addBotMessage,
+        addUserMessage,
+        addComponentMessage,
+        setStrengthReports,
+        setJobRecommendations,
+        setJobMessageAdded,
+        setStrengthReportAdded,
+        setShowJobCards,
+      });
     } finally {
       setIsLoadingHistory(false);
     }
   }, [
-    addBotMessage,
-    addComponentMessage,
-    addUserMessage,
-    aiChatFlow.intro.messages,
     userName,
-    generateExpertType,
-    isLoadingHistory,
-    strengthReports.length,
+    aiChatFlow,
+    strengthReports,
     jobRecommendations,
+    addBotMessage,
+    addUserMessage,
+    addComponentMessage,
+    isLoadingHistory,
   ]);
 
   // 채팅 히스토리 확인 함수
-  const checkChatHistory = useCallback(async () => {
+  const checkChatHistoryHandler = useCallback(async () => {
     try {
-      const response = await fetch('/api/chat/jobs/history/answer');
+      const hasHistory = await checkChatHistoryUtil();
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // API 응답에서 에러 메시지 확인
-      if (data.result !== 'SUCCESS') {
-        console.warn(
-          '채팅 히스토리 조회 실패:',
-          data.error || '조건에 맞는 정보가 없습니다'
-        );
-        setHasExistingConversation(false);
-        return;
-      }
-
-      // data가 없거나 빈 객체인 경우도 처리
-      if (!data.data || Object.keys(data.data).length === 0) {
-        setHasExistingConversation(false);
-        return;
-      }
-
-      if (data.data?.job && data.data.job !== null && data.data.job !== '') {
+      if (hasHistory) {
         // 이전 대화가 있는 경우 - 기존 대화 데이터 모두 불러와서 표시
         setHasExistingConversation(true);
-        loadPreviousConversation();
+        loadPreviousConversationHandler();
       } else {
         // job이 null이거나 빈 문자열이면 처음부터 시작 (기존 로직)
         setHasExistingConversation(false);
@@ -284,14 +150,14 @@ function AIChatJobContent() {
     } finally {
       setHistoryChecked(true);
     }
-  }, [loadPreviousConversation]);
+  }, [loadPreviousConversationHandler]);
 
   // 페이지 로드 시 채팅 히스토리 확인
   useEffect(() => {
     if (!userLoading && userData && !historyChecked) {
-      checkChatHistory();
+      checkChatHistoryHandler();
     }
-  }, [userLoading, userData, historyChecked, checkChatHistory]);
+  }, [userLoading, userData, historyChecked, checkChatHistoryHandler]);
 
   // 초기 intro 메시지 표시 (이전 대화가 없는 경우에만)
   useEffect(() => {
@@ -426,7 +292,10 @@ function AIChatJobContent() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const recommendResponse = await fetch(
-        '/api/chat/jobs/recommend/occupation'
+        '/api/chat/jobs/recommend/post-occupation',
+        {
+          method: 'POST',
+        }
       );
       const recommendData = await recommendResponse.json();
 
@@ -469,12 +338,14 @@ function AIChatJobContent() {
 
       setTimeout(() => {
         addBotMessage(
-          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n별 아이콘을 눌러 관심목록에 저장하세요!'
+          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n"⭐"아이콘을 눌러 관심목록에 저장하고, 뒷면도 확인해보세요!'
         );
 
         setTimeout(() => {
           addComponentMessage('jobCards', jobRecommendations);
           setShowJobCards(true);
+          // 새로 생성된 직업 카드에만 버튼 표시
+          setShowMoreJobCardsButton(true);
         }, 1500);
       }, 500);
     }
@@ -621,6 +492,7 @@ function AIChatJobContent() {
     setStrengthReportAdded(false);
     setCompletionFlowStarted(false);
     setHasExistingConversation(false); // 새로운 대화로 간주
+    setShowMoreJobCardsButton(false); // 버튼 상태 초기화
 
     // intro 메시지부터 시작
     setTimeout(() => {
@@ -629,6 +501,62 @@ function AIChatJobContent() {
       nextStep(); // step 1로 이동
       setShowCurrentQuestion(true);
     }, 100);
+  };
+
+  const handleGetMoreJobCards = () => {
+    setShowReJobCardModal(true);
+  };
+
+  const handleReJobCardConfirm = async () => {
+    setShowReJobCardModal(false);
+
+    try {
+      // 로딩 메시지 표시
+      addComponentMessage('loading', {
+        loadingType: 'jobRecommendation',
+      });
+
+      // 추가 직업 추천 API 호출
+      const response = await fetch('/api/chat/jobs/recommend/post-occupation', {
+        method: 'POST',
+      });
+      const data = await response.json();
+
+      if (data.result === 'SUCCESS') {
+        // 로딩 메시지 제거
+        removeMessagesByType('loading');
+
+        // 기존 직업 카드를 제거하고 새로운 카드로 교체
+        removeMessagesByType('jobCards');
+
+        // 새로운 직업 카드 데이터로 업데이트
+        setJobRecommendations(data.data);
+
+        // 잠시 후 업데이트된 카드 표시
+        setTimeout(() => {
+          addBotMessage('새로운 추천 직업 Top3입니다. 뒷면도 확인해보세요!');
+
+          setTimeout(() => {
+            addComponentMessage('jobCards', data.data);
+          }, 300);
+        }, 500);
+      } else {
+        removeMessagesByType('loading');
+        addBotMessage(
+          '죄송합니다. 추가 직업 추천을 가져오는데 실패했습니다. 다시 시도해주세요.'
+        );
+      }
+    } catch (error) {
+      console.error('추가 직업 카드 요청 실패:', error);
+      removeMessagesByType('loading');
+      addBotMessage(
+        '죄송합니다. 네트워크 오류가 발생했습니다. 다시 시도해주세요.'
+      );
+    }
+  };
+
+  const handleReJobCardCancel = () => {
+    setShowReJobCardModal(false);
   };
 
   const currentQuestion = getCurrentQuestion();
@@ -712,6 +640,8 @@ function AIChatJobContent() {
           onOptionClick={handleOptionClick}
           onCompleteClick={handleCompleteClick}
           onSkipClick={handleSkipClick}
+          onGetMoreJobCards={handleGetMoreJobCards}
+          showMoreJobCardsButton={showMoreJobCardsButton}
         />
 
         {/* 진행바 및 입력창 컨테이너
@@ -732,6 +662,14 @@ function AIChatJobContent() {
           />
         </div>
       </div>
+
+      {/* ReJobCardModal */}
+      {showReJobCardModal && (
+        <ReJobCardModal
+          onConfirm={handleReJobCardConfirm}
+          onCancel={handleReJobCardCancel}
+        />
+      )}
     </>
   );
 }

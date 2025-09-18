@@ -5,6 +5,7 @@ import MessageItem from '@/components/ui/MessageItem';
 import MessageOptionItem from '@/components/ui/MessageOptionItem';
 import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import FlipCard from '@/components/common/FlipCard';
+import { LuRefreshCcw } from 'react-icons/lu';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
 
 interface StrengthReportData {
@@ -35,6 +36,8 @@ interface MessageSectionProps {
   onOptionClick?: (option: string) => void;
   onCompleteClick?: () => void;
   onSkipClick?: () => void;
+  onGetMoreJobCards?: () => void;
+  showMoreJobCardsButton?: boolean;
   children?: React.ReactNode;
 }
 
@@ -49,6 +52,8 @@ export default function MessageSection({
   onOptionClick,
   onCompleteClick,
   onSkipClick,
+  onGetMoreJobCards,
+  showMoreJobCardsButton = false,
   children,
 }: MessageSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -135,24 +140,42 @@ export default function MessageSection({
     }
 
     return (
-      <div className="flex gap-4 w-full mt-4">
-        {validOccupations.map((occupation: Occupation, jobIndex: number) => (
-          <FlipCard
-            key={jobIndex}
-            jobImage={occupation.imageUrl}
-            jobTitle={occupation.occupationName}
-            jobDescription={occupation.description}
-            recommendationScore={parseInt(occupation.score) || 0}
-            strengths={{
-              title: occupation.strength,
-              percentage: parseInt(occupation.score) || 0,
-              description: occupation.strength,
-            }}
-            memberOccupationId={occupation.memberOccupationId}
-            isBookmark={occupation.isBookmark}
-            onJobPostingClick={() => {}}
-          />
-        ))}
+      <div className="w-full mt-4">
+        {/* 헤더: 추천 직업 카드 더 받기 버튼 */}
+        <div className="flex justify-end cursor-pointer mb-3 lg:mr-10">
+          {onGetMoreJobCards && showMoreJobCardsButton && (
+            <button
+              onClick={onGetMoreJobCards}
+              className="text-gray-50 flex items-center gap-3 cursor-pointer"
+            >
+              <span className="font-pretendard font-medium text-[20px] leading-[150%] tracking-[-0.025em]">
+                추천 직업 카드 더 받기
+              </span>
+              <LuRefreshCcw className="w-6 h-6 text-gray-50" />
+            </button>
+          )}
+        </div>
+
+        {/* 직업 카드들 */}
+        <div className="flex gap-4 w-full">
+          {validOccupations.map((occupation: Occupation, jobIndex: number) => (
+            <FlipCard
+              key={jobIndex}
+              jobImage={occupation.imageUrl}
+              jobTitle={occupation.occupationName}
+              jobDescription={occupation.description}
+              recommendationScore={parseInt(occupation.score) || 0}
+              strengths={{
+                title: occupation.strength,
+                percentage: parseInt(occupation.score) || 0,
+                description: occupation.strength,
+              }}
+              memberOccupationId={occupation.memberOccupationId}
+              isBookmark={occupation.isBookmark}
+              onJobPostingClick={() => {}}
+            />
+          ))}
+        </div>
       </div>
     );
   };
