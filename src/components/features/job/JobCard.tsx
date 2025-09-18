@@ -58,7 +58,7 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
     } else {
       return `D-${daysLeft}`;
     }
-  } catch (error) {
+  } catch {
     return 'D-?'; // 에러 발생 시 D-? 반환
   }
 };
@@ -211,7 +211,7 @@ interface JobCardProps {
 export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isScrap, setIsScrap] = useState(job.isScrap);
+  const [isScrap, setIsScrap] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -367,10 +367,10 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
                     handleToggleScrap(job.jobId);
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
-                    isScrap ? 'text-gray-300' : 'text-yellow-400'
+                    isScrap ? 'text-yellow-400' : 'text-gray-300'
                   }`}
                 >
-                  {isScrap ? <PiStarThin /> : <HiStar />}
+                  {isScrap ? <HiStar /> : <PiStarThin />}
                 </button>
               </div>
             </div>

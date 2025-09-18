@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { mockRoadmapData, defaultCareerInfo } from '@/data/roadmapData';
 import {
   ChecklistItem,
@@ -10,6 +11,7 @@ import {
 } from '@/types/roadmap';
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
+import { IoMdMore } from 'react-icons/io';
 import {
   toggleRoadMapAction,
   updateRoadmapAction,
@@ -18,9 +20,9 @@ import {
 } from '@/lib/api/jobApi';
 import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
+import CompletionAnimation from '@/components/ui/CompletionAnimation';
 import RoadmapHeader from '@/components/ui/RoadmapHeader';
 import RoadmapRenderer from '@/components/ui/RoadmapRenderer';
-import CompletionAnimation from '@/components/ui/CompletionAnimation';
 import {
   convertApiDataToRoadmapSteps,
   USER_MAP_POSITIONS,
@@ -58,6 +60,17 @@ export default function UserCheckList({
   const [newItemText, setNewItemText] = useState<string>('');
   const [showCompletionAnimation, setShowCompletionAnimation] =
     useState<boolean>(false);
+  const [showFullCompletionAnimation, setShowFullCompletionAnimation] =
+    useState<boolean>(false);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
+  const [openDropdownItem, setOpenDropdownItem] = useState<{
+    stepId: number;
+    itemId: number;
+  } | null>(null);
+  const [deletingItem, setDeletingItem] = useState<{
+    stepId: number;
+    itemId: number;
+  } | null>(null);
 
   // API 데이터를 UI용 데이터로 변환
   useEffect(() => {
@@ -82,6 +95,75 @@ export default function UserCheckList({
       setChecklistItems(mockRoadmapData.checklists);
     }
   }, [roadmapData]);
+
+  // 전체 완료 상태 감지
+  useEffect(() => {
+    if (selectedStepId && checklistItems[selectedStepId]) {
+      const currentChecklist = checklistItems[selectedStepId];
+      const allCompleted = currentChecklist.every((item) => item.completed);
+
+      // 이미 완료된 단계가 아니고, 모든 항목이 완료되었을 때만 애니메이션 표시
+      if (
+        allCompleted &&
+        !completedSteps.has(selectedStepId) &&
+        !showFullCompletionAnimation
+      ) {
+        setShowFullCompletionAnimation(true);
+        setCompletedSteps((prev) => new Set(prev).add(selectedStepId));
+
+        // 애니메이션을 한 번만 보여주기 위해 3초 후 자동으로 false로 설정하고 다음 단계로 이동
+        const timer = setTimeout(() => {
+          setShowFullCompletionAnimation(false);
+          // 다음 단계로 자동 이동
+          const nextStepId = selectedStepId + 1;
+          const maxStepId = Math.max(
+            ...Object.keys(checklistItems).map(Number)
+          );
+          if (nextStepId <= maxStepId) {
+            setSelectedStepId(nextStepId);
+          }
+        }, 3000);
+
+        return () => clearTimeout(timer);
+      }
+    } else {
+      // 단계가 변경되면 전체 완료 애니메이션 상태 리셋
+      setShowFullCompletionAnimation(false);
+    }
+  }, [
+    checklistItems,
+    selectedStepId,
+    showFullCompletionAnimation,
+    completedSteps,
+  ]);
+
+  // 개별 완료 애니메이션 자동 종료
+  useEffect(() => {
+    if (showCompletionAnimation) {
+      const timer = setTimeout(() => {
+        setShowCompletionAnimation(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showCompletionAnimation]);
+
+  // 다른 곳 클릭 시 드롭다운 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdownItem) {
+        closeDropdown();
+      }
+    };
+
+    if (openDropdownItem) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openDropdownItem]);
 
   // 로드맵 단계 데이터 변환
   const roadmapSteps = convertApiDataToRoadmapSteps(
@@ -254,6 +336,7 @@ export default function UserCheckList({
   const cancelEditing = () => {
     setEditingItem(null);
     setEditText('');
+    closeDropdown();
   };
 
   const saveEditing = async () => {
@@ -265,13 +348,12 @@ export default function UserCheckList({
       );
       setEditingItem(null);
       setEditText('');
+      closeDropdown();
     }
   };
 
   const handleDelete = async (stepId: number, itemId: number) => {
-    if (window.confirm('이 항목을 삭제하시겠습니까?')) {
-      await deleteChecklistItem(stepId, itemId);
-    }
+    await deleteChecklistItem(stepId, itemId);
   };
 
   const startAddingNewItem = () => {
@@ -352,6 +434,34 @@ export default function UserCheckList({
     }
   };
 
+  const toggleDropdown = (stepId: number, itemId: number) => {
+    setOpenDropdownItem(
+      openDropdownItem?.stepId === stepId && openDropdownItem?.itemId === itemId
+        ? null
+        : { stepId, itemId }
+    );
+  };
+
+  const closeDropdown = () => {
+    setOpenDropdownItem(null);
+  };
+
+  const startDeleting = (stepId: number, itemId: number) => {
+    setDeletingItem({ stepId, itemId });
+    closeDropdown();
+  };
+
+  const cancelDeleting = () => {
+    setDeletingItem(null);
+  };
+
+  const confirmDelete = async () => {
+    if (deletingItem) {
+      await deleteChecklistItem(deletingItem.stepId, deletingItem.itemId);
+      setDeletingItem(null);
+    }
+  };
+
   // 로드맵이 없거나 API 데이터가 없는 경우
   if (!hasRoadmap || !roadmapData) {
     // 로드맵이 없는 경우 - 단순한 중앙 정렬 레이아웃
@@ -380,14 +490,18 @@ export default function UserCheckList({
   // 로드맵이 있는 경우 - 왼쪽에 로드맵, 오른쪽에 두 개의 카드
   return (
     <>
+      {/* 전체 완료 애니메이션 (큰 크기) */}
       <CompletionAnimation
-        isVisible={showCompletionAnimation}
-        onComplete={() => setShowCompletionAnimation(false)}
-        duration={2000}
+        isVisible={showFullCompletionAnimation}
+        onComplete={() => setShowFullCompletionAnimation(false)}
+        duration={3000}
+        lottieUrl="https://lottie.host/f2b25a20-fa49-4d95-b67c-1018e89ad205/6YAM5nWWhK.lottie"
+        width="100vw"
+        height="100vh"
       />
-      <div className="flex gap-4">
+      <div className="flex flex-col xl:flex-row gap-4">
         {/* 왼쪽 - 로드맵 시각화 */}
-        <RoadmapBackground className="h-[800px] w-[498px] flex-shrink-0">
+        <RoadmapBackground className="h-[400px] sm:h-[600px] xl:h-[800px] w-full xl:w-[498px] flex-shrink-0">
           <RoadmapHeader userName={userName} />
 
           {/* 로드맵 차트 */}
@@ -519,12 +633,7 @@ export default function UserCheckList({
               {/* 왼쪽 섹션 */}
               <div className="flex-[2] flex flex-col justify-between">
                 <div>
-                  <div className="text-primary-90 text-header-medium">
-                    {roadmapData
-                      ? `D+${roadmapData.roadmapInputResponse.dday}`
-                      : defaultCareerInfo.dDay}
-                  </div>
-                  <div className="text-gray-800 text-title-xlarge mt-2">
+                  <div className="text-gray-800 text-title-xlarge">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.career
                       : defaultCareerInfo.jobTitle}
@@ -575,13 +684,29 @@ export default function UserCheckList({
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
           >
+            {/* 개별 항목 완료 애니메이션 (카드 내부) */}
+            {showCompletionAnimation && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className="relative">
+                  <DotLottieReact
+                    src="https://lottie.host/e0634298-f1dc-4561-82eb-90cf7f64d5af/Cmarc8qPeg.lottie"
+                    loop={false}
+                    autoplay={true}
+                    style={{
+                      width: '120px',
+                      height: '120px',
+                    }}
+                  />
+                </div>
+              </div>
+            )}
             {selectedStepId ? (
               // 체크리스트 표시
               <div className="h-full flex flex-col">
                 <div className="flex flex-row items-end gap-2">
                   <div className="text-primary-90 text-header-medium">
                     {apiRoadmapSteps.length > 0
-                      ? `${apiRoadmapSteps[selectedStepId - 1]?.period || ''} ${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
+                      ? `${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
                       : mockRoadmapData.steps.find(
                           (step) => step.id === selectedStepId
                         )?.name || '단계'}
@@ -616,21 +741,26 @@ export default function UserCheckList({
                       </button>
                     </div>
                   )}
-
                   {/* 로딩 상태 */}
-                  {loading && (
-                    <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
-                      <p className="text-blue-700 text-body-medium">
-                        처리 중...
-                      </p>
+                  {/* {loading && (
+                    <div className="mb-4 flex items-center justify-center">
+                      <CompletionAnimation
+                        isVisible={loading}
+                        lottieUrl="https://lottie.host/0f0671f1-cd41-46c7-8bec-b4ee6d9eac7d/55urjx7CQ5.lottie"
+                        width="80px"
+                        height="80px"
+                        duration={0}
+                      />
                     </div>
-                  )}
-
+                  )} */}
                   <div className="space-y-4">
                     {checklistItems[selectedStepId]?.map((item, index) => {
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
                         editingItem?.itemId === item.id;
+                      const isDeleting =
+                        deletingItem?.stepId === selectedStepId &&
+                        deletingItem?.itemId === item.id;
 
                       return (
                         <div key={item.id} className="flex items-center gap-4">
@@ -643,9 +773,15 @@ export default function UserCheckList({
                               className="hover:scale-110 transition-transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               {item.completed ? (
-                                <HiStar className="w-8 h-8 text-secondary2" />
+                                <HiStar
+                                  className="w-8 h-8"
+                                  style={{ color: 'var(--color-secondary2)' }}
+                                />
                               ) : (
-                                <PiStarThin className="w-8 h-8 text-gray-300" />
+                                <PiStarThin
+                                  className="w-8 h-8"
+                                  style={{ color: 'var(--color-secondary2)' }}
+                                />
                               )}
                             </button>
                           </div>
@@ -666,20 +802,44 @@ export default function UserCheckList({
                                   }}
                                   autoFocus
                                 />
-                                <button
-                                  onClick={saveEditing}
-                                  disabled={loading}
-                                  className="px-3 py-1 bg-primary-90 text-white rounded text-body-medium hover:bg-primary-80 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  저장
-                                </button>
-                                <button
-                                  onClick={cancelEditing}
-                                  disabled={loading}
-                                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-body-medium hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  취소
-                                </button>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={saveEditing}
+                                    disabled={loading}
+                                    className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    확인
+                                  </button>
+                                  <button
+                                    onClick={cancelEditing}
+                                    disabled={loading}
+                                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    취소
+                                  </button>
+                                </div>
+                              </div>
+                            ) : isDeleting ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-body-large text-gray-800 flex-1">
+                                  정말 삭제하시겠습니까?
+                                </span>
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={confirmDelete}
+                                    disabled={loading}
+                                    className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    삭제
+                                  </button>
+                                  <button
+                                    onClick={cancelDeleting}
+                                    disabled={loading}
+                                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    취소
+                                  </button>
+                                </div>
                               </div>
                             ) : (
                               <div className="flex items-center gap-2">
@@ -695,30 +855,44 @@ export default function UserCheckList({
                                 >
                                   {item.text}
                                 </span>
-                                <div className="flex gap-1">
+                                {openDropdownItem?.stepId === selectedStepId &&
+                                openDropdownItem?.itemId === item.id ? (
+                                  <div className="flex gap-1">
+                                    <button
+                                      onClick={() => {
+                                        startEditing(
+                                          selectedStepId,
+                                          item.id,
+                                          item.text
+                                        );
+                                        closeDropdown();
+                                      }}
+                                      disabled={loading}
+                                      className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        startDeleting(selectedStepId, item.id);
+                                      }}
+                                      disabled={loading}
+                                      className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      삭제
+                                    </button>
+                                  </div>
+                                ) : (
                                   <button
                                     onClick={() =>
-                                      startEditing(
-                                        selectedStepId,
-                                        item.id,
-                                        item.text
-                                      )
+                                      toggleDropdown(selectedStepId, item.id)
                                     }
                                     disabled={loading}
-                                    className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
-                                    수정
+                                    <IoMdMore className="w-5 h-5 text-gray-500" />
                                   </button>
-                                  <button
-                                    onClick={() =>
-                                      handleDelete(selectedStepId, item.id)
-                                    }
-                                    disabled={loading}
-                                    className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    삭제
-                                  </button>
-                                </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -754,14 +928,14 @@ export default function UserCheckList({
                             <button
                               onClick={saveNewItem}
                               disabled={loading || !newItemText.trim()}
-                              className="px-3 py-1 bg-primary-90 text-white rounded text-body-medium hover:bg-primary-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              추가
+                              확인
                             </button>
                             <button
                               onClick={cancelAddingNewItem}
                               disabled={loading}
-                              className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-body-medium hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               취소
                             </button>
@@ -789,7 +963,7 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="absolute bottom-4 right-4">
+                <div className="absolute top-4 right-4">
                   <img
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"

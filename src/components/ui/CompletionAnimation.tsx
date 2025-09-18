@@ -7,12 +7,18 @@ interface CompletionAnimationProps {
   isVisible: boolean;
   onComplete?: () => void;
   duration?: number;
+  lottieUrl?: string;
+  width?: string;
+  height?: string;
 }
 
 const CompletionAnimation: React.FC<CompletionAnimationProps> = ({
   isVisible,
   onComplete,
   duration = 2000,
+  lottieUrl = 'https://lottiefiles.com/free-animation/confetti-3ofTs67sBx',
+  width = '100vw',
+  height = '100vh',
 }) => {
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -34,12 +40,12 @@ const CompletionAnimation: React.FC<CompletionAnimationProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
       <div className="relative">
         <DotLottieReact
-          src="https://lottiefiles.com/free-animation/confetti-3ofTs67sBx"
+          src={lottieUrl}
           loop={false}
           autoplay={true}
           style={{
-            width: '100vw',
-            height: '100vh',
+            width: width,
+            height: height,
           }}
         />
       </div>
