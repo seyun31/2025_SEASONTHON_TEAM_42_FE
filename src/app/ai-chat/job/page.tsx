@@ -17,6 +17,7 @@ import {
   loadPreviousConversation,
   checkChatHistory as checkChatHistoryUtil,
 } from '@/utils/chatHistory';
+import ReJobCardModal from '@/components/features/chat/ReJobCardModal';
 
 interface Occupation {
   imageUrl: string;
@@ -92,6 +93,8 @@ function AIChatJobContent() {
   const [historyChecked, setHistoryChecked] = useState(false);
   const [hasExistingConversation, setHasExistingConversation] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showMoreJobCardsButton, setShowMoreJobCardsButton] = useState(false);
+  const [showReJobCardModal, setShowReJobCardModal] = useState(false);
 
   // 이전 대화 기록 불러오기 함수
   const loadPreviousConversationHandler = useCallback(async () => {
@@ -332,12 +335,14 @@ function AIChatJobContent() {
 
       setTimeout(() => {
         addBotMessage(
-          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n별 아이콘을 눌러 관심목록에 저장하세요!'
+          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n"⭐"아이콘을 눌러 관심목록에 저장하고, 뒷면도 확인해보세요!'
         );
 
         setTimeout(() => {
           addComponentMessage('jobCards', jobRecommendations);
           setShowJobCards(true);
+          // 새로 생성된 직업 카드에만 버튼 표시
+          setShowMoreJobCardsButton(true);
         }, 1500);
       }, 500);
     }
@@ -484,6 +489,7 @@ function AIChatJobContent() {
     setStrengthReportAdded(false);
     setCompletionFlowStarted(false);
     setHasExistingConversation(false); // 새로운 대화로 간주
+    setShowMoreJobCardsButton(false); // 버튼 상태 초기화
 
     // intro 메시지부터 시작
     setTimeout(() => {
@@ -492,6 +498,60 @@ function AIChatJobContent() {
       nextStep(); // step 1로 이동
       setShowCurrentQuestion(true);
     }, 100);
+  };
+
+  const handleGetMoreJobCards = () => {
+    setShowReJobCardModal(true);
+  };
+
+  const handleReJobCardConfirm = async () => {
+    setShowReJobCardModal(false);
+
+    try {
+      // 로딩 메시지 표시
+      addComponentMessage('loading', {
+        loadingType: 'jobRecommendation',
+      });
+
+      // 추가 직업 추천 API 호출
+      const response = await fetch('/api/chat/jobs/recommend/occupation');
+      const data = await response.json();
+
+      if (data.result === 'SUCCESS') {
+        // 로딩 메시지 제거
+        removeMessagesByType('loading');
+
+        // 기존 직업 카드를 제거하고 새로운 카드로 교체
+        removeMessagesByType('jobCards');
+
+        // 새로운 직업 카드 데이터로 업데이트
+        setJobRecommendations(data.data);
+
+        // 잠시 후 업데이트된 카드 표시
+        setTimeout(() => {
+          addBotMessage('새로운 추천 직업 Top3입니다. 뒷면도 확인해보세요!');
+
+          setTimeout(() => {
+            addComponentMessage('jobCards', data.data);
+          }, 300);
+        }, 500);
+      } else {
+        removeMessagesByType('loading');
+        addBotMessage(
+          '죄송합니다. 추가 직업 추천을 가져오는데 실패했습니다. 다시 시도해주세요.'
+        );
+      }
+    } catch (error) {
+      console.error('추가 직업 카드 요청 실패:', error);
+      removeMessagesByType('loading');
+      addBotMessage(
+        '죄송합니다. 네트워크 오류가 발생했습니다. 다시 시도해주세요.'
+      );
+    }
+  };
+
+  const handleReJobCardCancel = () => {
+    setShowReJobCardModal(false);
   };
 
   const currentQuestion = getCurrentQuestion();
@@ -575,6 +635,8 @@ function AIChatJobContent() {
           onOptionClick={handleOptionClick}
           onCompleteClick={handleCompleteClick}
           onSkipClick={handleSkipClick}
+          onGetMoreJobCards={handleGetMoreJobCards}
+          showMoreJobCardsButton={showMoreJobCardsButton}
         />
 
         {/* 진행바 및 입력창 컨테이너
@@ -595,6 +657,14 @@ function AIChatJobContent() {
           />
         </div>
       </div>
+
+      {/* ReJobCardModal */}
+      {showReJobCardModal && (
+        <ReJobCardModal
+          onConfirm={handleReJobCardConfirm}
+          onCancel={handleReJobCardCancel}
+        />
+      )}
     </>
   );
 }
