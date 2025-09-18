@@ -1,6 +1,5 @@
 'use client';
 
-import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
@@ -71,8 +70,8 @@ export default function JobRecommendationsSection() {
         setJobs(jobData.slice(0, 8));
       } catch (error) {
         console.error('Error fetching jobs:', error);
-        // 에러 시 mock 데이터 사용
-        setJobs(jobRecommendations.slice(0, 8) as unknown as AllResponse[]);
+        // 에러 시 빈 배열 설정
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }
@@ -111,6 +110,7 @@ export default function JobRecommendationsSection() {
       postingDate: job.postingDate,
       closingDate: job.closingDate,
       applyLink: job.applyLink || '#', // API에 applyLink가 없으므로 기본값 설정
+      requiredDocuments: job.requiredDocuments,
       jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
     };

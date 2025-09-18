@@ -108,6 +108,7 @@ function HeartListsContent() {
       postingDate: item.postingDate,
       closingDate: item.closingDate,
       applyLink: '',
+      requiredDocuments: item.requiredDocuments,
       jobRecommendScore: null,
       isScrap: true,
     };

@@ -16,6 +16,7 @@ export interface JobSummary {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   jobRecommendScore: number | null;
   isScrap: boolean;
 }
@@ -35,6 +36,10 @@ export interface ApiResponse<T> {
 
 // 전체 채용 조회 API 응답 타입
 export interface AllResponse {
+  managerPhone: string;
+  recruitNumber: unknown;
+  description: string;
+  jobCodeName: string;
   jobId: number;
   companyName: string;
   companyLogo: string;
@@ -50,6 +55,7 @@ export interface AllResponse {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   imageUrl: string;
   isBookmark: boolean;
   score: number;
@@ -90,6 +96,7 @@ export interface JobDetailResponse {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   isScrap: boolean;
 }
 

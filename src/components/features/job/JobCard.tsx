@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
+import { getJobDetailById } from '@/lib/api/jobApi';
 
 // 디데이 계산 함수
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
@@ -277,6 +278,36 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
     setTimeout(() => setIsAnimating(false), 800);
   };
 
+  const handleApplyClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    try {
+      // job 객체에 requiredDocuments가 이미 있는 경우 바로 사용
+      if (job.requiredDocuments) {
+        window.open(job.requiredDocuments, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      // requiredDocuments가 없는 경우 단건 조회 API 호출
+      const jobDetail = await getJobDetailById(Number(job.jobId));
+
+      if (jobDetail.requiredDocuments) {
+        window.open(
+          jobDetail.requiredDocuments,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      } else {
+        // requiredDocuments가 없으면 기존 applyLink로 이동
+        window.open(job.applyLink, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error('Error fetching job detail:', error);
+      // 에러 발생 시 기존 applyLink로 이동
+      window.open(job.applyLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
     const categories =
@@ -429,15 +460,12 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
             {/* 버튼 */}
             <div className="mt-4 md:mt-6 md:text-2xl transition-all duration-500 ease-out">
-              <a
-                href={job.applyLink}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
                 className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-green-600 transition-all duration-300 block text-center"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleApplyClick}
               >
                 자세히 보기
-              </a>
+              </button>
             </div>
           </div>
         ) : (
