@@ -405,7 +405,7 @@ export default function EducationCard({
         ) : (
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
-            <p className="text-gray-800 text-xl md:text-title-large text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
+            <p className="text-gray-800 text-xl md:text-3xl text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
               {education.title || '교육과정명 미정'}
             </p>
 
