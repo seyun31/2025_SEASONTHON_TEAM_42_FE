@@ -102,14 +102,15 @@ export default function JobRecommendationsSection() {
       jobCategory: job.jobCategory,
       workLocation: job.workLocation,
       employmentType: job.employmentType,
-      salary: job.salary,
-      workPeriod: job.workPeriod,
-      experience: job.experience,
-      requiredSkills: job.requiredSkills,
-      preferredSkills: job.preferredSkills,
+      salary: (job as { wage?: string }).wage || job.salary, // API에서는 wage 필드 사용
+      workPeriod:
+        (job as { workTime?: string }).workTime || job.workPeriod || '미정', // API에서는 workTime 필드 사용
+      experience: job.experience || '경력 무관', // API에 experience가 없으므로 기본값 설정
+      requiredSkills: job.requiredSkills || job.jobCategory, // API에 requiredSkills가 없으므로 jobCategory 사용
+      preferredSkills: job.preferredSkills || '',
       postingDate: job.postingDate,
       closingDate: job.closingDate,
-      applyLink: job.applyLink,
+      applyLink: job.applyLink || '#', // API에 applyLink가 없으므로 기본값 설정
       jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
     };
