@@ -391,10 +391,14 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           <div className="flex justify-between items-center text-white">
             <div className="flex flex-row gap-1 md:gap-3 flex-1 min-w-0">
               <div className="text-lg md:text-2xl flex items-center truncate font-medium">
-                {job.companyName || '회사명 미정'}
+                {(job.companyName || '회사명 미정').length > 10
+                  ? `${(job.companyName || '회사명 미정').substring(0, 10)}···`
+                  : job.companyName || '회사명 미정'}
               </div>
               <div className="text-xs md:text-base text-gray-300 flex items-center truncate">
-                {job.workLocation || '근무지 미정'}
+                {(job.workLocation || '근무지 미정').length > 10
+                  ? `${(job.workLocation || '근무지 미정').substring(0, 10)}···`
+                  : job.workLocation || '근무지 미정'}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
