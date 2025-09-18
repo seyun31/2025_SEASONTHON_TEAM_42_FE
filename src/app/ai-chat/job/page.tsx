@@ -207,7 +207,14 @@ function AIChatJobContent() {
         removeMessagesByType('loading');
       }
 
-      // 3. 맞춤형 직업 추천 조회
+      // 3. 직업 추천 로딩 메시지 표시
+      addComponentMessage('loading', {
+        loadingType: 'jobRecommendation',
+      });
+
+      // 잠시 대기 후 맞춤형 직업 추천 조회
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       const recommendResponse = await fetch(
         '/api/chat/jobs/recommend/occupation'
       );
@@ -223,7 +230,7 @@ function AIChatJobContent() {
     } finally {
       setIsLoadingRecommendations(false);
     }
-  }, [userName, addBotMessage, removeMessagesByType]);
+  }, [userName, addBotMessage, removeMessagesByType, addComponentMessage]);
 
   // 채팅 완료 시 결과 데이터 가져오기
   useEffect(() => {
@@ -247,7 +254,7 @@ function AIChatJobContent() {
     if (jobRecommendations && !jobMessageAdded) {
       setJobMessageAdded(true);
 
-      // 모든 로딩 메시지 즉시 제거
+      // 로딩 메시지 제거
       removeMessagesByType('loading');
 
       setTimeout(() => {
@@ -258,11 +265,17 @@ function AIChatJobContent() {
         setTimeout(() => {
           addComponentMessage('jobCards', jobRecommendations);
           setShowJobCards(true);
-          removeMessagesByType('loading');
         }, 1500);
-      }, 100);
+      }, 500);
     }
-  }, [jobRecommendations, jobMessageAdded, removeMessagesByType]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    jobRecommendations,
+    jobMessageAdded,
+    removeMessagesByType,
+    addBotMessage,
+    addComponentMessage,
+    setShowJobCards,
+  ]);
 
   useEffect(() => {
     if (strengthReports.length > 0 && !strengthReportAdded) {
@@ -276,21 +289,16 @@ function AIChatJobContent() {
             addComponentMessage('strengthReport', report);
           }, index);
         });
-
-        // 직업 추천 로딩중
-        setTimeout(
-          () => {
-            if (!jobRecommendations) {
-              addComponentMessage('loading', {
-                loadingType: 'jobRecommendation',
-              });
-            }
-          },
-          strengthReports.length * 200 + 1500
-        );
       }, 500);
     }
-  }, [strengthReports, strengthReportAdded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    strengthReports,
+    strengthReportAdded,
+    jobRecommendations,
+    jobMessageAdded,
+    removeMessagesByType,
+    addComponentMessage,
+  ]);
 
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;
