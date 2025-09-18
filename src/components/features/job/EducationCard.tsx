@@ -138,30 +138,9 @@ const Tag = ({
 );
 
 // 추천도 표시 컴포넌트
-const RecommendationScore = ({
-  education,
-  isLoggedIn,
-  isExpanded = false,
-}: {
-  education: EducationSummary;
-  isLoggedIn: boolean;
-  isExpanded?: boolean;
-}) => {
-  // 사용하지 않는 매개변수 경고 제거
-  void education;
-  void isLoggedIn;
-  void isExpanded;
-
-  return (
-    <div
-      className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
-        isExpanded
-          ? 'opacity-100 translate-x-0 translate-y-0'
-          : 'opacity-100 translate-x-0 translate-y-0 scale-100'
-      }`}
-      style={isExpanded ? { transitionDelay: '500ms' } : {}}
-    ></div>
-  );
+const RecommendationScore = () => {
+  // 교육과정에는 추천도가 없으므로 아예 렌더링하지 않음
+  return null;
 };
 
 // 상세 정보 그리드 아이템 컴포넌트
@@ -457,7 +436,7 @@ export default function EducationCard({
             : 'opacity-100 translate-x-0 translate-y-0 scale-100'
         }`}
       >
-        <RecommendationScore education={education} isLoggedIn={isLoggedIn} />
+        <RecommendationScore />
       </div>
     </div>
   );
