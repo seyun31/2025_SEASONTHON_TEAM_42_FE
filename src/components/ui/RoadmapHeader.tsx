@@ -13,7 +13,7 @@ export default function RoadmapHeader({
 }: RoadmapHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-8">
-      <div className="bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+      <div className="bg-white/40 rounded-2xl px-3 py-2 flex items-start gap-3 flex-col">
         <span className="text-black text-title-medium">
           {userName ? `${userName}님의 취업 로드맵` : '취업 로드맵'}
         </span>
