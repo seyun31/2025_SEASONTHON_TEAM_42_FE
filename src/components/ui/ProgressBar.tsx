@@ -22,7 +22,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       }`}
     >
       {/* 텍스트 (현재 단계/전체 단계) - 진행바 위에 표시 */}
-      <div className="absolute w-full flex -top-[3.5vh] xs:-top-[3.5vh] md:-top-[2.5vh] lg:-top-[3vh]">
+      <div className="absolute w-full flex -top-[3.5vh] xs:-top-[3.5vh] md:-top-[3.5vh] lg:-top-[3vh]">
         {Array.from({ length: 10 }, (_, index) => {
           const sectionPercent = (index + 2) * 10;
           const isActive =

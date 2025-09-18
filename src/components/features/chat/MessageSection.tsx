@@ -112,27 +112,47 @@ export default function MessageSection({
       second: Occupation;
       third: Occupation;
     };
+
+    // jobData가 유효한지 확인
+    if (!jobData || typeof jobData !== 'object') {
+      return null;
+    }
+
+    // 각 직업 데이터가 유효한지 확인
+    const validOccupations = [
+      jobData.first,
+      jobData.second,
+      jobData.third,
+    ].filter(
+      (occupation) =>
+        occupation &&
+        typeof occupation === 'object' &&
+        occupation.occupationName
+    );
+
+    if (validOccupations.length === 0) {
+      return null;
+    }
+
     return (
       <div className="flex gap-4 w-full mt-4">
-        {[jobData.first, jobData.second, jobData.third].map(
-          (occupation: Occupation, jobIndex: number) => (
-            <FlipCard
-              key={jobIndex}
-              jobImage={occupation.imageUrl}
-              jobTitle={occupation.occupationName}
-              jobDescription={occupation.description}
-              recommendationScore={parseInt(occupation.score) || 0}
-              strengths={{
-                title: occupation.strength,
-                percentage: parseInt(occupation.score) || 0,
-                description: occupation.strength,
-              }}
-              memberOccupationId={occupation.memberOccupationId}
-              isBookmark={occupation.isBookmark}
-              onJobPostingClick={() => {}}
-            />
-          )
-        )}
+        {validOccupations.map((occupation: Occupation, jobIndex: number) => (
+          <FlipCard
+            key={jobIndex}
+            jobImage={occupation.imageUrl}
+            jobTitle={occupation.occupationName}
+            jobDescription={occupation.description}
+            recommendationScore={parseInt(occupation.score) || 0}
+            strengths={{
+              title: occupation.strength,
+              percentage: parseInt(occupation.score) || 0,
+              description: occupation.strength,
+            }}
+            memberOccupationId={occupation.memberOccupationId}
+            isBookmark={occupation.isBookmark}
+            onJobPostingClick={() => {}}
+          />
+        ))}
       </div>
     );
   };
@@ -221,9 +241,12 @@ export default function MessageSection({
                 </div>
               )}
 
-              {message.componentType === 'jobCards' && message.componentData
-                ? renderJobCards(message.componentData)
-                : null}
+              {message.componentType === 'jobCards' &&
+                message.componentData && (
+                  <div className="mt-4">
+                    {renderJobCards(message.componentData)}
+                  </div>
+                )}
             </div>
           );
         }
