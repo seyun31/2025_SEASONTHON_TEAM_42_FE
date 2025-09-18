@@ -292,7 +292,10 @@ function AIChatJobContent() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       const recommendResponse = await fetch(
-        '/api/chat/jobs/recommend/occupation'
+        '/api/chat/jobs/recommend/post-occupation',
+        {
+          method: 'POST',
+        }
       );
       const recommendData = await recommendResponse.json();
 
@@ -514,7 +517,9 @@ function AIChatJobContent() {
       });
 
       // 추가 직업 추천 API 호출
-      const response = await fetch('/api/chat/jobs/recommend/occupation');
+      const response = await fetch('/api/chat/jobs/recommend/post-occupation', {
+        method: 'POST',
+      });
       const data = await response.json();
 
       if (data.result === 'SUCCESS') {
