@@ -74,7 +74,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       message: [
         '**[자격증·기술]**',
         '자격증이나 특별히 자신 있는 기술이 있으신가요?',
-        '예: “사람들을 돕고, 제 경험을 나눌 수 있는 일이면 좋겠습니다.”',
+        '예: 요양보호사 자격증, 컴퓨터 활용능력 2급, 한식조리사, 지게차 운전, 주부 9단 등',
       ],
       options: [],
       canSkip: false,
@@ -88,6 +88,7 @@ export const createAiChatFlow = (userName: string = '님'): ChatFlow => ({
       speaker: 'AI 코치',
       message: [
         '**[원하는 일 스타일]**',
+        '앞으로는 어떤 스타일의 일을 하고 싶으신가요?',
         '예: “사람들을 돕고, 제 경험을 나눌 수 있는 일이면 좋겠습니다.”',
       ],
       options: [],

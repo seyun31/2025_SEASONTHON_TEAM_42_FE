@@ -7,6 +7,7 @@ import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import FlipCard from '@/components/common/FlipCard';
 import { LuRefreshCcw } from 'react-icons/lu';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface StrengthReportData {
   strength: string;
@@ -253,14 +254,16 @@ export default function MessageSection({
                 )}
 
               {message.componentType === 'loading' && (
-                <div className="text-center p-4">
-                  <p className="text-chat-message">
-                    {message.componentData &&
-                    'loadingType' in message.componentData &&
-                    message.componentData.loadingType === 'jobRecommendation'
-                      ? '맞춤형 직업 추천중...'
-                      : '강점 리포트 생성중...'}
-                  </p>
+                <div className="text-center p-4 flex flex-col items-center gap-4">
+                  <DotLottieReact
+                    src="https://lottie.host/b520eba8-53ae-4860-9a96-79419625c186/zQolKAd3tn.lottie"
+                    loop
+                    autoplay
+                    style={{
+                      width: '300px',
+                      height: '300px',
+                    }}
+                  />
                 </div>
               )}
 
