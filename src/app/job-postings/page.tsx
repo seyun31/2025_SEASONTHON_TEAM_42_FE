@@ -6,7 +6,7 @@ import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import {
   getRecommendedJobs,
@@ -21,6 +21,9 @@ export default function JobPostings() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] =
     useState<string>('');
@@ -35,6 +38,26 @@ export default function JobPostings() {
     employmentType: [],
     jobCategory: [],
   });
+
+  // Intersection Observer를 위한 ref
+  const observer = useRef<IntersectionObserver>();
+
+  // 마지막 요소에 대한 ref callback
+  const lastJobElementRef = useCallback(
+    (node: HTMLDivElement) => {
+      if (isLoadingMore) return;
+      if (observer.current) observer.current.disconnect();
+
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+
+      if (node) observer.current.observe(node);
+    },
+    [isLoadingMore, hasMore]
+  );
 
   // 초기 로그인 상태 확인 및 데이터 로드
   useEffect(() => {

@@ -19,8 +19,9 @@ import { EducationSummary } from '@/types/job';
 
 export default function EducationPrograms() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'custom' | 'all'>('all');
+  const [activeTab, setActiveTab] = useState<'custom' | 'all'>('custom');
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
   const [educations, setEducations] = useState<EducationSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -50,6 +51,7 @@ export default function EducationPrograms() {
       loggedIn,
     });
     setIsLoggedIn(loggedIn);
+    setIsAuthChecked(true);
 
     // 비로그인 시 전체교육 탭으로 설정, 로그인 시 맞춤교육으로 설정
     if (!loggedIn) {
@@ -86,6 +88,9 @@ export default function EducationPrograms() {
 
   // 탭 변경 시 데이터 로드
   useEffect(() => {
+    // 인증 확인이 완료되지 않았으면 API 호출하지 않음
+    if (!isAuthChecked) return;
+
     const fetchEducations = async () => {
       try {
         console.log('EducationPrograms - Fetching educations:', {
@@ -182,7 +187,7 @@ export default function EducationPrograms() {
     };
 
     fetchEducations();
-  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
+  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword, isAuthChecked]);
 
   const toggleFavorite = (educationId: string) => {
     const newFavorites = new Set(favorites);

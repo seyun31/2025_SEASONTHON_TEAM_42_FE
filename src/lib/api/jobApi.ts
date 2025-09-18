@@ -126,6 +126,8 @@ export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
 // 전체 채용 조회 (비로그인 시)
 export const getAllJobs = async (filters?: {
   keyword?: string;
+  page?: number;
+  size?: number;
   workLocation?: string[];
   employmentType?: string[];
   jobCategory?: string[];
@@ -146,6 +148,14 @@ export const getAllJobs = async (filters?: {
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.page !== undefined) {
+      queryParams.append('page', filters.page.toString());
+    }
+
+    if (filters?.size !== undefined) {
+      queryParams.append('size', filters.size.toString());
     }
 
     if (filters?.workLocation && filters.workLocation.length > 0) {
@@ -202,6 +212,8 @@ export const getAllJobs = async (filters?: {
 // 전체 채용 조회 (로그인 시)
 export const getAllJobsForLoggedIn = async (filters?: {
   keyword?: string;
+  page?: number;
+  size?: number;
   workLocation?: string[];
   employmentType?: string[];
   jobCategory?: string[];
@@ -227,6 +239,14 @@ export const getAllJobsForLoggedIn = async (filters?: {
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.page !== undefined) {
+      queryParams.append('page', filters.page.toString());
+    }
+
+    if (filters?.size !== undefined) {
+      queryParams.append('size', filters.size.toString());
     }
 
     if (filters?.workLocation && filters.workLocation.length > 0) {
