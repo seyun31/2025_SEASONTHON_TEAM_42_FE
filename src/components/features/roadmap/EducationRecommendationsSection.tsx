@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import EducationCard from '@/components/features/job/EducationCard';
-import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import EmptyEducations from '@/components/features/job/EmptyEducations';
+import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import { getUserData } from '@/lib/auth';
 import {
   getRecommendedEducations,
@@ -50,6 +51,15 @@ export default function EducationRecommendationsSection() {
           educationData
         );
 
+        // null이나 빈 배열인 경우 처리
+        if (!educationData || educationData.length === 0) {
+          console.log(
+            'EducationRecommendationsSection - No educations found, setting empty array'
+          );
+          setEducations([]);
+          return;
+        }
+
         // 8개로 제한
         setEducations(educationData.slice(0, 8));
       } catch (error) {
@@ -92,15 +102,15 @@ export default function EducationRecommendationsSection() {
             </a>
           </div>
 
-          <div className="flex flex-row gap-6">
+          <div className="flex flex-col md:flex-row gap-6">
             <div className="flex flex-col gap-6 flex-1">
               {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index} />
+                <EducationCardSkeleton key={index} />
               ))}
             </div>
             <div className="flex flex-col gap-6 flex-1">
               {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index + 4} />
+                <EducationCardSkeleton key={index + 4} />
               ))}
             </div>
           </div>
@@ -153,16 +163,7 @@ export default function EducationRecommendationsSection() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <p className="text-gray-60 text-lg mb-4">
-                추천할 교육과정이 없습니다.
-              </p>
-              <p className="text-gray-50 text-sm">
-                다른 검색 조건을 시도해보세요.
-              </p>
-            </div>
-          </div>
+          <EmptyEducations isLoggedIn={isLoggedIn} activeTab="custom" />
         )}
       </div>
     </section>

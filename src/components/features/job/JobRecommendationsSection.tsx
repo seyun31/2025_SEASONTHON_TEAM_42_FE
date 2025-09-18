@@ -4,6 +4,7 @@ import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
+import EmptyRecommendations from '@/components/features/job/EmptyRecommendations';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import { getRecommendedJobs, getAllJobs } from '@/lib/api/jobApi';
 import { AllResponse } from '@/types/job';
@@ -55,6 +56,15 @@ export default function JobRecommendationsSection() {
             jobData.length,
             jobData
           );
+        }
+
+        // null이나 빈 배열인 경우 처리
+        if (!jobData || jobData.length === 0) {
+          console.log(
+            'JobRecommendationsSection - No jobs found, setting empty array'
+          );
+          setJobs([]);
+          return;
         }
 
         // 8개로 제한
@@ -138,6 +148,11 @@ export default function JobRecommendationsSection() {
         </div>
       </section>
     );
+  }
+
+  // 빈 상태 처리 (로그인 사용자이고 추천 공고가 없는 경우)
+  if (isLoggedIn && jobs.length === 0) {
+    return <EmptyRecommendations userName={userName} />;
   }
 
   return (

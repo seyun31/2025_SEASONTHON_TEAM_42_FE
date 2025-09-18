@@ -290,7 +290,7 @@ export default function EducationCard({
       <div
         className="relative flex-shrink-0 rounded-lg md:rounded-xl transition-all duration-700 ease-in-out w-full h-[120px] md:h-[200px]"
         style={{
-          background: `url(${education.titleIcon || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
+          background: `url(${education.imageUrl || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
         }}
       >
         {/* Compact 오버레이 */}
