@@ -202,12 +202,12 @@ export default function AICoachRoadmapSection() {
                               />
                             </div>
                             <span
-                              className="text-white text-title-large whitespace-nowrap font-medium"
+                              className="text-white text-4xl whitespace-nowrap font-regular"
                               style={{
                                 position: 'absolute',
-                                top: '50px',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
+                                top: '50%',
+                                left: '60px',
+                                transform: 'translateY(-50%)',
                               }}
                             >
                               {step.name}

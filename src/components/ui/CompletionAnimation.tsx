@@ -34,12 +34,12 @@ const CompletionAnimation: React.FC<CompletionAnimationProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
       <div className="relative">
         <DotLottieReact
-          src="/assets/lottie/completion-animation.lottie"
+          src="https://lottiefiles.com/free-animation/confetti-3ofTs67sBx"
           loop={false}
           autoplay={true}
           style={{
-            width: '300px',
-            height: '300px',
+            width: '100vw',
+            height: '100vh',
           }}
         />
       </div>
