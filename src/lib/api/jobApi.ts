@@ -1196,6 +1196,7 @@ export const getEducationCourses = async (filters?: {
     // CardCourseItem을 EducationSummary로 변환
     return result.data.srchList.map((item) => ({
       id: item.trprId,
+      educationId: parseInt(item.trprId),
       trprId: item.trprId,
       title: item.title,
       subTitle: item.subTitle,
@@ -1292,6 +1293,7 @@ export const getRecommendedEducations = async (): Promise<
     // AllResponse를 EducationSummary로 변환
     return result.data.jobDtoList.map((item) => ({
       id: item.jobId.toString(),
+      educationId: item.jobId,
       trprId: item.jobId.toString(),
       title: item.jobTitle || '제목 없음',
       subTitle: item.requiredSkills || '',
@@ -1399,6 +1401,7 @@ export const getAllEducationsAnonymous = async (filters?: {
     // AllResponse를 EducationSummary로 변환
     return result.data.jobDtoList.map((item) => ({
       id: item.jobId.toString(),
+      educationId: item.jobId,
       trprId: item.jobId.toString(),
       title: item.jobTitle || '제목 없음',
       subTitle: item.requiredSkills || '',
