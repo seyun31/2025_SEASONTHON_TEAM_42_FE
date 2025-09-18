@@ -2,6 +2,33 @@
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
+interface StrengthReportData {
+  strength: string;
+  experience: string;
+  keyword: string[];
+  job: string[];
+}
+
+interface Occupation {
+  imageUrl: string;
+  occupationName: string;
+  description: string;
+  strength: string;
+  score: string;
+  memberOccupationId?: number;
+  isBookmark?: boolean;
+}
+
+interface JobRecommendations {
+  first: Occupation;
+  second: Occupation;
+  third: Occupation;
+}
+
+interface LoadingData {
+  loadingType: 'strengthReport' | 'jobRecommendation';
+}
+
 export interface ChatMessage {
   id: string;
   type: 'bot' | 'user' | 'component';
@@ -10,8 +37,17 @@ export interface ChatMessage {
   questionId?: number;
   selectedOptions?: string[];
   isComplete?: boolean;
-  componentType?: 'strengthReport' | 'jobCards' | 'loading';
-  componentData?: unknown;
+  componentType?:
+    | 'strengthReport'
+    | 'jobCards'
+    | 'loading'
+    | 'strengthReportGroup';
+  componentData?:
+    | StrengthReportData
+    | JobRecommendations
+    | StrengthReportData[]
+    | LoadingData
+    | null;
 }
 
 export interface ChatHistoryContextType {
@@ -26,8 +62,17 @@ export interface ChatHistoryContextType {
     selectedOptions?: string[]
   ) => void;
   addComponentMessage: (
-    componentType: 'strengthReport' | 'jobCards' | 'loading',
-    componentData?: unknown
+    componentType:
+      | 'strengthReport'
+      | 'jobCards'
+      | 'loading'
+      | 'strengthReportGroup',
+    componentData?:
+      | StrengthReportData
+      | JobRecommendations
+      | StrengthReportData[]
+      | LoadingData
+      | null
   ) => void;
   removeMessagesByType: (componentType: string) => void;
   nextStep: () => void;
@@ -95,8 +140,17 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
   };
 
   const addComponentMessage = (
-    componentType: 'strengthReport' | 'jobCards' | 'loading',
-    componentData?: unknown
+    componentType:
+      | 'strengthReport'
+      | 'jobCards'
+      | 'loading'
+      | 'strengthReportGroup',
+    componentData?:
+      | StrengthReportData
+      | JobRecommendations
+      | StrengthReportData[]
+      | LoadingData
+      | null
   ) => {
     const newMessage: ChatMessage = {
       id: Date.now().toString(),

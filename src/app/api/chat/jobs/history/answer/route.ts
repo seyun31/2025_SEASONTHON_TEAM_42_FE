@@ -3,12 +3,10 @@ import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function POST(request: Request): Promise<Response> {
+export async function GET(): Promise<Response> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
-
-    console.log('API 호출 시작 - accessToken 존재:', !!accessToken);
 
     if (!accessToken) {
       return Response.json(
@@ -21,35 +19,15 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
 
-    const { occupationId } = await request.json();
-    // console.log('요청 데이터:', { occupationId });
-
-    if (occupationId === undefined || occupationId === null) {
-      return Response.json(
-        {
-          result: 'ERROR',
-          data: null,
-          error: {
-            code: 'BAD_REQUEST',
-            message: 'occupationId가 필요합니다.',
-          },
-        },
-        { status: 400 }
-      );
-    }
-
-    const url = new URL(`${backendUrl}/job/${occupationId}/bookmark`);
-    url.searchParams.append('occupationId', occupationId);
+    const url = new URL(`${backendUrl}/job/chat/history`);
 
     const response = await fetch(url.toString(), {
-      method: 'POST',
+      method: 'GET',
       headers: {
         accept: 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
     });
-
-    console.log('백엔드 응답 상태:', response.status);
 
     if (!response.ok) {
       try {
@@ -62,7 +40,7 @@ export async function POST(request: Request): Promise<Response> {
             data: null,
             error: {
               code: 'FETCH_ERROR',
-              message: '사용자 정보를 가져올 수 없습니다.',
+              message: 'AI 채팅 히스토리를 가져올 수 없습니다.',
             },
           },
           { status: response.status }
@@ -70,10 +48,10 @@ export async function POST(request: Request): Promise<Response> {
       }
     }
 
-    const responseData = await response.json();
-    return Response.json(responseData);
+    const historyData = await response.json();
+    return Response.json(historyData);
   } catch (error) {
-    console.error('Job chat save error:', error);
+    console.error('AI chat history fetch error:', error);
 
     // Sentry에 에러 전송
     const cookieStore = await cookies();
@@ -81,22 +59,14 @@ export async function POST(request: Request): Promise<Response> {
 
     Sentry.captureException(error, {
       tags: {
-        api: 'chat/jobs/bookmark',
-        method: 'POST',
+        api: 'chat/jobs/history/answer',
+        method: 'GET',
       },
       extra: {
         backendUrl,
         hasAccessToken: !!accessToken,
       },
     });
-
-    // 백엔드 API 에러 응답인 경우 그대로 전달
-    if (error instanceof Error && error.message.includes('response')) {
-      try {
-        const errorResponse = JSON.parse(error.message);
-        return Response.json(errorResponse, { status: 500 });
-      } catch {}
-    }
 
     return Response.json(
       {

@@ -32,7 +32,7 @@ export default function StrengthReportCard({
   return (
     <div
       className="w-full rounded-[32px] border-4 border-primary-20 bg-white px-2 py-4"
-      style={{ boxShadow: '0px 10px 20px 0px #11111126' }}
+      style={{ boxShadow: '0px 4px 8px 0px #11111120' }}
     >
       {/* 상단 타이틀 */}
       <div className="flex items-center gap-2 mb-9 ml-2">
@@ -90,7 +90,7 @@ export default function StrengthReportCard({
           </div>
           <div className="flex-1 flex items-center pb-2">
             <div className="inline-flex flex-wrap gap-2">
-              {keywords.map((keyword) => (
+              {keywords.slice(0, 3).map((keyword) => (
                 <span
                   key={keyword}
                   className="rounded-[100px] px-3 py-2 text-primary-90 bg-primary-20 text-strength-content mb-2 "
@@ -98,6 +98,9 @@ export default function StrengthReportCard({
                   {keyword}
                 </span>
               ))}
+              {/* {keywords.length > 3 && (
+                <span className="text-xs text-gray-60">+{keywords.length - 3}</span>
+              )} */}
             </div>
           </div>
         </div>
