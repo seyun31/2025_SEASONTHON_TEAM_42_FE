@@ -167,18 +167,19 @@ export default function EducationCard({
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
-  }, []);
-
-  // isBookmarked prop이 변경될 때 isBookmark 상태 업데이트
-  useEffect(() => {
-    setIsBookmark(isBookmarked);
-  }, [isBookmarked]);
+    // education.isBookmark 정보를 우선적으로 사용하고, 없으면 isBookmarked prop 사용
+    setIsBookmark(education.isBookmark ?? isBookmarked);
+  }, [education.isBookmark, isBookmarked]);
 
   const handleToggleBookmark = async (educationId: string) => {
+    if (isBookmarkLoading) return; // 이미 요청 중이면 중복 요청 방지
+
+    setIsBookmarkLoading(true);
     try {
       if (isBookmark) {
         // 북마크 삭제
@@ -190,6 +191,7 @@ export default function EducationCard({
         );
         if (response.ok) {
           setIsBookmark(false);
+          onToggleBookmark(educationId);
         }
       } else {
         // 북마크 저장
@@ -202,11 +204,13 @@ export default function EducationCard({
         });
         if (response.ok) {
           setIsBookmark(true);
+          onToggleBookmark(educationId);
         }
       }
-      onToggleBookmark(educationId);
     } catch (error) {
       console.error('북마크 처리 중 오류:', error);
+    } finally {
+      setIsBookmarkLoading(false);
     }
   };
 
@@ -370,9 +374,9 @@ export default function EducationCard({
                     );
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
-                    isBookmark ? 'text-secondary1' : 'text-gray-300'
-                  }`}
-                  style={isBookmark ? { color: 'var(--secondary1)' } : {}}
+                    isBookmark ? 'text-blue-500' : 'text-gray-300'
+                  } ${isBookmarkLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  disabled={isBookmarkLoading}
                 >
                   {isBookmark ? <HiStar /> : <PiStarThin />}
                 </button>

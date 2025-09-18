@@ -234,7 +234,9 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
-  }, []);
+    // job.isScrap 속성으로 초기 북마크 상태 설정
+    setIsScrap(job.isScrap || false);
+  }, [job.isScrap]);
 
   const handleToggleScrap = async (jobId: string) => {
     try {

@@ -21,9 +21,9 @@ export default function JobPostings() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
-  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalElements, setTotalElements] = useState<number>(0);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] =
     useState<string>('');
@@ -38,26 +38,6 @@ export default function JobPostings() {
     employmentType: [],
     jobCategory: [],
   });
-
-  // Intersection Observer를 위한 ref
-  const observer = useRef<IntersectionObserver>();
-
-  // 마지막 요소에 대한 ref callback
-  const lastJobElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (isLoadingMore) return;
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [isLoadingMore, hasMore]
-  );
 
   // 초기 로그인 상태 확인 및 데이터 로드
   useEffect(() => {
@@ -83,61 +63,71 @@ export default function JobPostings() {
     return () => clearTimeout(timer);
   }, [searchKeyword]);
 
-  // 탭 변경 시 API 호출
-  useEffect(() => {
-    const fetchJobs = async () => {
-      try {
-        console.log('JobPostings - Fetching jobs:', {
-          activeTab,
-          isLoggedIn,
-          filters,
-          debouncedSearchKeyword,
-        });
-        setIsLoading(true);
-        let jobData: (AllResponse | JobResponse)[] = [];
+  // 데이터 로드 함수
+  const fetchJobs = async (page: number = 1) => {
+    try {
+      setIsLoading(true);
+      let jobData: (AllResponse | JobResponse)[] = [];
+      let totalElements = 0;
 
-        // 필터 데이터를 API 형식으로 변환
-        const apiFilters = {
-          keyword: debouncedSearchKeyword || undefined,
-          workLocation:
-            filters.selectedDistricts.length > 0
-              ? filters.selectedDistricts
-              : undefined,
-          employmentType:
-            filters.employmentType.length > 0
-              ? filters.employmentType
-              : undefined,
-          jobCategory:
-            filters.jobCategory.length > 0 ? filters.jobCategory : undefined,
-        };
+      // 필터 데이터를 API 형식으로 변환 (페이지네이션 포함)
+      const apiFilters = {
+        keyword: debouncedSearchKeyword || undefined,
+        page: page - 1, // API는 0 기반 페이지
+        size: 10,
+        workLocation:
+          filters.selectedDistricts.length > 0
+            ? filters.selectedDistricts
+            : undefined,
+        employmentType:
+          filters.employmentType.length > 0
+            ? filters.employmentType
+            : undefined,
+        jobCategory:
+          filters.jobCategory.length > 0 ? filters.jobCategory : undefined,
+      };
 
-        if (activeTab === 'custom' && isLoggedIn) {
-          // 맞춤공고 탭 (로그인 시에만) - /job/recommend/job 엔드포인트 사용
-          console.log('Fetching recommended jobs...');
-          jobData = await getRecommendedJobs();
-        } else if (activeTab === 'all' && isLoggedIn) {
-          // 전체공고 탭 (로그인 시) - /job/all 엔드포인트 사용
-          console.log('Fetching all jobs for logged in user...');
-          jobData = await getAllJobsForLoggedIn(apiFilters);
-        } else {
-          // 전체공고 탭 (비로그인 시) - /job/all/anonymous 엔드포인트 사용
-          console.log('Fetching all jobs for anonymous user...');
-          jobData = await getAllJobs(apiFilters);
-        }
-
-        console.log('JobPostings - Jobs fetched:', jobData.length);
-        setJobs(jobData);
-      } catch (error) {
-        console.error('Error fetching jobs:', error);
-        // 에러 시 빈 배열 설정
-        setJobs([]);
-      } finally {
-        setIsLoading(false);
+      if (activeTab === 'custom' && isLoggedIn) {
+        // 맞춤공고 탭 (로그인 시에만) - /job/recommend/job 엔드포인트 사용
+        jobData = await getRecommendedJobs();
+        totalElements = jobData.length; // 맞춤 공고는 페이지네이션이 없을 수 있음
+      } else if (activeTab === 'all' && isLoggedIn) {
+        // 전체공고 탭 (로그인 시) - /job/all 엔드포인트 사용
+        const result = await getAllJobsForLoggedIn(apiFilters);
+        jobData = result.jobDtoList || [];
+        totalElements = result.totalElements || 0;
+      } else {
+        // 전체공고 탭 (비로그인 시) - /job/all/anonymous 엔드포인트 사용
+        const result = await getAllJobs(apiFilters);
+        jobData = result.jobDtoList || [];
+        totalElements = result.totalElements || 0;
       }
-    };
 
-    fetchJobs();
+      setJobs(jobData);
+      setTotalElements(totalElements);
+      setTotalPages(Math.ceil(totalElements / 10));
+    } catch (error) {
+      console.error('Error fetching jobs:', error);
+      setJobs([]);
+      setTotalElements(0);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // 탭, 필터, 검색어 변경 시 첫 페이지로 데이터 로드
+  useEffect(() => {
+    setCurrentPage(1);
+    fetchJobs(1);
   }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
+
+  // 페이지 변경 시 데이터 로드
+  useEffect(() => {
+    if (currentPage > 1) {
+      fetchJobs(currentPage);
+    }
+  }, [currentPage]);
 
   const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
@@ -279,6 +269,77 @@ export default function JobPostings() {
                 ))}
               </div>
             </div>
+
+            {/* 페이지네이션 */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+                {/* 첫 페이지 버튼 */}
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &lt;&lt;
+                </button>
+
+                {/* 이전 버튼 */}
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &lt;
+                </button>
+
+                {/* 페이지 번호들 */}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`min-w-[40px] px-4 py-2 rounded-lg border font-medium ${
+                        currentPage === pageNum
+                          ? 'bg-primary-90 text-white border-primary-90 shadow-md'
+                          : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+
+                {/* 다음 버튼 */}
+                <button
+                  onClick={() =>
+                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                  }
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &gt;
+                </button>
+
+                {/* 마지막 페이지 버튼 */}
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  &gt;&gt;
+                </button>
+              </div>
+            )}
           </div>
         </section>
       </main>
