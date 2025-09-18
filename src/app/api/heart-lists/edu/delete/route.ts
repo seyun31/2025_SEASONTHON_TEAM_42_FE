@@ -22,16 +22,16 @@ export async function DELETE(request: Request): Promise<Response> {
     }
 
     const url = new URL(request.url);
-    const jobId = url.searchParams.get('jobId');
+    const educationId = url.searchParams.get('educationId');
 
-    if (!jobId) {
+    if (!educationId) {
       return Response.json(
         {
           result: 'ERROR',
           data: null,
           error: {
             code: 'BAD_REQUEST',
-            message: 'jobId가 필요합니다.',
+            message: 'educationId가 필요합니다.',
           },
         },
         { status: 400 }
@@ -41,7 +41,7 @@ export async function DELETE(request: Request): Promise<Response> {
     const backendUrl = new URL(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/bookmark/edu`
     );
-    backendUrl.searchParams.append('jobId', jobId);
+    backendUrl.searchParams.append('educationId', educationId);
 
     const response = await fetch(backendUrl.toString(), {
       method: 'DELETE',
