@@ -14,6 +14,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import MessageItem from '@/components/ui/MessageItem';
 import { UserResponse } from '@/types/user';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 function AIChatRoadmapContent() {
   const router = useRouter();
@@ -323,10 +324,16 @@ function AIChatRoadmapContent() {
           {/* 완료된 경우 결과 표시 */}
           {isCompleted &&
             (isLoadingRecommendations ? (
-              <div className="text-center p-4">
-                <p className="text-chat-message">
-                  맞춤형 로드맵을 생성하는 중...
-                </p>
+              <div className="text-center p-4 flex flex-col items-center gap-4">
+                <DotLottieReact
+                  src="https://lottie.host/b520eba8-53ae-4860-9a96-79419625c186/zQolKAd3tn.lottie"
+                  loop
+                  autoplay
+                  style={{
+                    width: '300px',
+                    height: '300px',
+                  }}
+                />
               </div>
             ) : (
               <div className="ml-[0.5vw]">
