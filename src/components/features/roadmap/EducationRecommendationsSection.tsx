@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import EducationCard from '@/components/features/job/EducationCard';
+import EmptyEducations from '@/components/features/job/EmptyEducations';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import { getUserData } from '@/lib/auth';
 import {
@@ -49,6 +50,15 @@ export default function EducationRecommendationsSection() {
           educationData.length,
           educationData
         );
+
+        // null이나 빈 배열인 경우 처리
+        if (!educationData || educationData.length === 0) {
+          console.log(
+            'EducationRecommendationsSection - No educations found, setting empty array'
+          );
+          setEducations([]);
+          return;
+        }
 
         // 8개로 제한
         setEducations(educationData.slice(0, 8));
@@ -153,16 +163,7 @@ export default function EducationRecommendationsSection() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <p className="text-gray-500 text-lg mb-4">
-                추천할 교육과정이 없습니다.
-              </p>
-              <p className="text-gray-400 text-sm">
-                다른 검색 조건을 시도해보세요.
-              </p>
-            </div>
-          </div>
+          <EmptyEducations isLoggedIn={isLoggedIn} activeTab="custom" />
         )}
       </div>
     </section>
