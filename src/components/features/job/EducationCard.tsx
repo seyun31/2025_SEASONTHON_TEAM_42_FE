@@ -56,15 +56,15 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 // 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-secondary4 overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#E1F5EC]'
+        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-secondary4'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-500 ease-out ${
-      isHovered ? 'bg-[B4E6CE]' : 'bg-primary-20'
+      isHovered ? 'bg-secondary4' : 'bg-secondary4'
     } ${
       isExpanded
         ? 'opacity-100 translate-y-0 scale-100'
@@ -76,10 +76,10 @@ const styles = {
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
       isExpanded
-        ? 'bg-primary-20'
+        ? 'bg-secondary4'
         : isHovered
-          ? 'bg-primary-20'
-          : 'bg-primary-20'
+          ? 'bg-secondary4'
+          : 'bg-secondary4'
     }`,
 
   recommendationScore: (isLoggedIn: boolean) => ({
@@ -156,7 +156,7 @@ const DetailItem = ({
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
     <span className="text-gray-500 text-sm md:text-xl">{label}</span>
     <span
-      className={`text-sm md:text-xl ${isPrimary ? 'text-primary-90' : 'text-black'}`}
+      className={`text-sm md:text-xl ${isPrimary ? 'text-secondary4' : 'text-black'}`}
     >
       {value}
     </span>
@@ -393,7 +393,7 @@ export default function EducationCard({
                 href={education.titleLink || education.subTitleLink || '#'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-green-600 transition-all duration-300 block text-center"
+                className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-secondary4 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-secondary4 transition-all duration-300 block text-center"
                 onClick={(e) => e.stopPropagation()}
               >
                 자세히 보기
@@ -414,7 +414,7 @@ export default function EducationCard({
                 <span className="text-base md:text-body-medium-medium text-gray-500 font-medium">
                   기간
                 </span>
-                <span className="text-base md:text-body-medium-medium text-primary-90 font-semibold">
+                <span className="text-base md:text-body-medium-medium text-secondary4 font-semibold">
                   {calculateDuration(
                     education.traStartDate,
                     education.traEndDate
