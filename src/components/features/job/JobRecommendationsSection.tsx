@@ -105,7 +105,7 @@ export default function JobRecommendationsSection() {
       workPeriod:
         (job as { workTime?: string }).workTime || job.workPeriod || '미정', // API에서는 workTime 필드 사용
       experience: job.experience || '경력 무관', // API에 experience가 없으므로 기본값 설정
-      requiredSkills: job.requiredSkills || job.jobCategory, // API에 requiredSkills가 없으므로 jobCategory 사용
+      requiredSkills: job.requiredSkills || '', // API에서 제공되는 requiredSkills 사용
       preferredSkills: job.preferredSkills || '',
       postingDate: job.postingDate,
       closingDate: job.closingDate,

@@ -32,7 +32,7 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
     const isValidDate = dateFormats.some((format) => format.test(dateString));
 
     if (!isValidDate) {
-      return 'D-?'; // 날짜 형식이 아니면 D-? 반환
+      return 'D-?';
     }
 
     const targetDate = new Date(dateString);
@@ -221,10 +221,6 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 디버깅용 로그
-  console.log('Job data:', job);
-  console.log('Required skills:', job.requiredSkills);
-
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
@@ -312,9 +308,16 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const renderTags = (isCompact = false) => {
     const categories =
       job.jobCategory && job.jobCategory.trim() !== ''
-        ? job.jobCategory.split(',')
+        ? job.jobCategory
+            .split(',')
+            .filter(
+              (category) => category.trim() !== '' && category.trim() !== '.'
+            )
         : [];
-    const skills = job.requiredSkills?.split(',') || [];
+    const skills =
+      job.requiredSkills
+        ?.split(',')
+        .filter((skill) => skill.trim() !== '' && skill.trim() !== '.') || [];
 
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">

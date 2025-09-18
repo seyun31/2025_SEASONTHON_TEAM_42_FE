@@ -145,7 +145,7 @@ export default function JobPostings() {
           job.workPeriod ||
           '근무기간 미정',
         experience: job.experience || '경력 무관',
-        requiredSkills: job.requiredSkills || job.jobCategory || '',
+        requiredSkills: job.requiredSkills || '',
         preferredSkills: job.preferredSkills || '',
         postingDate: job.postingDate,
         closingDate: job.closingDate,
