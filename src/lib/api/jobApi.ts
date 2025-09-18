@@ -1196,6 +1196,7 @@ export const getEducationCourses = async (filters?: {
     // CardCourseItem을 EducationSummary로 변환
     return result.data.srchList.map((item) => ({
       id: item.trprId,
+      educationId: parseInt(item.trprId),
       trprId: item.trprId,
       title: item.title,
       subTitle: item.subTitle,
@@ -1292,22 +1293,23 @@ export const getRecommendedEducations = async (): Promise<
     // AllResponse를 EducationSummary로 변환
     return result.data.jobDtoList.map((item) => ({
       id: item.jobId.toString(),
+      educationId: item.jobId,
       trprId: item.jobId.toString(),
       title: item.jobTitle || '제목 없음',
-      subTitle: item.requiredSkills || '',
+      subTitle: item.jobCodeName || '',
       institution: item.companyName || '',
       address: item.workLocation || '',
       traStartDate: item.postingDate || '',
       traEndDate: item.closingDate || '',
       trainTarget: '',
-      contents: item.requiredSkills || '',
+      contents: item.description || '',
       certificate: '',
       grade: '',
-      regCourseMan: '0',
-      courseMan: '0',
+      regCourseMan: item.recruitNumber?.toString() || '0',
+      courseMan: item.recruitNumber?.toString() || '0',
       realMan: '0',
       yardMan: '0',
-      telNo: '',
+      telNo: item.managerPhone || '',
       stdgScor: '0',
       eiEmplCnt3: '0',
       eiEmplRate3: '0',
@@ -1322,6 +1324,7 @@ export const getRecommendedEducations = async (): Promise<
       subTitleLink: '',
       titleLink: '',
       titleIcon: '',
+      imageUrl: item.imageUrl,
       isBookmark: item.isBookmark || false,
       recommendScore: item.score,
     }));
@@ -1399,6 +1402,7 @@ export const getAllEducationsAnonymous = async (filters?: {
     // AllResponse를 EducationSummary로 변환
     return result.data.jobDtoList.map((item) => ({
       id: item.jobId.toString(),
+      educationId: item.jobId,
       trprId: item.jobId.toString(),
       title: item.jobTitle || '제목 없음',
       subTitle: item.requiredSkills || '',

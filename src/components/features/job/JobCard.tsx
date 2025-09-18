@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
+import { getJobDetailById } from '@/lib/api/jobApi';
 
 // 디데이 계산 함수
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
@@ -31,7 +32,7 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
     const isValidDate = dateFormats.some((format) => format.test(dateString));
 
     if (!isValidDate) {
-      return 'D-?'; // 날짜 형식이 아니면 D-? 반환
+      return 'D-?';
     }
 
     const targetDate = new Date(dateString);
@@ -220,10 +221,6 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 디버깅용 로그
-  console.log('Job data:', job);
-  console.log('Required skills:', job.requiredSkills);
-
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
@@ -277,13 +274,50 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
     setTimeout(() => setIsAnimating(false), 800);
   };
 
+  const handleApplyClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    try {
+      // job 객체에 requiredDocuments가 이미 있는 경우 바로 사용
+      if (job.requiredDocuments) {
+        window.open(job.requiredDocuments, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      // requiredDocuments가 없는 경우 단건 조회 API 호출
+      const jobDetail = await getJobDetailById(Number(job.jobId));
+
+      if (jobDetail.requiredDocuments) {
+        window.open(
+          jobDetail.requiredDocuments,
+          '_blank',
+          'noopener,noreferrer'
+        );
+      } else {
+        // requiredDocuments가 없으면 기존 applyLink로 이동
+        window.open(job.applyLink, '_blank', 'noopener,noreferrer');
+      }
+    } catch (error) {
+      console.error('Error fetching job detail:', error);
+      // 에러 발생 시 기존 applyLink로 이동
+      window.open(job.applyLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
     const categories =
       job.jobCategory && job.jobCategory.trim() !== ''
-        ? job.jobCategory.split(',')
+        ? job.jobCategory
+            .split(',')
+            .filter(
+              (category) => category.trim() !== '' && category.trim() !== '.'
+            )
         : [];
-    const skills = job.requiredSkills?.split(',') || [];
+    const skills =
+      job.requiredSkills
+        ?.split(',')
+        .filter((skill) => skill.trim() !== '' && skill.trim() !== '.') || [];
 
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
@@ -357,10 +391,14 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           <div className="flex justify-between items-center text-white">
             <div className="flex flex-row gap-1 md:gap-3 flex-1 min-w-0">
               <div className="text-lg md:text-2xl flex items-center truncate font-medium">
-                {job.companyName || '회사명 미정'}
+                {(job.companyName || '회사명 미정').length > 10
+                  ? `${(job.companyName || '회사명 미정').substring(0, 10)}···`
+                  : job.companyName || '회사명 미정'}
               </div>
               <div className="text-xs md:text-base text-gray-300 flex items-center truncate">
-                {job.workLocation || '근무지 미정'}
+                {(job.workLocation || '근무지 미정').length > 10
+                  ? `${(job.workLocation || '근무지 미정').substring(0, 10)}···`
+                  : job.workLocation || '근무지 미정'}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -429,15 +467,12 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
             {/* 버튼 */}
             <div className="mt-4 md:mt-6 md:text-2xl transition-all duration-500 ease-out">
-              <a
-                href={job.applyLink}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
                 className="flex items-center justify-center w-full h-[60px] md:h-[78px] bg-primary-90 text-white py-3 rounded-2xl md:rounded-3xl text-base md:text-2xl hover:bg-green-600 transition-all duration-300 block text-center"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleApplyClick}
               >
                 자세히 보기
-              </a>
+              </button>
             </div>
           </div>
         ) : (

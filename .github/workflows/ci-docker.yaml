@@ -39,7 +39,7 @@ jobs:
       - name: Checkout manifest repository
         uses: actions/checkout@v4
         with:
-          repository: '9oormthon-univ/2025_SEASONTHON_TEAM_42_MANIFEST'
+          repository: '9oormthon-univ/2025_SEASONTHON_TEAM_42_MANIFEST222556'
           token: ${{ secrets.PAT }}
           path: 'manifest'
 

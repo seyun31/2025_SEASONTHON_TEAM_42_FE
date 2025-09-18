@@ -6,7 +6,6 @@ import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
-import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
 import { getUserData, getAccessToken } from '@/lib/auth';
 import {
@@ -107,13 +106,8 @@ export default function JobPostings() {
         setJobs(jobData);
       } catch (error) {
         console.error('Error fetching jobs:', error);
-        // 에러 시 mock 데이터 사용
-        setJobs(
-          jobRecommendations.slice(0, 8) as unknown as (
-            | AllResponse
-            | JobResponse
-          )[]
-        );
+        // 에러 시 빈 배열 설정
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }
@@ -151,11 +145,12 @@ export default function JobPostings() {
           job.workPeriod ||
           '근무기간 미정',
         experience: job.experience || '경력 무관',
-        requiredSkills: job.requiredSkills || job.jobCategory || '',
+        requiredSkills: job.requiredSkills || '',
         preferredSkills: job.preferredSkills || '',
         postingDate: job.postingDate,
         closingDate: job.closingDate,
         applyLink: job.applyLink || '#',
+        requiredDocuments: job.requiredDocuments,
         jobRecommendScore: job.score || null,
         isScrap: job.isBookmark,
       };
@@ -178,6 +173,7 @@ export default function JobPostings() {
         postingDate: '', // API에서 제공하지 않음
         closingDate: job.closingDate,
         applyLink: '', // API에서 제공하지 않음
+        requiredDocuments: undefined, // API에서 제공하지 않음
         jobRecommendScore: job.jobRecommendScore
           ? parseInt(job.jobRecommendScore)
           : null,
