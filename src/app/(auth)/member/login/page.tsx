@@ -62,7 +62,7 @@ export default function Login() {
       {/* 모바일 레이아웃 */}
       <div className="flex xl:hidden w-full h-full flex-col items-center justify-center px-8">
         {/* 로고 이미지 */}
-        <div className="mb-57.5">
+        <div className="mb-32">
           <Image
             src="/assets/logos/name-logo.svg"
             alt="nextcareer 메인 로고"
@@ -73,7 +73,7 @@ export default function Login() {
         </div>
 
         {/* 카카오 로그인 버튼 */}
-        <button onClick={handleKakaoLogin} className="mb-62.5 cursor-pointer">
+        <button onClick={handleKakaoLogin} className="mb-16 cursor-pointer">
           <Image
             src="/assets/Icons/kakao-login-large-wide.svg"
             alt="카카오 로그인 버튼"
@@ -84,7 +84,7 @@ export default function Login() {
         </button>
 
         {/* 비회원 멘트 */}
-        <div className="text-body-medium-medium mb-3">
+        <div className="text-body-medium-medium mb-4">
           아직 회원이 아니신가요?
         </div>
 
