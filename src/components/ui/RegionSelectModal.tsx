@@ -42,7 +42,7 @@ export default function RegionSelectModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-white"
+      className="fixed inset-0 flex items-center justify-center z-50 bg-white opacity-100"
       style={{ transform: `translateY(${offsetY})` }}
     >
       {/* 데스크톱 레이아웃 */}
@@ -155,8 +155,8 @@ export default function RegionSelectModal({
 
         {/* 지역 선택 박스 */}
         <div
-          className="w-full max-w-sm bg-white border-2 border-primary-30 rounded-[12px] flex flex-col overflow-hidden mb-26"
-          style={{ height: 'calc(100vh - 500px)' }}
+          className="w-full max-w-md md:max-w-lg bg-white border-2 border-primary-30 rounded-[12px] flex flex-col overflow-hidden mb-26"
+          style={{ height: 'calc(100vh - 400px)' }}
         >
           {/* 제목 바 */}
           <div className="h-16 flex items-center justify-center px-4 border-b-2 border-primary-30 relative">
@@ -220,7 +220,7 @@ export default function RegionSelectModal({
         </div>
 
         {/* 선택하기 버튼 */}
-        <div className="w-[60vw] max-w-sm">
+        <div className="w-[60vw] max-w-sm md:max-w-lg mb-8">
           <button
             type="button"
             onClick={handleConfirm}

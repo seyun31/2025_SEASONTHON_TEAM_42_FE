@@ -225,7 +225,7 @@ export default function EditPage() {
   return (
     <>
       {/* 데스크톱 레이아웃 */}
-      <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-10">
+      <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-5">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
           <div className="relative w-[26vw] h-[65vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
@@ -349,7 +349,7 @@ export default function EditPage() {
         onConfirm={handleAddressSelect}
       />
       {/* 모바일 레이아웃 */}
-      <div className="flex xl:hidden w-full h-full flex-col pt-16">
+      <div className="flex xl:hidden w-full h-full flex-col pt-8">
         {/* 사용자 정보 영역 */}
         <div className="flex-1 flex items-center justify-center px-8 py-8">
           <div className="w-full max-w-md flex flex-col gap-4">
@@ -429,7 +429,7 @@ export default function EditPage() {
         </div>
 
         {/* 취소, 수정완료 버튼 */}
-        <div className="flex gap-4 w-full max-w-sm sm:max-w-lg md:max-w-xl lg:max-w-2xl items-center justify-center px-6 sm:px-8 pb-8 mx-auto">
+        <div className="flex gap-4 w-full max-w-sm sm:max-w-lg md:max-w-lg lg:max-xl items-center justify-center px-6 sm:px-8 pb-8 mx-auto">
           <button
             onClick={handleCancel}
             className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 rounded-[12px] h-[7vh] sm:h-[8vh] md:h-[9vh] lg:h-[10vh] bg-white text-gray-50 text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] border-2 border-primary-40 cursor-pointer"
