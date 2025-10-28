@@ -54,13 +54,6 @@ export default function CareerRoadmapSection() {
     CAREER_ROADMAP_POSITIONS
   );
 
-  // 디버깅을 위한 로그
-  console.log('CareerRoadmapSection - userName:', userName);
-  console.log('CareerRoadmapSection - loading:', loading);
-  console.log('CareerRoadmapSection - error:', error);
-  console.log('CareerRoadmapSection - roadmapData:', roadmapData);
-  console.log('CareerRoadmapSection - roadmapSteps:', roadmapSteps);
-
   return (
     <section className="w-full px-4 py-8">
       <div className="max-w-[1200px] mx-auto">

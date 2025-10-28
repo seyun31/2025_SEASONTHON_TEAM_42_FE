@@ -39,15 +39,7 @@ const calculateDuration = (startDate: string, endDate: string): string => {
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays < 30) {
-      return `${diffDays}일`;
-    } else if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months}개월`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      return `${years}년`;
-    }
+    return `D - ${diffDays}`;
   } catch {
     return '기간 미정';
   }
@@ -63,9 +55,7 @@ const styles = {
     } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-500 ease-out ${
-      isHovered ? 'bg-secondary4' : 'bg-secondary4'
-    } ${
+    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-500 ease-out ${
       isExpanded
         ? 'opacity-100 translate-y-0 scale-100'
         : isVisible
@@ -74,13 +64,7 @@ const styles = {
     }`,
 
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
-      isExpanded
-        ? 'bg-secondary4'
-        : isHovered
-          ? 'bg-secondary4'
-          : 'bg-secondary4'
-    }`,
+    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-400 ease-in-out`,
 
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
@@ -131,7 +115,11 @@ const Tag = ({
         ? styles.compactTag(isHovered, isExpanded)
         : styles.tag(isHovered, isExpanded, isVisible)
     }
-    style={{ transitionDelay: `${delay}ms` }}
+    style={{
+      transitionDelay: `${delay}ms`,
+      backgroundColor: '#9FC2FF33',
+      color: '#7A808A',
+    }}
   >
     {children}
   </span>
@@ -179,18 +167,19 @@ export default function EducationCard({
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
-  }, []);
-
-  // isBookmarked prop이 변경될 때 isBookmark 상태 업데이트
-  useEffect(() => {
-    setIsBookmark(isBookmarked);
-  }, [isBookmarked]);
+    // education.isBookmark 정보를 우선적으로 사용하고, 없으면 isBookmarked prop 사용
+    setIsBookmark(education.isBookmark ?? isBookmarked);
+  }, [education.isBookmark, isBookmarked]);
 
   const handleToggleBookmark = async (educationId: string) => {
+    if (isBookmarkLoading) return; // 이미 요청 중이면 중복 요청 방지
+
+    setIsBookmarkLoading(true);
     try {
       if (isBookmark) {
         // 북마크 삭제
@@ -202,6 +191,7 @@ export default function EducationCard({
         );
         if (response.ok) {
           setIsBookmark(false);
+          onToggleBookmark(educationId);
         }
       } else {
         // 북마크 저장
@@ -214,11 +204,13 @@ export default function EducationCard({
         });
         if (response.ok) {
           setIsBookmark(true);
+          onToggleBookmark(educationId);
         }
       }
-      onToggleBookmark(educationId);
     } catch (error) {
       console.error('북마크 처리 중 오류:', error);
+    } finally {
+      setIsBookmarkLoading(false);
     }
   };
 
@@ -240,35 +232,30 @@ export default function EducationCard({
 
   // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
-    const categories =
-      education.trainTarget && education.trainTarget.trim() !== ''
-        ? education.trainTarget.split(',')
-        : [];
-    const certificates = education.certificate?.split(',') || [];
+    const tags = [];
+
+    // keyword1과 keyword2를 태그로 표시
+    if (education.contents && education.contents.trim() !== '') {
+      tags.push(education.contents.trim());
+    }
+
+    // 기존 trainTarget도 유지
+    if (education.trainTarget && education.trainTarget.trim() !== '') {
+      const categories = education.trainTarget.split(',');
+      tags.push(...categories.map((cat) => cat.trim()));
+    }
 
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
-        {categories.map((category, i) => (
+        {tags.map((tag, i) => (
           <Tag
-            key={`category-${i}`}
+            key={`tag-${i}`}
             isHovered={isHovered}
             isExpanded={isExpanded}
             isCompact={isCompact}
             delay={i * (isCompact ? 50 : 100)}
           >
-            {category.trim()}
-          </Tag>
-        ))}
-        {certificates.map((cert, i) => (
-          <Tag
-            key={`cert-${i}`}
-            isHovered={isHovered}
-            isExpanded={isExpanded}
-            isVisible={!isCompact}
-            isCompact={isCompact}
-            delay={(i + categories.length) * (isCompact ? 50 : 100)}
-          >
-            {cert.trim()}
+            {tag}
           </Tag>
         ))}
       </div>
@@ -286,12 +273,19 @@ export default function EducationCard({
       <DetailItem label="시작일" value={formatDate(education.traStartDate)} />
       <DetailItem label="종료일" value={formatDate(education.traEndDate)} />
       <DetailItem
-        label="등급"
-        value={education.grade || '등급 미정'}
+        label="교육시간"
+        value={education.trprDegr ? `${education.trprDegr}시간` : '미정'}
         isPrimary
       />
-      <DetailItem label="정원" value={education.regCourseMan || '정원 미정'} />
-      <DetailItem label="연락처" value={education.telNo || '연락처 미정'} />
+      <DetailItem
+        label="수강료"
+        value={
+          education.courseMan
+            ? `${Number(education.courseMan).toLocaleString()}원`
+            : '문의'
+        }
+      />
+      <DetailItem label="기관" value={education.institution || '기관 미정'} />
     </div>
   );
 
@@ -322,11 +316,15 @@ export default function EducationCard({
         >
           <div className="flex justify-between items-center text-white">
             <div className="flex flex-row gap-1 md:gap-3 flex-1 min-w-0">
-              <div className="text-lg md:text-2xl flex items-center truncate font-medium">
-                {education.title || '교육과정명 미정'}
+              <div className="text-lg md:text-2xl flex items-center font-medium">
+                {(education.title || '교육과정명 미정').length > 10
+                  ? `${(education.title || '교육과정명 미정').substring(0, 10)}···`
+                  : education.title || '교육과정명 미정'}
               </div>
-              <div className="text-xs md:text-base text-gray-300 flex items-center truncate">
-                {education.address || '위치 미정'}
+              <div className="text-xs md:text-base text-gray-300 flex items-center">
+                {(education.address || '위치 미정').length > 10
+                  ? `${(education.address || '위치 미정').substring(0, 10)}···`
+                  : education.address || '위치 미정'}
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -355,7 +353,10 @@ export default function EducationCard({
             <div className="flex justify-between items-start my-4 md:my-6">
               <div className="flex flex-col gap-2 md:gap-3 flex-1 min-w-0">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3 transition-all duration-500 ease-out">
-                  <span className="text-xl md:text-2xl text-gray-800 truncate font-semibold">
+                  <span
+                    className="text-gray-800 truncate font-semibold"
+                    style={{ fontSize: '28px' }}
+                  >
                     {education.subTitle || '교육과정명 미정'}
                   </span>
                   <span className="text-base md:text-body-small-medium text-gray-500 truncate">
@@ -373,8 +374,9 @@ export default function EducationCard({
                     );
                   }}
                   className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
-                    isBookmark ? 'text-yellow-400' : 'text-gray-300'
-                  }`}
+                    isBookmark ? 'text-blue-500' : 'text-gray-300'
+                  } ${isBookmarkLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  disabled={isBookmarkLoading}
                 >
                   {isBookmark ? <HiStar /> : <PiStarThin />}
                 </button>
@@ -382,7 +384,10 @@ export default function EducationCard({
             </div>
 
             {/* 교육과정 설명 */}
-            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium">
+            <p
+              className="text-gray-800 leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium"
+              style={{ fontSize: '28px' }}
+            >
               {education.title || education.contents || '교육과정 설명 미정'}
             </p>
 
@@ -405,7 +410,10 @@ export default function EducationCard({
         ) : (
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
-            <p className="text-gray-800 text-xl md:text-3xl text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium">
+            <p
+              className="text-gray-800 text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium"
+              style={{ fontSize: '28px' }}
+            >
               {education.title || '교육과정명 미정'}
             </p>
 

@@ -225,10 +225,10 @@ export default function EditPage() {
   return (
     <>
       {/* 데스크톱 레이아웃 */}
-      <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-10">
+      <div className="hidden xl:flex fixed items-center justify-center inset-0 pt-5">
         <div className="flex flex-col items-center gap-8">
           {/* 사용자 정보 박스 */}
-          <div className="relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
+          <div className="relative w-[26vw] h-[65vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col justify-center items-center">
             {/* 로고 이미지 */}
             <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
               <Image
@@ -303,22 +303,24 @@ export default function EditPage() {
               </div>
 
               {/* 거주지 선택 */}
-              <div>
+              <div className="min-w-0">
                 <label className="block text-body-large-medium">
                   거주지 (선택)
                 </label>
                 <div className="relative top-2">
-                  <AddressButton
-                    value={address}
-                    onClick={() => setIsModalOpen(true)}
-                  />
+                  <div className="overflow-hidden">
+                    <AddressButton
+                      value={address}
+                      onClick={() => setIsModalOpen(true)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           {/* 취소, 수정완료 버튼 */}
-          <div className="flex gap-4 w-[30.5vw]">
+          <div className="flex gap-4 w-[26.8vw]">
             <div className="flex-1">
               <button
                 onClick={handleCancel}
@@ -347,7 +349,7 @@ export default function EditPage() {
         onConfirm={handleAddressSelect}
       />
       {/* 모바일 레이아웃 */}
-      <div className="flex xl:hidden w-full h-full flex-col pt-16">
+      <div className="flex xl:hidden w-full h-full flex-col pt-8">
         {/* 사용자 정보 영역 */}
         <div className="flex-1 flex items-center justify-center px-8 py-8">
           <div className="w-full max-w-md flex flex-col gap-4">
@@ -410,41 +412,37 @@ export default function EditPage() {
             </div>
 
             {/* 거주지 선택 */}
-            <div>
+            <div className="min-w-0">
               <label className="block text-body-large-medium">
                 거주지 (선택)
               </label>
               <div className="relative top-2">
-                <AddressButton
-                  value={address}
-                  onClick={() => setIsModalOpen(true)}
-                />
+                <div className="overflow-hidden">
+                  <AddressButton
+                    value={address}
+                    onClick={() => setIsModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         {/* 취소, 수정완료 버튼 */}
-        <div className="flex gap-4 w-full max-w-md mx-auto px-8 pb-8">
-          <div className="relative flex-1">
-            <div className="absolute inset-0 rounded-[12px] bg-gray-300 opacity-50" />
-            <button
-              onClick={handleCancel}
-              className="relative z-10 w-full px-8 py-4 rounded-[12px] h-[8.5vh] bg-white text-gray-50 text-[20px] border-2 border-primary-40 cursor-pointer"
-            >
-              취소
-            </button>
-          </div>
-          <div className="relative flex-1">
-            <div className="absolute inset-0 rounded-[12px] bg-primary-30 opacity-50" />
-            <button
-              onClick={handleComplete}
-              disabled={!isFormValid}
-              className="relative z-10 w-full px-8 py-4 rounded-[12px] h-[8.5vh] bg-primary-90 text-white text-[20px] cursor-pointer"
-            >
-              수정 완료
-            </button>
-          </div>
+        <div className="flex gap-4 w-full max-w-sm sm:max-w-lg md:max-w-lg lg:max-xl items-center justify-center px-6 sm:px-8 pb-8 mx-auto">
+          <button
+            onClick={handleCancel}
+            className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 rounded-[12px] h-[7vh] sm:h-[8vh] md:h-[9vh] lg:h-[10vh] bg-white text-gray-50 text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] border-2 border-primary-40 cursor-pointer"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleComplete}
+            disabled={!isFormValid}
+            className="flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 rounded-[12px] h-[7vh] sm:h-[8vh] md:h-[9vh] lg:h-[10vh] bg-primary-90 text-white text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] cursor-pointer disabled:bg-gray-300 disabled:cursor-not-allowed"
+          >
+            수정 완료
+          </button>
         </div>
       </div>
 

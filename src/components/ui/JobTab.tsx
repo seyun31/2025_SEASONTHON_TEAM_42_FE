@@ -32,7 +32,7 @@ export default function JobTab({
       <button
         onClick={handleCustomTabClick}
         disabled={!isLoggedIn}
-        className={`text-xl md:text-4xl py-2 md:py-[10px] px-4 md:px-8 relative ${
+        className={`text-xl md:text-4xl py-2 md:py-[10px] px-4 md:px-8 relative cursor-pointer ${
           activeTab === 'custom'
             ? 'text-black'
             : isLoggedIn
@@ -47,7 +47,7 @@ export default function JobTab({
       </button>
       <button
         onClick={handleAllTabClick}
-        className={`text-xl md:text-4xl font-medium py-2 md:py-[10px] px-4 md:px-8 relative ${
+        className={`text-xl md:text-4xl font-medium py-2 md:py-[10px] px-4 md:px-8 relative cursor-pointer ${
           activeTab === 'all' ? 'text-black' : 'text-gray-50 hover:text-gray-70'
         }`}
       >

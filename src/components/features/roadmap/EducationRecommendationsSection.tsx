@@ -42,7 +42,45 @@ export default function EducationRecommendationsSection() {
           educationData = await getRecommendedEducations();
         } else {
           // 비로그인 시: /education/all/anonymous API 사용
-          educationData = await getAllEducationsAnonymous();
+          const result = await getAllEducationsAnonymous();
+          // EducationDto를 EducationSummary 형식으로 변환
+          educationData = (result.educationDtoList || []).map((edu) => ({
+            id: edu.educationId.toString(),
+            educationId: edu.educationId,
+            trprId: edu.educationId.toString(),
+            title: edu.title,
+            subTitle: edu.subTitle,
+            institution: '',
+            address: edu.address,
+            traStartDate: edu.traStartDate,
+            traEndDate: edu.traEndDate,
+            trainTarget: '',
+            contents: '',
+            certificate: '',
+            grade: '',
+            regCourseMan: '',
+            courseMan: edu.courseMan,
+            realMan: '',
+            yardMan: '',
+            telNo: '',
+            stdgScor: '',
+            eiEmplCnt3: '',
+            eiEmplRate3: '',
+            eiEmplCnt3Gt10: '',
+            eiEmplRate6: '',
+            ncsCd: '',
+            trprDegr: edu.trprDegr,
+            instCd: '',
+            trngAreaCd: '',
+            trainTargetCd: '',
+            trainstCstId: '',
+            subTitleLink: '',
+            titleLink: edu.titleLink,
+            titleIcon: '',
+            imageUrl: edu.imageUrl,
+            isBookmark: edu.isBookmark,
+            recommendScore: edu.score ?? undefined,
+          }));
         }
 
         console.log(

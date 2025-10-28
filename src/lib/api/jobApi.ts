@@ -14,6 +14,7 @@ import {
   EducationApiResponse,
   EducationDataResponse,
   CardCourseItem,
+  EducationDto,
 } from '@/types/job';
 import {
   RoadMapResponse,
@@ -125,10 +126,12 @@ export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
 // 전체 채용 조회 (비로그인 시)
 export const getAllJobs = async (filters?: {
   keyword?: string;
+  page?: number;
+  size?: number;
   workLocation?: string[];
   employmentType?: string[];
   jobCategory?: string[];
-}): Promise<AllResponse[]> => {
+}): Promise<SearchAllResponse> => {
   try {
     console.log('Making API request to /job/all/anonymous');
 
@@ -145,6 +148,14 @@ export const getAllJobs = async (filters?: {
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.page !== undefined) {
+      queryParams.append('page', filters.page.toString());
+    }
+
+    if (filters?.size !== undefined) {
+      queryParams.append('size', filters.size.toString());
     }
 
     if (filters?.workLocation && filters.workLocation.length > 0) {
@@ -191,7 +202,7 @@ export const getAllJobs = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    return result.data.jobDtoList || [];
+    return result.data;
   } catch (error) {
     console.error('Error fetching all jobs:', error);
     throw error;
@@ -201,10 +212,12 @@ export const getAllJobs = async (filters?: {
 // 전체 채용 조회 (로그인 시)
 export const getAllJobsForLoggedIn = async (filters?: {
   keyword?: string;
+  page?: number;
+  size?: number;
   workLocation?: string[];
   employmentType?: string[];
   jobCategory?: string[];
-}): Promise<AllResponse[]> => {
+}): Promise<SearchAllResponse> => {
   try {
     const token = getAccessToken();
     if (!token) {
@@ -226,6 +239,14 @@ export const getAllJobsForLoggedIn = async (filters?: {
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.page !== undefined) {
+      queryParams.append('page', filters.page.toString());
+    }
+
+    if (filters?.size !== undefined) {
+      queryParams.append('size', filters.size.toString());
     }
 
     if (filters?.workLocation && filters.workLocation.length > 0) {
@@ -273,7 +294,7 @@ export const getAllJobsForLoggedIn = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    return result.data.jobDtoList || [];
+    return result.data;
   } catch (error) {
     console.error('Error fetching all jobs for logged in user:', error);
     throw error;
@@ -1196,6 +1217,7 @@ export const getEducationCourses = async (filters?: {
     // CardCourseItem을 EducationSummary로 변환
     return result.data.srchList.map((item) => ({
       id: item.trprId,
+      educationId: parseInt(item.trprId),
       trprId: item.trprId,
       title: item.title,
       subTitle: item.subTitle,
@@ -1292,22 +1314,23 @@ export const getRecommendedEducations = async (): Promise<
     // AllResponse를 EducationSummary로 변환
     return result.data.jobDtoList.map((item) => ({
       id: item.jobId.toString(),
+      educationId: item.jobId,
       trprId: item.jobId.toString(),
       title: item.jobTitle || '제목 없음',
-      subTitle: item.requiredSkills || '',
+      subTitle: item.jobCodeName || '',
       institution: item.companyName || '',
       address: item.workLocation || '',
       traStartDate: item.postingDate || '',
       traEndDate: item.closingDate || '',
       trainTarget: '',
-      contents: item.requiredSkills || '',
+      contents: item.description || '',
       certificate: '',
       grade: '',
-      regCourseMan: '0',
-      courseMan: '0',
+      regCourseMan: item.recruitNumber?.toString() || '0',
+      courseMan: item.recruitNumber?.toString() || '0',
       realMan: '0',
       yardMan: '0',
-      telNo: '',
+      telNo: item.managerPhone || '',
       stdgScor: '0',
       eiEmplCnt3: '0',
       eiEmplRate3: '0',
@@ -1322,6 +1345,7 @@ export const getRecommendedEducations = async (): Promise<
       subTitleLink: '',
       titleLink: '',
       titleIcon: '',
+      imageUrl: item.imageUrl,
       isBookmark: item.isBookmark || false,
       recommendScore: item.score,
     }));
@@ -1334,17 +1358,11 @@ export const getRecommendedEducations = async (): Promise<
 // 전체 교육 조회 (비로그인 시)
 export const getAllEducationsAnonymous = async (filters?: {
   keyword?: string;
-  workLocation?: string;
-}): Promise<EducationSummary[]> => {
+  startYmd?: string;
+  endYmd?: string;
+}): Promise<EducationDataResponse['data']> => {
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log('Making API request to /education/all/anonymous');
+    console.log('Making API request to /api/education/anonymous');
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
@@ -1353,14 +1371,18 @@ export const getAllEducationsAnonymous = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.workLocation) {
-      queryParams.append('workLocation', filters.workLocation);
+    if (filters?.startYmd) {
+      queryParams.append('startYmd', filters.startYmd);
+    }
+
+    if (filters?.endYmd) {
+      queryParams.append('endYmd', filters.endYmd);
     }
 
     const queryString = queryParams.toString();
     const url = queryString
-      ? `${backendUrl}/education/all/anonymous?${queryString}`
-      : `${backendUrl}/education/all/anonymous`;
+      ? `/api/education/anonymous?${queryString}`
+      : `/api/education/anonymous`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -1385,7 +1407,7 @@ export const getAllEducationsAnonymous = async (filters?: {
       );
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
+    const result = await response.json();
     console.log('getAllEducationsAnonymous - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
@@ -1396,42 +1418,52 @@ export const getAllEducationsAnonymous = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // AllResponse를 EducationSummary로 변환
-    return result.data.jobDtoList.map((item) => ({
-      id: item.jobId.toString(),
-      trprId: item.jobId.toString(),
-      title: item.jobTitle || '제목 없음',
-      subTitle: item.requiredSkills || '',
-      institution: item.companyName || '',
-      address: item.workLocation || '',
-      traStartDate: item.postingDate || '',
-      traEndDate: item.closingDate || '',
-      trainTarget: '',
-      contents: item.requiredSkills || '',
-      certificate: '',
-      grade: '',
-      regCourseMan: '0',
-      courseMan: '0',
-      realMan: '0',
-      yardMan: '0',
-      telNo: '',
-      stdgScor: '0',
-      eiEmplCnt3: '0',
-      eiEmplRate3: '0',
-      eiEmplCnt3Gt10: '0',
-      eiEmplRate6: '0',
-      ncsCd: '',
-      trprDegr: '',
-      instCd: '',
-      trngAreaCd: '',
-      trainTargetCd: '',
-      trainstCstId: '',
-      subTitleLink: '',
-      titleLink: '',
-      titleIcon: '',
-      isBookmark: false,
-      recommendScore: undefined,
-    }));
+    // 새로운 response 구조에 맞게 변환
+    const mappedData = result.data.educationDtoList.map(
+      (item: EducationDto) => ({
+        id: item.educationId.toString(),
+        educationId: item.educationId,
+        trprId: item.educationId.toString(),
+        title: item.title || '제목 없음',
+        subTitle: item.subTitle || '',
+        institution: item.subTitle || '',
+        address: item.address || '',
+        traStartDate: item.traStartDate || '',
+        traEndDate: item.traEndDate || '',
+        trainTarget: '',
+        contents: item.keyword1 || item.keyword2 || '',
+        certificate: '',
+        grade: '',
+        regCourseMan: '0',
+        courseMan: item.courseMan || '0',
+        realMan: '0',
+        yardMan: '0',
+        telNo: '',
+        stdgScor: '0',
+        eiEmplCnt3: '0',
+        eiEmplRate3: '0',
+        eiEmplCnt3Gt10: '0',
+        eiEmplRate6: '0',
+        ncsCd: '',
+        trprDegr: item.trprDegr || '',
+        instCd: '',
+        trngAreaCd: '',
+        trainTargetCd: '',
+        trainstCstId: '',
+        subTitleLink: '',
+        titleLink: item.titleLink || '',
+        titleIcon: '',
+        imageUrl: item.imageUrl || '',
+        isBookmark: item.isBookmark || false,
+        recommendScore: item.score || undefined,
+      })
+    );
+
+    return {
+      totalElements: result.data.totalElements || mappedData.length,
+      numberOfElements: result.data.numberOfElements || mappedData.length,
+      educationDtoList: mappedData,
+    };
   } catch (error) {
     console.error('Error fetching all educations:', error);
     throw error;
@@ -1445,7 +1477,7 @@ export const getHrdEducations = async (filters?: {
   pageSize?: number;
   startYmd?: string;
   endYmd?: string;
-}): Promise<EducationSummary[]> => {
+}): Promise<EducationDataResponse['data']> => {
   try {
     const token = getAccessToken();
     if (!token) {
@@ -1519,7 +1551,7 @@ export const getHrdEducations = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    let mappedData: EducationSummary[] = [];
+    let mappedData: EducationDto[] = [];
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
@@ -1542,39 +1574,20 @@ export const getHrdEducations = async (filters?: {
             item
           );
           return {
-            id: item.trprId || index.toString(),
-            trprId: item.trprId || index.toString(),
+            educationId: parseInt(item.trprId || index.toString()),
             title: item.title || '제목 없음',
             subTitle: item.subTitle || '',
-            institution: item.instCd || '',
-            address: item.address || '',
             traStartDate: item.traStartDate || '',
             traEndDate: item.traEndDate || '',
-            trainTarget: item.trainTarget || '',
-            contents: item.contents || '',
-            certificate: item.certificate || '',
-            grade: item.grade || '',
-            regCourseMan: item.regCourseMan || '0',
+            address: item.address || '',
             courseMan: item.courseMan || '0',
-            realMan: item.realMan || '0',
-            yardMan: item.yardMan || '0',
-            telNo: item.telNo || '',
-            stdgScor: item.stdgScor || '0',
-            eiEmplCnt3: item.eiEmplCnt3 || '0',
-            eiEmplRate3: item.eiEmplRate3 || '0',
-            eiEmplCnt3Gt10: item.eiEmplCnt3Gt10 || '0',
-            eiEmplRate6: item.eiEmplRate6 || '0',
-            ncsCd: item.ncsCd || '',
+            keyword1: '',
+            keyword2: '',
             trprDegr: item.trprDegr || '',
-            instCd: item.instCd || '',
-            trngAreaCd: item.trngAreaCd || '',
-            trainTargetCd: item.trainTargetCd || '',
-            trainstCstId: item.trainstCstId || '',
-            subTitleLink: item.subTitleLink || '',
+            imageUrl: '',
             titleLink: item.titleLink || '',
-            titleIcon: item.titleIcon || '',
             isBookmark: false,
-            recommendScore: undefined,
+            score: null,
           };
         }
       );
@@ -1583,7 +1596,11 @@ export const getHrdEducations = async (filters?: {
         'getHrdEducations - No educationDtoList or srchList found in result.data:',
         result.data
       );
-      return [];
+      return {
+        totalElements: 0,
+        numberOfElements: 0,
+        educationDtoList: [],
+      };
     }
 
     console.log('getHrdEducations - Final mapped data:', mappedData);
@@ -1592,7 +1609,11 @@ export const getHrdEducations = async (filters?: {
       mappedData.length
     );
 
-    return mappedData;
+    return {
+      totalElements: mappedData.length, // TODO: API에서 실제 totalElements를 반환하도록 수정 필요
+      numberOfElements: mappedData.length,
+      educationDtoList: mappedData,
+    };
   } catch (error) {
     console.error('Error fetching HRD educations:', error);
     throw error;

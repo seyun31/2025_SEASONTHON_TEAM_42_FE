@@ -633,6 +633,19 @@ export default function UserCheckList({
               {/* 왼쪽 섹션 */}
               <div className="flex-[2] flex flex-col justify-between">
                 <div>
+                  {roadmapData &&
+                    roadmapData.roadmapInputResponse.dday !== undefined && (
+                      <div
+                        className="text-primary-90 font-semibold"
+                        style={{
+                          fontSize: '36px',
+                          lineHeight: '36px',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        D+{roadmapData.roadmapInputResponse.dday}
+                      </div>
+                    )}
                   <div className="text-gray-800 text-title-xlarge">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.career

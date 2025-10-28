@@ -16,6 +16,7 @@ export interface JobSummary {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   jobRecommendScore: number | null;
   isScrap: boolean;
 }
@@ -33,8 +34,30 @@ export interface ApiResponse<T> {
   };
 }
 
+// 교육 DTO 타입 정의
+export interface EducationDto {
+  educationId: number;
+  title: string;
+  subTitle: string;
+  traStartDate: string;
+  traEndDate: string;
+  address: string;
+  courseMan: string;
+  keyword1: string;
+  keyword2: string;
+  trprDegr: string;
+  imageUrl: string;
+  titleLink: string;
+  isBookmark: boolean;
+  score: number | null;
+}
+
 // 전체 채용 조회 API 응답 타입
 export interface AllResponse {
+  managerPhone: string;
+  recruitNumber: unknown;
+  description: string;
+  jobCodeName: string;
   jobId: number;
   companyName: string;
   companyLogo: string;
@@ -50,6 +73,7 @@ export interface AllResponse {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   imageUrl: string;
   isBookmark: boolean;
   score: number;
@@ -90,6 +114,7 @@ export interface JobDetailResponse {
   postingDate: string;
   closingDate: string;
   applyLink: string;
+  requiredDocuments?: string;
   isScrap: boolean;
 }
 
@@ -236,7 +261,9 @@ export interface EducationApiResponse {
 export interface EducationDataResponse {
   result: 'SUCCESS' | 'ERROR';
   data: {
-    educationDtoList: EducationSummary[];
+    totalElements: number;
+    numberOfElements: number;
+    educationDtoList: EducationDto[];
   };
   error?: {
     code: string;

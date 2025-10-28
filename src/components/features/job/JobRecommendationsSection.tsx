@@ -1,6 +1,5 @@
 'use client';
 
-import { jobRecommendations } from '@/data/jobData';
 import { useState, useEffect } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
@@ -50,7 +49,8 @@ export default function JobRecommendationsSection() {
           console.log(
             'JobRecommendationsSection - Fetching all jobs for anonymous user'
           );
-          jobData = await getAllJobs();
+          const result = await getAllJobs();
+          jobData = (result.jobDtoList || []) as AllResponse[];
           console.log(
             'JobRecommendationsSection - All jobs fetched:',
             jobData.length,
@@ -71,8 +71,8 @@ export default function JobRecommendationsSection() {
         setJobs(jobData.slice(0, 8));
       } catch (error) {
         console.error('Error fetching jobs:', error);
-        // 에러 시 mock 데이터 사용
-        setJobs(jobRecommendations.slice(0, 8) as unknown as AllResponse[]);
+        // 에러 시 빈 배열 설정
+        setJobs([]);
       } finally {
         setIsLoading(false);
       }
@@ -106,11 +106,12 @@ export default function JobRecommendationsSection() {
       workPeriod:
         (job as { workTime?: string }).workTime || job.workPeriod || '미정', // API에서는 workTime 필드 사용
       experience: job.experience || '경력 무관', // API에 experience가 없으므로 기본값 설정
-      requiredSkills: job.requiredSkills || job.jobCategory, // API에 requiredSkills가 없으므로 jobCategory 사용
+      requiredSkills: job.requiredSkills || '', // API에서 제공되는 requiredSkills 사용
       preferredSkills: job.preferredSkills || '',
       postingDate: job.postingDate,
       closingDate: job.closingDate,
       applyLink: job.applyLink || '#', // API에 applyLink가 없으므로 기본값 설정
+      requiredDocuments: job.requiredDocuments,
       jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
     };
