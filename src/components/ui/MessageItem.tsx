@@ -24,9 +24,9 @@ export default function MessageItem({
           <Image
             src="/assets/Icons/ai-chat-profile.webp"
             alt="AI 프로필"
-            width={0}
-            height={0}
-            className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]"
+            width={52}
+            height={52}
+            className="flex-shrink-0 w-12 h-12 xs:w-11 xs:h-11 md:w-10 md:h-10 lg:w-[52px] lg:h-[52px] object-contain"
           />
           <div className="text-chat-message text-[16px] xs:text-[16px] md:text-[18px] lg:text-[18px]">
             꿈별이
@@ -34,7 +34,7 @@ export default function MessageItem({
         </div>
       )}
       <div
-        className={`${isBot ? 'ml-[8vw] xs:ml-[6vw] md:ml-[3.5vw] lg:ml-[2.71vw]' : 'ml-[8vw] xs:ml-[6vw] md:ml-[3.5vw] lg:ml-[2.71vw]'}`}
+        className={`${isBot ? 'ml-12 xs:ml-11 md:ml-10 lg:ml-[52px]' : 'ml-12 xs:ml-11 md:ml-10 lg:ml-[52px]'}`}
       >
         <div
           className={`max-w-[60vw] xs:max-w-[75vw] md:max-w-[50vw] lg:max-w-[40.21vw] rounded-[24px] pt-6 pb-6 pl-5 pr-5 xs:pl-5 xs:pr-5 md:pl-4 md:pr-4 lg:pl-4 lg:pr-4 whitespace-pre-line text-base lg:text-lg ${
