@@ -158,7 +158,7 @@ export default function MessageSection({
         </div>
 
         {/* 직업 카드들 */}
-        <div className="flex gap-4 w-full">
+        <div className="flex gap-4 w-full overflow-x-auto scrollbar-hide">
           {validOccupations.map((occupation: Occupation, jobIndex: number) => (
             <FlipCard
               key={jobIndex}

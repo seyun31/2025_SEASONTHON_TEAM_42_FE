@@ -26,7 +26,7 @@ export default function MessageItem({
             alt="AI 프로필"
             width={52}
             height={52}
-            className="flex-shrink-0 w-12 h-12 xs:w-11 xs:h-11 md:w-10 md:h-10 lg:w-[52px] lg:h-[52px] object-contain"
+            className="flex-shrink-0 w-12 xs:w-11 md:w-10 lg:w-[52px] h-auto object-contain"
           />
           <div className="text-chat-message text-[16px] xs:text-[16px] md:text-[18px] lg:text-[18px]">
             꿈별이
