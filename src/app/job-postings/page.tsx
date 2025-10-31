@@ -272,12 +272,12 @@ export default function JobPostings() {
 
             {/* 페이지네이션 */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+              <div className="flex justify-center items-center gap-1 xs:gap-2 md:gap-2 lg:gap-2 mt-8 xs:mt-10 md:mt-12 lg:mt-12 mb-6 xs:mb-7 md:mb-8 lg:mb-8">
                 {/* 첫 페이지 버튼 */}
                 <button
                   onClick={() => setCurrentPage(1)}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 xs:px-2 md:px-3 lg:px-3 py-1.5 xs:py-1.5 md:py-2 lg:py-2 text-xs xs:text-sm md:text-base lg:text-base rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   &lt;&lt;
                 </button>
@@ -286,7 +286,7 @@ export default function JobPostings() {
                 <button
                   onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2.5 xs:px-3 md:px-4 lg:px-4 py-1.5 xs:py-1.5 md:py-2 lg:py-2 text-xs xs:text-sm md:text-base lg:text-base rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   &lt;
                 </button>
@@ -308,7 +308,7 @@ export default function JobPostings() {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`min-w-[40px] px-4 py-2 rounded-lg border font-medium ${
+                      className={`min-w-[32px] xs:min-w-[36px] md:min-w-[40px] lg:min-w-[40px] px-2.5 xs:px-3 md:px-4 lg:px-4 py-1.5 xs:py-1.5 md:py-2 lg:py-2 text-xs xs:text-sm md:text-base lg:text-base rounded-lg border font-medium cursor-pointer ${
                         currentPage === pageNum
                           ? 'bg-primary-90 text-white border-primary-90 shadow-md'
                           : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
@@ -325,7 +325,7 @@ export default function JobPostings() {
                     setCurrentPage(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2.5 xs:px-3 md:px-4 lg:px-4 py-1.5 xs:py-1.5 md:py-2 lg:py-2 text-xs xs:text-sm md:text-base lg:text-base rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   &gt;
                 </button>
@@ -334,7 +334,7 @@ export default function JobPostings() {
                 <button
                   onClick={() => setCurrentPage(totalPages)}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 xs:px-2 md:px-3 lg:px-3 py-1.5 xs:py-1.5 md:py-2 lg:py-2 text-xs xs:text-sm md:text-base lg:text-base rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
                   &gt;&gt;
                 </button>
