@@ -25,19 +25,18 @@ export default function JobPostingsClient({
   initialTotalElements,
   isLoggedInInitial,
 }: JobPostingsClientProps) {
+  const isLoggedIn = isLoggedInInitial;
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>(
     isLoggedInInitial ? 'custom' : 'all'
   );
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(isLoggedInInitial);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalElements, setTotalElements] =
+    useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
     Math.max(1, Math.ceil((initialTotalElements || initialJobs.length) / 10))
-  );
-  const [totalElements, setTotalElements] = useState<number>(
-    initialTotalElements || initialJobs.length
   );
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] =
@@ -153,33 +152,29 @@ export default function JobPostingsClient({
         id: job.jobId,
         jobId: job.jobId.toString(),
         companyName: job.companyName,
-        companyLogo: (job as any).imageUrl || (job as any).companyLogo,
+        companyLogo: job.imageUrl || job.companyLogo,
         jobTitle: job.jobTitle,
         jobCategory: job.jobCategory,
         workLocation: job.workLocation,
         employmentType: job.employmentType,
-        salary:
-          (job as { wage?: string }).wage || (job as any).salary || '급여 미정',
-        workPeriod:
-          (job as { workTime?: string }).workTime ||
-          (job as any).workPeriod ||
-          '근무기간 미정',
-        experience: (job as any).experience || '경력 무관',
-        requiredSkills: (job as any).requiredSkills || '',
-        preferredSkills: (job as any).preferredSkills || '',
-        postingDate: (job as any).postingDate,
+        salary: job.salary || '급여 미정',
+        workPeriod: job.workPeriod || '근무기간 미정',
+        experience: job.experience || '경력 무관',
+        requiredSkills: job.requiredSkills || '',
+        preferredSkills: job.preferredSkills || '',
+        postingDate: job.postingDate,
         closingDate: job.closingDate,
-        applyLink: (job as any).applyLink || '#',
-        requiredDocuments: (job as any).requiredDocuments,
-        jobRecommendScore: (job as any).score || null,
-        isScrap: (job as any).isBookmark,
+        applyLink: job.applyLink || '#',
+        requiredDocuments: job.requiredDocuments,
+        jobRecommendScore: job.score || null,
+        isScrap: job.isBookmark,
       };
     } else {
       return {
         id: parseInt(job.jobId) || 0,
         jobId: job.jobId,
         companyName: job.companyName,
-        companyLogo: (job as any).imageUrl || '',
+        companyLogo: job.imageUrl || '',
         jobTitle: job.keyword,
         jobCategory: '',
         workLocation: job.workLocation,
@@ -254,7 +249,11 @@ export default function JobPostingsClient({
               <div className="flex flex-col gap-6 flex-1">
                 {jobs.slice(0, Math.ceil(jobs.length / 2)).map((job, index) => (
                   <JobCard
-                    key={(job as any).jobId || index}
+                    key={
+                      ('jobId' in job && typeof job.jobId === 'number'
+                        ? job.jobId
+                        : job.jobId) || index
+                    }
                     job={convertToJobCardFormat(job)}
                     onToggleScrap={toggleScrap}
                   />
@@ -264,7 +263,9 @@ export default function JobPostingsClient({
                 {jobs.slice(Math.ceil(jobs.length / 2)).map((job, index) => (
                   <JobCard
                     key={
-                      (job as any).jobId || index + Math.ceil(jobs.length / 2)
+                      ('jobId' in job && typeof job.jobId === 'number'
+                        ? job.jobId
+                        : job.jobId) || index + Math.ceil(jobs.length / 2)
                     }
                     job={convertToJobCardFormat(job)}
                     onToggleScrap={toggleScrap}

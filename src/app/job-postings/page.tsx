@@ -54,7 +54,7 @@ async function fetchInitialJobs(
         totalElements: result.data.totalElements || 0,
       };
     }
-  } catch (_e) {
+  } catch {
     return { jobs: [], totalElements: 0 };
   }
 }

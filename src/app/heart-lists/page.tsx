@@ -145,6 +145,7 @@ function HeartListsContent() {
     } else if (tab === 'education') {
       fetchEducationHistory();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   // 교육 히스토리 데이터를 EducationSummary 형태로 변환하는 함수

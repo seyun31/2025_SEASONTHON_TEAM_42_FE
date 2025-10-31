@@ -32,43 +32,60 @@ async function fetchInitialEducations(
       if (result.result !== 'SUCCESS') {
         return { educations: [], totalElements: 0 };
       }
-      const educations: EducationSummary[] = (result.data.jobDtoList || []).map(
-        (item: any) => ({
-          id: String(item.jobId ?? ''),
-          educationId: Number(item.jobId ?? 0),
-          trprId: String(item.jobId ?? ''),
-          title: item.jobTitle || '제목 없음',
-          subTitle: item.jobCodeName || '',
-          institution: item.companyName || '',
-          address: item.workLocation || '',
-          traStartDate: item.postingDate || '',
-          traEndDate: item.closingDate || '',
+      const educations: EducationSummary[] = (
+        result.data.educationDtoList || []
+      ).map(
+        (edu: {
+          educationId: number;
+          title?: string;
+          subTitle?: string;
+          address?: string;
+          traStartDate?: string;
+          traEndDate?: string;
+          keyword1?: string;
+          keyword2?: string;
+          courseMan?: string;
+          trprDegr?: string;
+          imageUrl?: string;
+          isBookmark?: boolean;
+          titleLink?: string;
+          score?: number;
+        }) => ({
+          id: String(edu.educationId),
+          educationId: Number(edu.educationId),
+          trprId: String(edu.educationId),
+          title: edu.title || '',
+          subTitle: edu.subTitle || '',
+          institution: edu.subTitle || '',
+          address: edu.address || '',
+          traStartDate: edu.traStartDate || '',
+          traEndDate: edu.traEndDate || '',
           trainTarget: '',
-          contents: item.description || '',
+          contents: edu.keyword1 || edu.keyword2 || '',
           certificate: '',
           grade: '',
-          regCourseMan: String(item.recruitNumber ?? '0'),
-          courseMan: String(item.recruitNumber ?? '0'),
+          regCourseMan: '0',
+          courseMan: edu.courseMan || '0',
           realMan: '0',
           yardMan: '0',
-          telNo: item.managerPhone || '',
+          telNo: '',
           stdgScor: '0',
           eiEmplCnt3: '0',
           eiEmplRate3: '0',
           eiEmplCnt3Gt10: '0',
           eiEmplRate6: '0',
           ncsCd: '',
-          trprDegr: '',
+          trprDegr: edu.trprDegr || '',
           instCd: '',
           trngAreaCd: '',
           trainTargetCd: '',
           trainstCstId: '',
           subTitleLink: '',
-          titleLink: '',
+          titleLink: edu.titleLink || '',
           titleIcon: '',
-          imageUrl: item.imageUrl,
-          isBookmark: Boolean(item.isBookmark),
-          recommendScore: item.score,
+          imageUrl: edu.imageUrl || '',
+          isBookmark: Boolean(edu.isBookmark),
+          recommendScore: edu.score || undefined,
         })
       );
       return { educations, totalElements: educations.length };
@@ -91,7 +108,22 @@ async function fetchInitialEducations(
       }
       const data = result.data;
       const educations: EducationSummary[] = (data.educationDtoList || []).map(
-        (edu: any) => ({
+        (edu: {
+          educationId: number;
+          title?: string;
+          subTitle?: string;
+          address?: string;
+          traStartDate?: string;
+          traEndDate?: string;
+          keyword1?: string;
+          keyword2?: string;
+          courseMan?: string;
+          trprDegr?: string;
+          imageUrl?: string;
+          isBookmark?: boolean;
+          titleLink?: string;
+          score?: number;
+        }) => ({
           id: String(edu.educationId),
           educationId: Number(edu.educationId),
           trprId: String(edu.educationId),
@@ -134,7 +166,7 @@ async function fetchInitialEducations(
         totalElements: data.totalElements || educations.length,
       };
     }
-  } catch (_e) {
+  } catch {
     return { educations: [], totalElements: 0 };
   }
 }

@@ -27,23 +27,22 @@ export default function EducationProgramsClient({
   initialTotalElements,
   isLoggedInInitial,
 }: EducationProgramsClientProps) {
+  const isLoggedIn = isLoggedInInitial;
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>(
     isLoggedInInitial ? 'custom' : 'all'
   );
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(isLoggedInInitial);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
     useState<EducationSummary[]>(initialEducations);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalElements, setTotalElements] =
+    useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
     Math.max(
       1,
       Math.ceil((initialTotalElements || initialEducations.length) / 10)
     )
-  );
-  const [totalElements, setTotalElements] = useState<number>(
-    initialTotalElements || initialEducations.length
   );
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [debouncedSearchKeyword, setDebouncedSearchKeyword] =

@@ -4,7 +4,6 @@ import { EducationSummary } from '@/types/job';
 import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
-import { getUserData } from '@/lib/auth';
 
 // 날짜 포맷팅 함수
 const formatDate = (dateString: string): string => {
@@ -63,7 +62,7 @@ const styles = {
           : 'opacity-0 translate-y-2 scale-95'
     }`,
 
-  compactTag: (isHovered: boolean, isExpanded: boolean) =>
+  compactTag: () =>
     `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-400 ease-in-out`,
 
   recommendationScore: (isLoggedIn: boolean) => ({
@@ -112,7 +111,7 @@ const Tag = ({
   <span
     className={
       isCompact
-        ? styles.compactTag(isHovered, isExpanded)
+        ? styles.compactTag()
         : styles.tag(isHovered, isExpanded, isVisible)
     }
     style={{
@@ -166,12 +165,9 @@ export default function EducationCard({
   const [isAnimating, setIsAnimating] = useState(false);
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
   const [isHovered, setIsHovered] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
 
   useEffect(() => {
-    const userData = getUserData();
-    setIsLoggedIn(!!userData);
     // education.isBookmark 정보를 우선적으로 사용하고, 없으면 isBookmarked prop 사용
     setIsBookmark(education.isBookmark ?? isBookmarked);
   }, [education.isBookmark, isBookmarked]);

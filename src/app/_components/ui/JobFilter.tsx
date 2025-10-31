@@ -353,29 +353,6 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
     });
   };
 
-  const getSelectedLabel = (key: keyof FilterState) => {
-    if (key === 'selectedRegion') {
-      return filters.selectedRegion || '전체';
-    }
-
-    const optionsMap: Record<string, FilterOption[]> = {
-      employmentType: employmentTypeOptions,
-      jobCategory: jobCategoryOptions,
-    };
-
-    const options = optionsMap[key];
-    const selectedValues = filters[key as keyof typeof filters] as string[];
-    if (selectedValues.length === 0) return '전체';
-    if (selectedValues.length === 1) {
-      return (
-        options?.find(
-          (option: FilterOption) => option.value === selectedValues[0]
-        )?.label || '전체'
-      );
-    }
-    return `${selectedValues.length}개 선택`;
-  };
-
   const hasActiveFilters =
     filters.selectedDistricts.length > 0 ||
     filters.employmentType.length > 0 ||

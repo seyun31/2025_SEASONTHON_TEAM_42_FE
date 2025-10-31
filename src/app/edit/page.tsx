@@ -1,16 +1,14 @@
 'use client';
 
-import Footer from '@/components/layout/Footer';
 import AddressButton from '@/components/ui/AddressButton';
 import RegionSelectModal from '@/components/ui/RegionSelectModal';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { UserData } from '@/types/user';
 
 export default function EditPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [useName, setName] = useState('');
   const [birthDate, setBirthDate] = useState('');
@@ -78,7 +76,7 @@ export default function EditPage() {
     };
 
     fetchUserData();
-  }, []);
+  }, [router]);
 
   const isFormValid =
     useName.trim() !== '' && birthDate.trim() !== '' && selectedGender !== '';
