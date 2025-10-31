@@ -7,59 +7,38 @@ import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
 
-// 급여 포맷팅 함수
 const formatSalary = (salary: string | null | undefined): string => {
   if (!salary) return '급여 미정';
-
-  // 숫자와 원 패턴 찾기 (예: "시급 10030원" -> "시급 10,030원")
   return salary.replace(/(\d+)원/g, (match, number) => {
     return parseInt(number).toLocaleString('ko-KR') + '원';
   });
 };
 
-// 디데이 계산 함수
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
   if (!closingDate) return 'D-?';
-
   try {
-    // "마감일 (2025-11-11)" 형식에서 날짜 추출
     let dateString = closingDate;
     const dateInParentheses = closingDate.match(/\((\d{4}-\d{2}-\d{2})\)/);
     if (dateInParentheses) {
       dateString = dateInParentheses[1];
     }
-
-    // 다양한 날짜 형식 지원
     const dateFormats = [
-      /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
-      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, // YYYY-MM-DD HH:MM:SS
-      /^\d{4}\/\d{2}\/\d{2}$/, // YYYY/MM/DD
-      /^\d{2}\/\d{2}\/\d{4}$/, // MM/DD/YYYY
-      /^\d{4}\.\d{2}\.\d{2}$/, // YYYY.MM.DD
+      /^\d{4}-\d{2}-\d{2}$/,
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
+      /^\d{4}\/\d{2}\/\d{2}$/,
+      /^\d{2}\/\d{2}\/\d{4}$/,
+      /^\d{4}\.\d{2}\.\d{2}$/,
     ];
-
-    // 날짜 형식이 맞는지 확인
     const isValidDate = dateFormats.some((format) => format.test(dateString));
-
     if (!isValidDate) {
       return 'D-?';
     }
-
     const targetDate = new Date(dateString);
     const today = new Date();
-
-    // 날짜 유효성 검사
-    if (isNaN(targetDate.getTime())) {
-      return 'D-?';
-    }
-
-    // 시간을 00:00:00으로 설정하여 정확한 일수 계산
     today.setHours(0, 0, 0, 0);
     targetDate.setHours(0, 0, 0, 0);
-
     const timeDiff = targetDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
     if (daysLeft < 0) {
       return '마감됨';
     } else if (daysLeft === 0) {
@@ -70,11 +49,10 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
       return `D-${daysLeft}`;
     }
   } catch {
-    return 'D-?'; // 에러 발생 시 D-? 반환
+    return 'D-?';
   }
 };
 
-// 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
     `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
@@ -82,18 +60,10 @@ const styles = {
         ? 'max-h-[2000px] opacity-100 bg-white'
         : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#E1F5EC]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
-
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-500 ease-out ${
       isHovered ? 'bg-[B4E6CE]' : 'bg-primary-20'
-    } ${
-      isExpanded
-        ? 'opacity-100 translate-y-0 scale-100'
-        : isVisible
-          ? 'opacity-0 translate-y-2 scale-95'
-          : 'opacity-0 translate-y-2 scale-95'
-    }`,
-
+    } ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
       isExpanded
@@ -102,7 +72,6 @@ const styles = {
           ? 'bg-primary-20'
           : 'bg-primary-20'
     }`,
-
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
     textAlign: 'right' as const,
@@ -115,7 +84,6 @@ const styles = {
     filter: !isLoggedIn ? 'blur(8px)' : 'none',
     transition: 'filter 0.3s ease-in-out',
   }),
-
   expandedRecommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
     textAlign: 'right' as const,
@@ -130,7 +98,6 @@ const styles = {
   }),
 };
 
-// 태그 컴포넌트
 const Tag = ({
   children,
   isHovered,
@@ -158,7 +125,6 @@ const Tag = ({
   </span>
 );
 
-// 추천도 표시 컴포넌트
 const RecommendationScore = ({
   job,
   isLoggedIn,
@@ -168,20 +134,13 @@ const RecommendationScore = ({
   isLoggedIn: boolean;
   isExpanded?: boolean;
 }) => {
-  // 추천도가 ??%일 때는 아예 렌더링하지 않음
   const shouldShowRecommendation = isLoggedIn && job.jobRecommendScore !== null;
-
   if (!shouldShowRecommendation) {
     return null;
   }
-
   return (
     <div
-      className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${
-        isExpanded
-          ? 'opacity-100 translate-x-0 translate-y-0'
-          : 'opacity-100 translate-x-0 translate-y-0 scale-100'
-      }`}
+      className={`flex flex-col md:flex-row items-center gap-2 md:gap-4 transition-all duration-500 ease-in-out ${isExpanded ? 'opacity-100 translate-x-0 translate-y-0' : 'opacity-100 translate-x-0 translate-y-0 scale-100'}`}
       style={isExpanded ? { transitionDelay: '500ms' } : {}}
     >
       <span className="text-xs md:text-lg text-gray-500">직업 추천도</span>
@@ -199,7 +158,6 @@ const RecommendationScore = ({
   );
 };
 
-// 상세 정보 그리드 아이템 컴포넌트
 const DetailItem = ({
   label,
   value,
@@ -219,12 +177,15 @@ const DetailItem = ({
   </div>
 );
 
-interface JobCardProps {
+interface JobCardClientProps {
   job: JobSummary;
   onToggleScrap: (jobId: string) => void;
 }
 
-export default function JobCard({ job, onToggleScrap }: JobCardProps) {
+export default function JobCardClient({
+  job,
+  onToggleScrap,
+}: JobCardClientProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isScrap, setIsScrap] = useState(false);
@@ -234,30 +195,23 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   useEffect(() => {
     const userData = getUserData();
     setIsLoggedIn(!!userData);
-    // job.isScrap 속성으로 초기 북마크 상태 설정
     setIsScrap(job.isScrap || false);
   }, [job.isScrap]);
 
   const handleToggleScrap = async (jobId: string) => {
     try {
       if (isScrap) {
-        // 북마크 삭제
         const response = await fetch(
           `/api/heart-lists/job/delete?jobId=${jobId}`,
-          {
-            method: 'DELETE',
-          }
+          { method: 'DELETE' }
         );
         if (response.ok) {
           setIsScrap(false);
         }
       } else {
-        // 북마크 저장
         const response = await fetch('/api/heart-lists/job/save', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ jobId }),
         });
         if (response.ok) {
@@ -272,7 +226,6 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
 
   const handleCardClick = () => {
     if (isExpanded) return;
-
     setIsAnimating(true);
     setTimeout(() => setIsExpanded(true), 100);
     setTimeout(() => setIsAnimating(false), 800);
@@ -281,24 +234,18 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
   const handleClose = () => {
     if (!isExpanded) return;
     setIsAnimating(true);
-
     setTimeout(() => setIsExpanded(false), 100);
     setTimeout(() => setIsAnimating(false), 800);
   };
 
   const handleApplyClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
-
     try {
-      // job 객체에 requiredDocuments가 이미 있는 경우 바로 사용
       if (job.requiredDocuments) {
         window.open(job.requiredDocuments, '_blank', 'noopener,noreferrer');
         return;
       }
-
-      // requiredDocuments가 없는 경우 단건 조회 API 호출
       const jobDetail = await getJobDetailById(Number(job.jobId));
-
       if (jobDetail.requiredDocuments) {
         window.open(
           jobDetail.requiredDocuments,
@@ -306,17 +253,14 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
           'noopener,noreferrer'
         );
       } else {
-        // requiredDocuments가 없으면 기존 applyLink로 이동
         window.open(job.applyLink, '_blank', 'noopener,noreferrer');
       }
     } catch (error) {
       console.error('Error fetching job detail:', error);
-      // 에러 발생 시 기존 applyLink로 이동
       window.open(job.applyLink, '_blank', 'noopener,noreferrer');
     }
   };
 
-  // 태그 렌더링 함수
   const renderTags = (isCompact = false) => {
     const categories =
       job.jobCategory && job.jobCategory.trim() !== ''
@@ -330,7 +274,6 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
       job.requiredSkills
         ?.split(',')
         .filter((skill) => skill.trim() !== '' && skill.trim() !== '.') || [];
-
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
         {categories.map((category, i) => (
@@ -360,7 +303,6 @@ export default function JobCard({ job, onToggleScrap }: JobCardProps) {
     );
   };
 
-  // 상세 정보 렌더링 함수
   const renderDetails = () => (
     <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
       <DetailItem label="디데이" value={calculateDaysLeft(job.closingDate)} />
