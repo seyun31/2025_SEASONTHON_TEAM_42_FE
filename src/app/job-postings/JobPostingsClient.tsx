@@ -7,6 +7,7 @@ import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
 import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import {
   getRecommendedJobs,
   getAllJobs,
@@ -25,14 +26,28 @@ export default function JobPostingsClient({
   initialTotalElements,
   isLoggedInInitial,
 }: JobPostingsClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isLoggedIn = isLoggedInInitial;
+
+  // URL에서 초기 상태 파싱
+  const getInitialTab = (): 'custom' | 'all' => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'recommend' || tabParam === 'custom') return 'custom';
+    if (tabParam === 'all') return 'all';
+    return isLoggedInInitial ? 'custom' : 'all';
+  };
+
+  const getInitialPage = (): number => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam) : 1;
+  };
+
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'custom' | 'all'>(
-    isLoggedInInitial ? 'custom' : 'all'
-  );
+  const [activeTab, setActiveTab] = useState<'custom' | 'all'>(getInitialTab());
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
   const [totalElements, setTotalElements] =
     useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
@@ -53,7 +68,32 @@ export default function JobPostingsClient({
     jobCategory: [],
   });
 
-  // 검색어 디바운싱 (500ms 지연)
+  // URL 업데이트 함수
+  const updateURL = (tab: 'custom' | 'all', page: number) => {
+    const params = new URLSearchParams();
+    if (tab === 'custom') {
+      params.set('tab', 'recommend');
+    } else {
+      params.set('tab', 'all');
+      params.set('page', page.toString());
+    }
+    router.push(`/job-postings?${params.toString()}`, { scroll: false });
+  };
+
+  // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchJobs 호출
+  const handleTabChange = (tab: 'custom' | 'all') => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    updateURL(tab, 1);
+  };
+
+  // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchJobs 호출
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL(activeTab, page);
+  };
+
+  // 검색어 디바운싱 -> 사용자가 타이핑을 멈춘 후 실제 검색이 실행될 수 있게 함
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchKeyword(searchKeyword);
@@ -113,18 +153,8 @@ export default function JobPostingsClient({
 
   // 탭, 필터, 검색어 변경 시 첫 페이지로 데이터 로드
   useEffect(() => {
-    setCurrentPage(1);
-    // 초기 데이터로 채워져 있을 때는 첫 렌더에서는 불필요한 호출을 피함
-    if (
-      initialJobs.length === 0 ||
-      debouncedSearchKeyword ||
-      filters.selectedDistricts.length > 0 ||
-      filters.employmentType.length > 0 ||
-      filters.jobCategory.length > 0 ||
-      activeTab !== (isLoggedIn ? 'custom' : 'all')
-    ) {
-      fetchJobs(1);
-    }
+    // 탭이나 필터가 변경되면 항상 데이터를 다시 가져옴
+    fetchJobs(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
 
@@ -152,19 +182,19 @@ export default function JobPostingsClient({
         id: job.jobId,
         jobId: job.jobId.toString(),
         companyName: job.companyName,
-        companyLogo: job.imageUrl || job.companyLogo,
+        companyLogo: job.imageUrl,
         jobTitle: job.jobTitle,
         jobCategory: job.jobCategory,
         workLocation: job.workLocation,
         employmentType: job.employmentType,
-        salary: job.salary || '급여 미정',
-        workPeriod: job.workPeriod || '근무기간 미정',
-        experience: job.experience || '경력 무관',
-        requiredSkills: job.requiredSkills || '',
-        preferredSkills: job.preferredSkills || '',
+        salary: job.wage || '급여 미정',
+        workPeriod: job.workTime || '근무기간 미정',
+        experience: '경력 무관',
+        requiredSkills: '',
+        preferredSkills: '',
         postingDate: job.postingDate,
         closingDate: job.closingDate,
-        applyLink: job.applyLink || '#',
+        applyLink: '#',
         requiredDocuments: job.requiredDocuments,
         jobRecommendScore: job.score || null,
         isScrap: job.isBookmark,
@@ -207,7 +237,7 @@ export default function JobPostingsClient({
               {isLoggedIn && (
                 <JobTab
                   activeTab={activeTab}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                   isLoggedIn={isLoggedIn}
                 />
               )}
@@ -241,7 +271,7 @@ export default function JobPostingsClient({
             {isLoggedIn && (
               <JobTab
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
                 isLoggedIn={isLoggedIn}
               />
             )}
@@ -274,18 +304,18 @@ export default function JobPostingsClient({
               </div>
             </div>
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+              <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">
                 <button
-                  onClick={() => setCurrentPage(1)}
+                  onClick={() => handlePageChange(1)}
                   disabled={currentPage === 1}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                 >
                   &lt;&lt;
                 </button>
                 <button
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                 >
                   &lt;
                 </button>
@@ -303,8 +333,8 @@ export default function JobPostingsClient({
                   return (
                     <button
                       key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={`min-w-[40px] px-4 py-2 rounded-lg border font-medium ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`min-w-[32px] sm:min-w-[40px] px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-medium cursor-pointer text-sm sm:text-base ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
                     >
                       {pageNum}
                     </button>
@@ -312,17 +342,17 @@ export default function JobPostingsClient({
                 })}
                 <button
                   onClick={() =>
-                    setCurrentPage(Math.min(totalPages, currentPage + 1))
+                    handlePageChange(Math.min(totalPages, currentPage + 1))
                   }
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                 >
                   &gt;
                 </button>
                 <button
-                  onClick={() => setCurrentPage(totalPages)}
+                  onClick={() => handlePageChange(totalPages)}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                 >
                   &gt;&gt;
                 </button>

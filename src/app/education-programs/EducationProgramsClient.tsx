@@ -8,6 +8,7 @@ import EducationFilter from '@/components/ui/EducationFilter';
 import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
 import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getAllEducationsAnonymous,
   getHrdEducations,
@@ -27,17 +28,30 @@ export default function EducationProgramsClient({
   initialTotalElements,
   isLoggedInInitial,
 }: EducationProgramsClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const isLoggedIn = isLoggedInInitial;
+
+  // URL에서 초기 상태 파싱
+  const getInitialTab = (): 'custom' | 'all' => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam === 'recommend' || tabParam === 'custom') return 'custom';
+    if (tabParam === 'all') return 'all';
+    return isLoggedInInitial ? 'custom' : 'all';
+  };
+
+  const getInitialPage = (): number => {
+    const pageParam = searchParams.get('page');
+    return pageParam ? parseInt(pageParam) : 1;
+  };
+
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'custom' | 'all'>(
-    isLoggedInInitial ? 'custom' : 'all'
-  );
+  const [activeTab, setActiveTab] = useState<'custom' | 'all'>(getInitialTab());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
     useState<EducationSummary[]>(initialEducations);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalElements, setTotalElements] =
-    useState<number>(initialTotalElements);
+  const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
+  const [, setTotalElements] = useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
     Math.max(
       1,
@@ -59,6 +73,31 @@ export default function EducationProgramsClient({
     educationCategory: [],
   });
 
+  // URL 업데이트 함수
+  const updateURL = (tab: 'custom' | 'all', page: number) => {
+    const params = new URLSearchParams();
+    if (tab === 'custom') {
+      params.set('tab', 'recommend');
+    } else {
+      params.set('tab', 'all');
+      params.set('page', page.toString());
+    }
+    router.push(`/education-programs?${params.toString()}`, { scroll: false });
+  };
+
+  // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchEducations 호출
+  const handleTabChange = (tab: 'custom' | 'all') => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    updateURL(tab, 1);
+  };
+
+  // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchEducations 호출
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    updateURL(activeTab, page);
+  };
+
   // 북마크 초기 로드 (로그인 시)
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -72,7 +111,7 @@ export default function EducationProgramsClient({
     })();
   }, [isLoggedIn]);
 
-  // 검색어 디바운싱
+  // 검색어 디바운싱 -> 사용자가 타이핑을 멈춘 후 실제 검색이 실행될 수 있게 함
   useEffect(() => {
     const timer = setTimeout(
       () => setDebouncedSearchKeyword(searchKeyword),
@@ -188,7 +227,10 @@ export default function EducationProgramsClient({
       setTotalElements(newTotalElements);
       setTotalPages(Math.max(1, Math.ceil(newTotalElements / 10)));
     } catch (error) {
-      console.error('Error fetching educations:', error);
+      console.error(
+        '[EducationProgramsClient] Error fetching educations:',
+        error
+      );
       setEducations([]);
       setTotalElements(0);
       setTotalPages(1);
@@ -199,17 +241,8 @@ export default function EducationProgramsClient({
 
   // 의존성 변경 시 첫 페이지로 로드
   useEffect(() => {
-    setCurrentPage(1);
-    if (
-      initialEducations.length === 0 ||
-      debouncedSearchKeyword ||
-      filters.selectedDistricts.length > 0 ||
-      filters.educationType.length > 0 ||
-      filters.educationCategory.length > 0 ||
-      activeTab !== (isLoggedIn ? 'custom' : 'all')
-    ) {
-      fetchEducations(1);
-    }
+    // 탭이나 필터가 변경되면 항상 데이터를 다시 가져옴
+    fetchEducations(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
 
@@ -242,7 +275,7 @@ export default function EducationProgramsClient({
               {isLoggedIn && (
                 <EducationTab
                   activeTab={activeTab}
-                  onTabChange={setActiveTab}
+                  onTabChange={handleTabChange}
                   isLoggedIn={isLoggedIn}
                 />
               )}
@@ -276,7 +309,7 @@ export default function EducationProgramsClient({
             {isLoggedIn && (
               <EducationTab
                 activeTab={activeTab}
-                onTabChange={setActiveTab}
+                onTabChange={handleTabChange}
                 isLoggedIn={isLoggedIn}
               />
             )}
@@ -314,20 +347,20 @@ export default function EducationProgramsClient({
                   </div>
                 </div>
                 {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-12 mb-8">
+                  <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">
                     <button
-                      onClick={() => setCurrentPage(1)}
+                      onClick={() => handlePageChange(1)}
                       disabled={currentPage === 1}
-                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &lt;&lt;
                     </button>
                     <button
                       onClick={() =>
-                        setCurrentPage(Math.max(1, currentPage - 1))
+                        handlePageChange(Math.max(1, currentPage - 1))
                       }
                       disabled={currentPage === 1}
-                      className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &lt;
                     </button>
@@ -345,8 +378,8 @@ export default function EducationProgramsClient({
                       return (
                         <button
                           key={pageNum}
-                          onClick={() => setCurrentPage(pageNum)}
-                          className={`min-w-[40px] px-4 py-2 rounded-lg border font-medium ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`min-w-[32px] sm:min-w-[40px] px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-medium cursor-pointer text-sm sm:text-base ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
                         >
                           {pageNum}
                         </button>
@@ -354,17 +387,17 @@ export default function EducationProgramsClient({
                     })}
                     <button
                       onClick={() =>
-                        setCurrentPage(Math.min(totalPages, currentPage + 1))
+                        handlePageChange(Math.min(totalPages, currentPage + 1))
                       }
                       disabled={currentPage === totalPages}
-                      className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &gt;
                     </button>
                     <button
-                      onClick={() => setCurrentPage(totalPages)}
+                      onClick={() => handlePageChange(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &gt;&gt;
                     </button>

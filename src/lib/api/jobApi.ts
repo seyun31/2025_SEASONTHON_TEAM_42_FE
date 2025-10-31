@@ -1300,7 +1300,7 @@ export const getRecommendedEducations = async (): Promise<
       );
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
+    const result: EducationDataResponse = await response.json();
     console.log('getRecommendedEducations - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
@@ -1311,43 +1311,43 @@ export const getRecommendedEducations = async (): Promise<
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // AllResponse를 EducationSummary로 변환
-    return result.data.jobDtoList.map((item) => ({
-      id: item.jobId.toString(),
-      educationId: item.jobId,
-      trprId: item.jobId.toString(),
-      title: item.jobTitle || '제목 없음',
-      subTitle: item.jobCodeName || '',
-      institution: item.companyName || '',
-      address: item.workLocation || '',
-      traStartDate: item.postingDate || '',
-      traEndDate: item.closingDate || '',
+    // EducationDto를 EducationSummary로 변환
+    return (result.data.educationDtoList || []).map((edu) => ({
+      id: edu.educationId.toString(),
+      educationId: edu.educationId,
+      trprId: edu.educationId.toString(),
+      title: edu.title || '',
+      subTitle: edu.subTitle || '',
+      institution: edu.subTitle || '',
+      address: edu.address || '',
+      traStartDate: edu.traStartDate || '',
+      traEndDate: edu.traEndDate || '',
       trainTarget: '',
-      contents: item.description || '',
+      contents: edu.keyword1 || edu.keyword2 || '',
       certificate: '',
       grade: '',
-      regCourseMan: item.recruitNumber?.toString() || '0',
-      courseMan: item.recruitNumber?.toString() || '0',
+      regCourseMan: '0',
+      courseMan: edu.courseMan || '0',
       realMan: '0',
       yardMan: '0',
-      telNo: item.managerPhone || '',
+      telNo: '',
       stdgScor: '0',
       eiEmplCnt3: '0',
       eiEmplRate3: '0',
       eiEmplCnt3Gt10: '0',
       eiEmplRate6: '0',
       ncsCd: '',
-      trprDegr: '',
+      trprDegr: edu.trprDegr || '',
       instCd: '',
       trngAreaCd: '',
       trainTargetCd: '',
       trainstCstId: '',
       subTitleLink: '',
-      titleLink: '',
+      titleLink: edu.titleLink || '',
       titleIcon: '',
-      imageUrl: item.imageUrl,
-      isBookmark: item.isBookmark || false,
-      recommendScore: item.score,
+      imageUrl: edu.imageUrl || '',
+      isBookmark: edu.isBookmark || false,
+      recommendScore: edu.score ?? undefined,
     }));
   } catch (error) {
     console.error('Error fetching recommended educations:', error);
