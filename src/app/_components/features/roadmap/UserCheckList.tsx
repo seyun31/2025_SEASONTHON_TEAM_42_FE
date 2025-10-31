@@ -462,20 +462,20 @@ export default function UserCheckList({
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
         {/* 캐릭터 이미지 */}
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <Image
             src="/assets/Icons/character_roadmap.png"
             alt="로드맵 캐릭터"
             width={300}
             height={300}
-            className="w-auto h-[300px] object-contain"
+            className="w-auto h-[200px] md:h-[250px] lg:h-[300px] object-contain"
           />
         </div>
 
         {/* 생성 버튼 */}
         <button
           onClick={() => router.push('/ai-chat/roadmap')}
-          className="bg-primary-90 hover:bg-green-600 text-white px-8 py-4 rounded-2xl text-title-large font-medium transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+          className="bg-primary-90 hover:bg-green-600 text-white px-6 py-3 md:px-8 md:py-4 rounded-2xl text-base md:text-lg lg:text-title-large font-medium transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
         >
           꿈별이와 함께 로드맵 생성하기
         </button>
@@ -564,7 +564,7 @@ export default function UserCheckList({
                       />
                     </div>
                     <span
-                      className="text-white text-4xl whitespace-nowrap font-regular"
+                      className="text-white text-sm sm:text-base md:text-lg lg:text-2xl xl:text-4xl whitespace-nowrap font-regular"
                       style={{
                         position: 'absolute',
                         top: '50%',
@@ -600,7 +600,7 @@ export default function UserCheckList({
                         />
                       </div>
                       <span
-                        className="text-white text-4xl whitespace-nowrap font-regular"
+                        className="text-white text-sm sm:text-base md:text-lg lg:text-2xl xl:text-4xl whitespace-nowrap font-regular"
                         style={{
                           position: 'absolute',
                           top: '50%',
@@ -620,40 +620,33 @@ export default function UserCheckList({
         <div className="flex flex-col gap-4 w-full xl:h-full">
           {/* 상단 카드 - 취업 정보 */}
           <div
-            className="bg-white rounded-3xl py-6 px-8 h-60 w-full bg-white flex-shrink-0"
+            className="bg-white rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 md:px-8 h-auto min-h-[200px] md:h-60 w-full bg-white flex-shrink-0"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
           >
-            <div className="flex h-full">
+            <div className="flex flex-col md:flex-row h-full">
               {/* 왼쪽 섹션 */}
-              <div className="flex-[2] flex flex-col justify-between">
+              <div className="flex-[2] flex flex-col justify-between mb-4 md:mb-0">
                 <div>
                   {roadmapData &&
                     roadmapData.roadmapInputResponse.dday !== undefined && (
-                      <div
-                        className="text-primary-90 font-semibold"
-                        style={{
-                          fontSize: '36px',
-                          lineHeight: '36px',
-                          marginBottom: '8px',
-                        }}
-                      >
+                      <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight mb-2">
                         D+{roadmapData.roadmapInputResponse.dday}
                       </div>
                     )}
-                  <div className="text-gray-800 text-title-xlarge">
+                  <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.career
                       : defaultCareerInfo.jobTitle}
                   </div>
                 </div>
 
-                <div className="flex flex-col">
-                  <div className="text-gray-50 text-body-medium">
+                <div className="flex flex-col mt-4 md:mt-0">
+                  <div className="text-gray-50 text-xs md:text-sm lg:text-body-medium">
                     목표 취업 기간
                   </div>
-                  <div className="text-gray-800 text-body-large">
+                  <div className="text-gray-800 text-sm md:text-base lg:text-body-large">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.period
                       : defaultCareerInfo.targetPeriod}
@@ -662,14 +655,15 @@ export default function UserCheckList({
               </div>
 
               {/* 세로 구분선 */}
-              <div className="w-px bg-gray-200 mx-4"></div>
+              <div className="hidden md:block w-px bg-gray-200 mx-4"></div>
+              <div className="md:hidden w-full h-px bg-gray-200 my-4"></div>
 
               {/* 오른쪽 섹션 */}
               <div className="flex-1 flex flex-col">
-                <div className="text-primary-90 text-body-medium mb-4">
+                <div className="text-primary-90 text-xs md:text-sm lg:text-body-medium mb-2 md:mb-4">
                   보유 경험/자격증
                 </div>
-                <div className="text-gray-800 text-body-large space-y-2">
+                <div className="text-gray-800 text-sm md:text-base lg:text-body-large space-y-1 md:space-y-2">
                   {roadmapData
                     ? roadmapData.roadmapInputResponse.experience
                         ?.split(',')
@@ -688,7 +682,7 @@ export default function UserCheckList({
 
           {/* 하단 카드 - 안내 및 체크리스트 */}
           <div
-            className="bg-white rounded-2xl p-6 relative w-full aspect-square xl:w-auto xl:h-full bg-white"
+            className="bg-white rounded-2xl p-4 md:p-6 relative w-full aspect-square xl:w-auto xl:h-full bg-white"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
@@ -712,8 +706,8 @@ export default function UserCheckList({
             {selectedStepId ? (
               // 체크리스트 표시
               <div className="h-full flex flex-col">
-                <div className="flex flex-row items-end gap-2">
-                  <div className="text-primary-90 text-header-medium">
+                <div className="flex flex-col md:flex-row items-start md:items-end gap-2 mb-2 md:mb-0">
+                  <div className="text-primary-90 text-base md:text-xl lg:text-2xl xl:text-header-medium">
                     {apiRoadmapSteps.length > 0
                       ? `${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
                       : mockRoadmapData.steps.find(
@@ -721,7 +715,7 @@ export default function UserCheckList({
                         )?.name || '단계'}
                     하기
                   </div>
-                  <div className="text-gray-50 text-body-large-regular">
+                  <div className="text-gray-50 text-xs md:text-sm lg:text-base xl:text-body-large-regular">
                     {(() => {
                       const currentChecklist = checklistItems[selectedStepId];
                       const allCompleted = currentChecklist?.every(
@@ -740,11 +734,13 @@ export default function UserCheckList({
                 <div className="flex-1 flex flex-col justify-center">
                   {/* 에러 메시지 */}
                   {error && (
-                    <div className="mb-4 p-3 bg-red-100 border border-red-300 rounded-lg">
-                      <p className="text-red-700 text-body-medium">{error}</p>
+                    <div className="mb-4 p-2 md:p-3 bg-red-100 border border-red-300 rounded-lg">
+                      <p className="text-red-700 text-xs md:text-sm lg:text-body-medium">
+                        {error}
+                      </p>
                       <button
                         onClick={() => setError(null)}
-                        className="mt-2 text-red-600 text-body-small hover:underline"
+                        className="mt-2 text-red-600 text-xs md:text-body-small hover:underline"
                       >
                         닫기
                       </button>
@@ -762,7 +758,7 @@ export default function UserCheckList({
                       />
                     </div>
                   )} */}
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-3 lg:space-y-4">
                     {checklistItems[selectedStepId]?.map((item) => {
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
@@ -772,7 +768,10 @@ export default function UserCheckList({
                         deletingItem?.itemId === item.id;
 
                       return (
-                        <div key={item.id} className="flex items-center gap-4">
+                        <div
+                          key={item.id}
+                          className="flex items-center gap-2 md:gap-4"
+                        >
                           <div className="flex flex-col items-center">
                             <button
                               onClick={() =>
@@ -783,12 +782,12 @@ export default function UserCheckList({
                             >
                               {item.completed ? (
                                 <HiStar
-                                  className="w-8 h-8"
+                                  className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8"
                                   style={{ color: 'var(--color-secondary2)' }}
                                 />
                               ) : (
                                 <PiStarThin
-                                  className="w-8 h-8"
+                                  className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8"
                                   style={{ color: 'var(--color-secondary2)' }}
                                 />
                               )}
@@ -801,7 +800,7 @@ export default function UserCheckList({
                                   type="text"
                                   value={editText}
                                   onChange={(e) => setEditText(e.target.value)}
-                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-body-large"
+                                  className="flex-1 px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-sm md:text-sm lg:text-body-large"
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       saveEditing();
@@ -811,18 +810,18 @@ export default function UserCheckList({
                                   }}
                                   autoFocus
                                 />
-                                <div className="flex gap-2">
+                                <div className="flex gap-1 md:gap-2">
                                   <button
                                     onClick={saveEditing}
                                     disabled={loading}
-                                    className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     확인
                                   </button>
                                   <button
                                     onClick={cancelEditing}
                                     disabled={loading}
-                                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     취소
                                   </button>
@@ -830,21 +829,21 @@ export default function UserCheckList({
                               </div>
                             ) : isDeleting ? (
                               <div className="flex items-center gap-2">
-                                <span className="text-body-large text-gray-800 flex-1">
+                                <span className="text-sm md:text-sm lg:text-body-large text-gray-800 flex-1">
                                   정말 삭제하시겠습니까?
                                 </span>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1 md:gap-2">
                                   <button
                                     onClick={confirmDelete}
                                     disabled={loading}
-                                    className="px-3 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     삭제
                                   </button>
                                   <button
                                     onClick={cancelDeleting}
                                     disabled={loading}
-                                    className="px-3 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
                                     취소
                                   </button>
@@ -853,7 +852,7 @@ export default function UserCheckList({
                             ) : (
                               <div className="flex items-center gap-2">
                                 <span
-                                  className={`text-body-large cursor-pointer flex-1 ${
+                                  className={`text-sm md:text-sm lg:text-body-large cursor-pointer flex-1 ${
                                     item.completed
                                       ? 'text-gray-500 line-through'
                                       : 'text-gray-800'
@@ -877,7 +876,7 @@ export default function UserCheckList({
                                         closeDropdown();
                                       }}
                                       disabled={loading}
-                                      className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="px-1.5 py-0.5 md:px-2 md:py-1 text-[9px] md:text-xs bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       수정
                                     </button>
@@ -886,7 +885,7 @@ export default function UserCheckList({
                                         startDeleting(selectedStepId, item.id);
                                       }}
                                       disabled={loading}
-                                      className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      className="px-1.5 py-0.5 md:px-2 md:py-1 text-[9px] md:text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                       삭제
                                     </button>
@@ -899,7 +898,7 @@ export default function UserCheckList({
                                     disabled={loading}
                                     className="p-1 hover:bg-gray-100 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
-                                    <IoMdMore className="w-5 h-5 text-gray-500" />
+                                    <IoMdMore className="w-3.5 h-3.5 md:w-5 md:h-5 text-gray-500" />
                                   </button>
                                 )}
                               </div>
@@ -911,10 +910,10 @@ export default function UserCheckList({
 
                     {/* 추가 목표 항목 */}
                     {isAddingNewItem ? (
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 md:gap-4">
                         <div className="flex flex-col items-center">
                           <button className="hover:scale-110 transition-transform cursor-pointer">
-                            <PiStarThin className="w-8 h-8 text-gray-300" />
+                            <PiStarThin className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8 text-gray-300" />
                           </button>
                         </div>
                         <div className="flex-1">
@@ -924,7 +923,7 @@ export default function UserCheckList({
                               value={newItemText}
                               onChange={(e) => setNewItemText(e.target.value)}
                               placeholder="새로운 목표를 입력하세요"
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-body-large"
+                              className="flex-1 px-2 py-1.5 md:px-3 md:py-2 border border-gray-300 rounded-lg text-sm md:text-sm lg:text-body-large"
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                   saveNewItem();
@@ -937,14 +936,14 @@ export default function UserCheckList({
                             <button
                               onClick={saveNewItem}
                               disabled={loading || !newItemText.trim()}
-                              className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-green-100 text-green-700 rounded-full hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               확인
                             </button>
                             <button
                               onClick={cancelAddingNewItem}
                               disabled={loading}
-                              className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               취소
                             </button>
@@ -952,18 +951,18 @@ export default function UserCheckList({
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2 md:gap-4">
                         <div className="flex flex-col items-center">
                           <button
                             onClick={startAddingNewItem}
                             disabled={loading}
                             className="hover:scale-110 transition-transform cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <PiStarThin className="w-8 h-8 text-gray-300" />
+                            <PiStarThin className="w-5 h-5 md:w-7 md:h-7 lg:w-8 lg:h-8 text-gray-300" />
                           </button>
                         </div>
                         <div className="flex-1">
-                          <span className="text-body-large text-gray-800">
+                          <span className="text-sm md:text-sm lg:text-body-large text-gray-800">
                             별을 눌러 직접 목표를 추가해보세요!
                           </span>
                         </div>
@@ -972,31 +971,31 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="absolute top-4 right-4">
+                <div className="absolute top-2 right-2 md:top-4 md:right-4">
                   <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
                     width={134}
                     height={134}
-                    className="w-auto h-[134px]"
+                    className="w-auto h-12 md:h-24 lg:h-32 xl:h-[134px]"
                   />
                 </div>
               </div>
             ) : (
               // 기본 안내 메시지
               <div className="h-full flex flex-col justify-center items-center">
-                <div className="text-gray-800 text-title-xlarge mb-4">
+                <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge mb-4 px-4 text-center">
                   로드맵의 별을 눌러서
                   <br />
                   진행도를 확인하세요!
                 </div>
-                <div className="absolute bottom-4 right-4">
+                <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4">
                   <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
                     width={134}
                     height={134}
-                    className="w-auto h-[134px]"
+                    className="w-auto h-12 md:h-24 lg:h-32 xl:h-[134px]"
                   />
                 </div>
               </div>
