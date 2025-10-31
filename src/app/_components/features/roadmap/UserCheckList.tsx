@@ -495,9 +495,9 @@ export default function UserCheckList({
         width="100vw"
         height="100vh"
       />
-      <div className="flex flex-col xl:flex-row gap-4">
+      <div className="flex flex-col xl:flex-row xl:items-stretch gap-4">
         {/* 왼쪽 - 로드맵 시각화 */}
-        <RoadmapBackground className="h-[400px] sm:h-[600px] xl:h-[800px] w-full xl:w-[498px] flex-shrink-0">
+        <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0">
           <RoadmapHeader userName={userName} />
 
           {/* 로드맵 차트 */}
@@ -617,10 +617,10 @@ export default function UserCheckList({
         </RoadmapBackground>
 
         {/* 오른쪽 - 두 개의 카드 (세로 배치) */}
-        <div className="flex flex-col gap-4 w-full">
+        <div className="flex flex-col gap-4 w-full xl:h-full">
           {/* 상단 카드 - 취업 정보 */}
           <div
-            className="bg-white rounded-3xl py-6 px-8 h-60 w-full bg-white"
+            className="bg-white rounded-3xl py-6 px-8 h-60 w-full bg-white flex-shrink-0"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
@@ -688,7 +688,7 @@ export default function UserCheckList({
 
           {/* 하단 카드 - 안내 및 체크리스트 */}
           <div
-            className="bg-white rounded-2xl p-6 relative h-full w-full bg-white"
+            className="bg-white rounded-2xl p-6 relative w-full aspect-square xl:w-auto xl:h-full bg-white"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
