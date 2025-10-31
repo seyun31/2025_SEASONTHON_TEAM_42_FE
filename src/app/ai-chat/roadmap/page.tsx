@@ -341,7 +341,7 @@ function AIChatRoadmapContent() {
                   <MessageItem
                     message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
                       .map(
-                        (step, stepIndex) =>
+                        (step) =>
                           `${step.period} - ${step.category}\n${step.actions
                             .map((action) => ` • ${action.action}`)
                             .join('\n')}`

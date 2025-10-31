@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { mockRoadmapData, defaultCareerInfo } from '@/data/roadmapData';
 import {
@@ -22,7 +23,6 @@ import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
 import CompletionAnimation from '@/components/ui/CompletionAnimation';
 import RoadmapHeader from '@/components/ui/RoadmapHeader';
-import RoadmapRenderer from '@/components/ui/RoadmapRenderer';
 import {
   convertApiDataToRoadmapSteps,
   USER_MAP_POSITIONS,
@@ -80,13 +80,11 @@ export default function UserCheckList({
       // API 데이터를 체크리스트 형태로 변환
       const convertedChecklists: RoadmapChecklist = {};
       roadmapData.steps.forEach((step, stepIndex) => {
-        convertedChecklists[stepIndex + 1] = step.actions.map(
-          (action, actionIndex) => ({
-            id: action.roadMapActionId, // roadMapActionId를 ID로 사용
-            text: action.action,
-            completed: action.isCompleted,
-          })
-        );
+        convertedChecklists[stepIndex + 1] = step.actions.map((action) => ({
+          id: action.roadMapActionId, // roadMapActionId를 ID로 사용
+          text: action.action,
+          completed: action.isCompleted,
+        }));
       });
       setChecklistItems(convertedChecklists);
     } else {
@@ -150,7 +148,7 @@ export default function UserCheckList({
 
   // 다른 곳 클릭 시 드롭다운 닫기
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (openDropdownItem) {
         closeDropdown();
       }
@@ -352,10 +350,6 @@ export default function UserCheckList({
     }
   };
 
-  const handleDelete = async (stepId: number, itemId: number) => {
-    await deleteChecklistItem(stepId, itemId);
-  };
-
   const startAddingNewItem = () => {
     setIsAddingNewItem(true);
     setNewItemText('');
@@ -469,9 +463,11 @@ export default function UserCheckList({
       <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
         {/* 캐릭터 이미지 */}
         <div className="mb-8">
-          <img
+          <Image
             src="/assets/Icons/character_roadmap.png"
             alt="로드맵 캐릭터"
+            width={300}
+            height={300}
             className="w-auto h-[300px] object-contain"
           />
         </div>
@@ -767,7 +763,7 @@ export default function UserCheckList({
                     </div>
                   )} */}
                   <div className="space-y-4">
-                    {checklistItems[selectedStepId]?.map((item, index) => {
+                    {checklistItems[selectedStepId]?.map((item) => {
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
                         editingItem?.itemId === item.id;
@@ -977,9 +973,11 @@ export default function UserCheckList({
                 </div>
 
                 <div className="absolute top-4 right-4">
-                  <img
+                  <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
+                    width={134}
+                    height={134}
                     className="w-auto h-[134px]"
                   />
                 </div>
@@ -993,9 +991,11 @@ export default function UserCheckList({
                   진행도를 확인하세요!
                 </div>
                 <div className="absolute bottom-4 right-4">
-                  <img
+                  <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
+                    width={134}
+                    height={134}
                     className="w-auto h-[134px]"
                   />
                 </div>

@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function POST(request: Request): Promise<Response> {
+export async function POST(): Promise<Response> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;

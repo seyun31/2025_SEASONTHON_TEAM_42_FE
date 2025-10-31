@@ -546,14 +546,6 @@ export default function EducationFilter({
     });
   };
 
-  const getSelectedLabel = (key: keyof FilterState) => {
-    const value = filters[key];
-    if (Array.isArray(value)) {
-      return value.length > 0 ? `${value.length}개 선택` : '';
-    }
-    return value || '';
-  };
-
   // 외부 클릭 시 드롭다운 닫기
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

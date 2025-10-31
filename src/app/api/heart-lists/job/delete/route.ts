@@ -1,8 +1,6 @@
 import { cookies } from 'next/headers';
 import * as Sentry from '@sentry/nextjs';
 
-const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
 export async function DELETE(request: Request): Promise<Response> {
   try {
     const cookieStore = await cookies();

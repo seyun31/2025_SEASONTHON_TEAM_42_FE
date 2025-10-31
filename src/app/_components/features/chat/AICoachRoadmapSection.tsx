@@ -8,7 +8,6 @@ import { getRoadMap } from '@/lib/api/jobApi';
 import { RoadMapResponse } from '@/types/roadmap';
 import { aiCoachCards } from '@/data/aiCoachData';
 import { IoIosArrowForward } from 'react-icons/io';
-import RoadmapRenderer from '@/components/ui/RoadmapRenderer';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
 import RoadmapHeader from '@/components/ui/RoadmapHeader';
 import RoadmapPosition from '@/components/ui/RoadmapPosition';
