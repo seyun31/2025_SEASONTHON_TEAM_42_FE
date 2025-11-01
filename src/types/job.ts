@@ -36,6 +36,7 @@ export interface ApiResponse<T> {
 
 // 교육 DTO 타입 정의
 export interface EducationDto {
+  trprId: number;
   educationId: number;
   title: string;
   subTitle: string;

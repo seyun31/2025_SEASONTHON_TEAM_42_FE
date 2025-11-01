@@ -47,7 +47,7 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 // 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-secondary4 overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
         : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-secondary4'

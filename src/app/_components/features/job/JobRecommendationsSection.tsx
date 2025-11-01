@@ -135,17 +135,10 @@ export default function JobRecommendationsSection() {
             </a>
           </div>
 
-          <div className="flex flex-row gap-6">
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index} />
-              ))}
-            </div>
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index + 4} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <JobCardSkeleton key={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -179,25 +172,14 @@ export default function JobRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex flex-col gap-6 flex-1">
-            {jobs.slice(0, 4).map((job, index) => (
-              <JobCard
-                key={job.jobId || index}
-                job={convertToJobCardFormat(job)}
-                onToggleScrap={toggleFavorite}
-              />
-            ))}
-          </div>
-          <div className="flex flex-col gap-6 flex-1">
-            {jobs.slice(4, 8).map((job, index) => (
-              <JobCard
-                key={job.jobId || index + 4}
-                job={convertToJobCardFormat(job)}
-                onToggleScrap={toggleFavorite}
-              />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {jobs.slice(0, 8).map((job, index) => (
+            <JobCard
+              key={job.jobId || index}
+              job={convertToJobCardFormat(job)}
+              onToggleScrap={toggleFavorite}
+            />
+          ))}
         </div>
       </div>
     </section>

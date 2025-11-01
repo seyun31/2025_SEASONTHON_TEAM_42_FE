@@ -726,12 +726,12 @@ export const getHrdCourses = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1171,12 +1171,12 @@ export const getEducationCourses = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1358,17 +1358,30 @@ export const getRecommendedEducations = async (): Promise<
 // 전체 교육 조회 (비로그인 시)
 export const getAllEducationsAnonymous = async (filters?: {
   keyword?: string;
+  pageNo?: number;
+  pageSize?: number;
   startYmd?: string;
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log('Making API request to /api/education/anonymous');
+    console.log(
+      'Making API request to /api/education/anonymous with filters:',
+      filters
+    );
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
+    }
+
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1491,7 +1504,10 @@ export const getHrdEducations = async (filters?: {
       );
     }
 
-    console.log('Making API request to /education/hrd-course');
+    console.log(
+      'Making API request to /education/hrd-course with filters:',
+      filters
+    );
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
@@ -1500,12 +1516,12 @@ export const getHrdEducations = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1521,12 +1537,16 @@ export const getHrdEducations = async (filters?: {
       ? `${backendUrl}/education/hrd-course?${queryString}`
       : `${backendUrl}/education/hrd-course`;
 
+    console.log('getHrdEducations - Fetching URL:', url);
+    console.log('getHrdEducations - Query params:', queryString);
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      cache: 'no-store',
     });
 
     console.log('getHrdEducations - API Response status:', response.status);
@@ -1552,6 +1572,7 @@ export const getHrdEducations = async (filters?: {
     }
 
     let mappedData: EducationDto[] = [];
+    let totalElements = 0;
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
@@ -1560,6 +1581,7 @@ export const getHrdEducations = async (filters?: {
         result.data.educationDtoList.length
       );
       mappedData = result.data.educationDtoList;
+      totalElements = result.data.totalElements || mappedData.length;
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {
@@ -1591,6 +1613,7 @@ export const getHrdEducations = async (filters?: {
           };
         }
       );
+      totalElements = result.data.totalElements || mappedData.length;
     } else {
       console.log(
         'getHrdEducations - No educationDtoList or srchList found in result.data:',
@@ -1608,9 +1631,10 @@ export const getHrdEducations = async (filters?: {
       'getHrdEducations - Final mapped data length:',
       mappedData.length
     );
+    console.log('getHrdEducations - Total elements:', totalElements);
 
     return {
-      totalElements: mappedData.length, // TODO: API에서 실제 totalElements를 반환하도록 수정 필요
+      totalElements,
       numberOfElements: mappedData.length,
       educationDtoList: mappedData,
     };

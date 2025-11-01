@@ -20,7 +20,9 @@ export default function EducationRecommendationsSection() {
 
   useEffect(() => {
     const userData = getUserData();
-    if (userData?.name) {
+    const loggedIn = !!userData?.name;
+
+    if (loggedIn) {
       setUserName(userData.name);
       setIsLoggedIn(true);
     } else {
@@ -37,7 +39,7 @@ export default function EducationRecommendationsSection() {
 
         let educationData: EducationSummary[] = [];
 
-        if (isLoggedIn) {
+        if (loggedIn) {
           // 로그인 시: /education/recommend API 사용
           educationData = await getRecommendedEducations();
         } else {
@@ -110,7 +112,7 @@ export default function EducationRecommendationsSection() {
     };
 
     fetchEducations();
-  }, [isLoggedIn]);
+  }, []);
 
   const toggleBookmark = (educationId: string) => {
     const newFavorites = new Set(favorites);
@@ -140,17 +142,10 @@ export default function EducationRecommendationsSection() {
             </a>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <EducationCardSkeleton key={index} />
-              ))}
-            </div>
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <EducationCardSkeleton key={index + 4} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <EducationCardSkeleton key={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -180,25 +175,14 @@ export default function EducationRecommendationsSection() {
         </div>
 
         {educations.length > 0 ? (
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex flex-col gap-6 flex-1">
-              {educations.slice(0, 4).map((education, index) => (
-                <EducationCard
-                  key={education.trprId || index}
-                  education={education}
-                  onToggleBookmark={toggleBookmark}
-                />
-              ))}
-            </div>
-            <div className="flex flex-col gap-6 flex-1">
-              {educations.slice(4, 8).map((education, index) => (
-                <EducationCard
-                  key={education.trprId || index + 4}
-                  education={education}
-                  onToggleBookmark={toggleBookmark}
-                />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {educations.slice(0, 8).map((education, index) => (
+              <EducationCard
+                key={education.trprId || index}
+                education={education}
+                onToggleBookmark={toggleBookmark}
+              />
+            ))}
           </div>
         ) : (
           <EmptyEducations isLoggedIn={isLoggedIn} activeTab="custom" />

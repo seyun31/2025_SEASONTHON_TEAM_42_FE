@@ -4,8 +4,11 @@ import { EducationSummary } from '@/types/job';
 
 async function fetchInitialEducations(
   isLoggedIn: boolean,
-  tab?: string
+  tab?: string,
+  page?: string
 ): Promise<{ educations: EducationSummary[]; totalElements: number }> {
+  const pageNum = page ? parseInt(page) : 1;
+  const pageNo = pageNum - 1;
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (!backendUrl) {
     return { educations: [], totalElements: 0 };
@@ -94,9 +97,15 @@ async function fetchInitialEducations(
         return { educations, totalElements: educations.length };
       }
 
-      // 전체 교육 탭인 경우 내부 API 라우트를 통해 익명 전체 조회
+      // 전체 교육 탭인 경우 백엔드 API 직접 호출 (/education/hrd-course)
+      const queryParams = new URLSearchParams();
+      queryParams.append('page', pageNo.toString());
+      queryParams.append('size', '20');
+      queryParams.append('startYmd', '20250101');
+      queryParams.append('endYmd', '20251231');
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/education/anonymous?pageNo=1&pageSize=10`,
+        `${backendUrl}/education/hrd-course?${queryParams.toString()}`,
         {
           method: 'GET',
           headers: {
@@ -114,26 +123,37 @@ async function fetchInitialEducations(
         return { educations: [], totalElements: 0 };
       }
       const data = result.data;
-      const educations: EducationSummary[] = (data.educationDtoList || []).map(
-        (edu: {
-          educationId: number;
-          title?: string;
-          subTitle?: string;
-          address?: string;
-          traStartDate?: string;
-          traEndDate?: string;
-          keyword1?: string;
-          keyword2?: string;
-          courseMan?: string;
-          trprDegr?: string;
-          imageUrl?: string;
-          isBookmark?: boolean;
-          titleLink?: string;
-          score?: number;
-        }) => ({
-          id: String(edu.educationId),
-          educationId: Number(edu.educationId),
-          trprId: String(edu.educationId),
+
+      interface EducationItem {
+        educationId?: number;
+        trprId?: string;
+        title?: string;
+        subTitle?: string;
+        address?: string;
+        traStartDate?: string;
+        traEndDate?: string;
+        courseMan?: string;
+        keyword1?: string;
+        keyword2?: string;
+        trprDegr?: string;
+        imageUrl?: string;
+        titleLink?: string;
+        isBookmark?: boolean;
+        score?: number | null;
+      }
+
+      let educationList: EducationItem[] = [];
+      if (data.educationDtoList) {
+        educationList = data.educationDtoList;
+      } else if (data.srchList) {
+        educationList = data.srchList;
+      }
+
+      const educations: EducationSummary[] = educationList.map(
+        (edu: EducationItem) => ({
+          id: String(edu.educationId || edu.trprId),
+          educationId: Number(edu.educationId || edu.trprId || 0),
+          trprId: String(edu.educationId || edu.trprId),
           title: edu.title || '제목 없음',
           subTitle: edu.subTitle || '',
           institution: edu.subTitle || '',
@@ -173,9 +193,9 @@ async function fetchInitialEducations(
         totalElements: data.totalElements || educations.length,
       };
     } else {
-      // 비로그인 시: 내부 API 라우트를 통해 익명 전체 조회 (페이지 1, size 10)
+      // 비로그인 시: 내부 API 라우트를 통해 익명 전체 조회
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/education/anonymous?pageNo=1&pageSize=10`,
+        `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/education/anonymous?page=${pageNo}&size=20`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -264,7 +284,8 @@ export default async function EducationPrograms({
   const params = await searchParams;
   const { educations, totalElements } = await fetchInitialEducations(
     isLoggedIn,
-    params.tab
+    params.tab,
+    params.page
   );
 
   return (

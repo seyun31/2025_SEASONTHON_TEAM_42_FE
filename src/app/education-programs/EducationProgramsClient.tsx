@@ -13,7 +13,6 @@ import {
   getAllEducationsAnonymous,
   getHrdEducations,
   getRecommendedEducations,
-  getEducationBookmarks,
 } from '@/lib/api/jobApi';
 import { EducationSummary } from '@/types/job';
 
@@ -45,7 +44,6 @@ export default function EducationProgramsClient({
     return pageParam ? parseInt(pageParam) : 1;
   };
 
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>(getInitialTab());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
@@ -55,7 +53,7 @@ export default function EducationProgramsClient({
   const [totalPages, setTotalPages] = useState<number>(
     Math.max(
       1,
-      Math.ceil((initialTotalElements || initialEducations.length) / 10)
+      Math.ceil((initialTotalElements || initialEducations.length) / 20)
     )
   );
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -87,8 +85,9 @@ export default function EducationProgramsClient({
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchEducations 호출
   const handleTabChange = (tab: 'custom' | 'all') => {
+    setIsLoading(true); // 즉시 로딩 상태로 변경
+    setEducations([]); // 이전 데이터 클리어
     setActiveTab(tab);
-    setCurrentPage(1);
     updateURL(tab, 1);
   };
 
@@ -97,19 +96,6 @@ export default function EducationProgramsClient({
     setCurrentPage(page);
     updateURL(activeTab, page);
   };
-
-  // 북마크 초기 로드 (로그인 시)
-  useEffect(() => {
-    if (!isLoggedIn) return;
-    (async () => {
-      try {
-        const bookmarkIds = await getEducationBookmarks();
-        setFavorites(new Set(bookmarkIds));
-      } catch (e) {
-        console.error('Error loading education bookmarks:', e);
-      }
-    })();
-  }, [isLoggedIn]);
 
   // 검색어 디바운싱 -> 사용자가 타이핑을 멈춘 후 실제 검색이 실행될 수 있게 함
   useEffect(() => {
@@ -126,18 +112,50 @@ export default function EducationProgramsClient({
       let data: EducationSummary[] = [];
       let newTotalElements = 0;
 
+      console.log('[EducationProgramsClient] fetchEducations called:', {
+        page,
+        isLoggedIn,
+        activeTab,
+      });
+
       if (isLoggedIn) {
         if (activeTab === 'custom') {
+          console.log(
+            '[EducationProgramsClient] Calling getRecommendedEducations'
+          );
           data = await getRecommendedEducations();
           newTotalElements = data.length;
         } else {
+          console.log(
+            '[EducationProgramsClient] Calling getHrdEducations with page:',
+            page
+          );
+          console.log('[EducationProgramsClient] Sending pageNo:', page - 1);
           const result = await getHrdEducations({
             keyword: debouncedSearchKeyword || undefined,
-            pageNo: page,
-            pageSize: 10,
+            pageNo: page - 1,
+            pageSize: 20,
             startYmd: '20250101',
             endYmd: '20251231',
           });
+          console.log('[EducationProgramsClient] Received result:', result);
+          console.log(
+            '[EducationProgramsClient] Total elements:',
+            result.totalElements
+          );
+          console.log(
+            '[EducationProgramsClient] First item educationId:',
+            result.educationDtoList?.[0]?.educationId
+          );
+          console.log(
+            '[EducationProgramsClient] First item title:',
+            result.educationDtoList?.[0]?.title
+          );
+          console.log(
+            '[EducationProgramsClient] Last item educationId:',
+            result.educationDtoList?.[result.educationDtoList.length - 1]
+              ?.educationId
+          );
           data = (result.educationDtoList || []).map((edu) => ({
             id: edu.educationId.toString(),
             educationId: edu.educationId,
@@ -180,6 +198,8 @@ export default function EducationProgramsClient({
       } else {
         const result = await getAllEducationsAnonymous({
           keyword: debouncedSearchKeyword || undefined,
+          pageNo: page - 1,
+          pageSize: 20,
           startYmd: '',
           endYmd: '',
         });
@@ -225,7 +245,7 @@ export default function EducationProgramsClient({
 
       setEducations(data);
       setTotalElements(newTotalElements);
-      setTotalPages(Math.max(1, Math.ceil(newTotalElements / 10)));
+      setTotalPages(Math.max(1, Math.ceil(newTotalElements / 20)));
     } catch (error) {
       console.error(
         '[EducationProgramsClient] Error fetching educations:',
@@ -239,29 +259,33 @@ export default function EducationProgramsClient({
     }
   };
 
-  // 의존성 변경 시 첫 페이지로 로드
+  // 의존성 변경 시 첫 페이지로 리셋 및 데이터 로드
   useEffect(() => {
-    // 탭이나 필터가 변경되면 항상 데이터를 다시 가져옴
-    fetchEducations(1);
+    // 탭이나 필터가 변경되면 페이지를 1로 리셋하고 데이터 로드
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    } else {
+      // 이미 페이지 1이면 직접 데이터 로드
+      fetchEducations(1);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
 
   // 페이지 변경 시 로드
   useEffect(() => {
-    if (currentPage > 1) {
-      fetchEducations(currentPage);
-    }
+    fetchEducations(currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   const toggleFavorite = (educationId: string) => {
-    const newFavorites = new Set(favorites);
-    if (newFavorites.has(educationId)) {
-      newFavorites.delete(educationId);
-    } else {
-      newFavorites.add(educationId);
-    }
-    setFavorites(newFavorites);
+    // 교육 데이터의 isBookmark 상태를 토글
+    setEducations((prevEducations) =>
+      prevEducations.map((edu) =>
+        edu.trprId === educationId || edu.id === educationId
+          ? { ...edu, isBookmark: !edu.isBookmark }
+          : edu
+      )
+    );
   };
 
   if (isLoading) {
@@ -279,17 +303,10 @@ export default function EducationProgramsClient({
                   isLoggedIn={isLoggedIn}
                 />
               )}
-              <div className="flex flex-col md:flex-row gap-6 mt-12">
-                <div className="flex flex-col gap-6 flex-1">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <EducationCardSkeleton key={index} />
-                  ))}
-                </div>
-                <div className="flex flex-col gap-6 flex-1">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <EducationCardSkeleton key={index + 4} />
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <EducationCardSkeleton key={index} />
+                ))}
               </div>
             </div>
           </section>
@@ -317,41 +334,22 @@ export default function EducationProgramsClient({
               <EmptyEducations isLoggedIn={isLoggedIn} activeTab={activeTab} />
             ) : educations.length > 0 ? (
               <>
-                <div className="flex flex-col md:flex-row gap-6 mt-12">
-                  <div className="flex flex-col gap-6 flex-1">
-                    {educations
-                      .slice(0, Math.ceil(educations.length / 2))
-                      .map((education, index) => (
-                        <EducationCard
-                          key={education.trprId || index}
-                          education={education}
-                          onToggleBookmark={toggleFavorite}
-                          isBookmarked={favorites.has(education.trprId || '')}
-                        />
-                      ))}
-                  </div>
-                  <div className="flex flex-col gap-6 flex-1">
-                    {educations
-                      .slice(Math.ceil(educations.length / 2))
-                      .map((education, index) => (
-                        <EducationCard
-                          key={
-                            education.trprId ||
-                            index + Math.ceil(educations.length / 2)
-                          }
-                          education={education}
-                          onToggleBookmark={toggleFavorite}
-                          isBookmarked={favorites.has(education.trprId || '')}
-                        />
-                      ))}
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
+                  {educations.map((education, index) => (
+                    <EducationCard
+                      key={education.trprId || index}
+                      education={education}
+                      onToggleBookmark={toggleFavorite}
+                      isBookmarked={education.isBookmark || false}
+                    />
+                  ))}
                 </div>
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">
                     <button
                       onClick={() => handlePageChange(1)}
                       disabled={currentPage === 1}
-                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-[#B4E6CE] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &lt;&lt;
                     </button>
@@ -360,7 +358,7 @@ export default function EducationProgramsClient({
                         handlePageChange(Math.max(1, currentPage - 1))
                       }
                       disabled={currentPage === 1}
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-[#B4E6CE] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &lt;
                     </button>
@@ -379,7 +377,7 @@ export default function EducationProgramsClient({
                         <button
                           key={pageNum}
                           onClick={() => handlePageChange(pageNum)}
-                          className={`min-w-[32px] sm:min-w-[40px] px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-medium cursor-pointer text-sm sm:text-base ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'}`}
+                          className={`min-w-[32px] sm:min-w-[40px] px-2 sm:px-4 py-1.5 sm:py-2 rounded-lg border font-medium cursor-pointer text-sm sm:text-base ${currentPage === pageNum ? 'bg-primary-90 text-white border-primary-90 shadow-md' : 'border-gray-300 text-gray-700 hover:bg-[#B4E6CE]'}`}
                         >
                           {pageNum}
                         </button>
@@ -390,14 +388,14 @@ export default function EducationProgramsClient({
                         handlePageChange(Math.min(totalPages, currentPage + 1))
                       }
                       disabled={currentPage === totalPages}
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-[#B4E6CE] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &gt;
                     </button>
                     <button
                       onClick={() => handlePageChange(totalPages)}
                       disabled={currentPage === totalPages}
-                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
+                      className="px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-[#B4E6CE] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer text-sm sm:text-base"
                     >
                       &gt;&gt;
                     </button>
