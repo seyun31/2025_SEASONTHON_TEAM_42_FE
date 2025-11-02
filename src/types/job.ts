@@ -76,6 +76,13 @@ export interface AllResponse {
   imageUrl: string;
   isBookmark: boolean;
   score: number;
+  companyLogo?: string;
+  salary?: string;
+  workPeriod?: string;
+  experience?: string;
+  requiredSkills?: string;
+  preferredSkills?: string;
+  applyLink?: string;
 }
 
 export interface SearchAllResponse {
