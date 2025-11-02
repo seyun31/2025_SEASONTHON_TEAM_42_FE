@@ -68,33 +68,33 @@ reviews:
 path_filters:
   # 리뷰에서 제외할 경로
   excluded:
-    - "*.md"
-    - "*.json"
-    - "*.lock"
-    - "package-lock.json"
-    - "yarn.lock"
-    - "pnpm-lock.yaml"
-    - ".next/**"
-    - "node_modules/**"
-    - "public/**"
-    - "*.svg"
-    - "*.ico"
-    - "*.png"
-    - "*.jpg"
-    - "*.jpeg"
-    - "*.gif"
-    - ".husky/**"
-    - "dist/**"
-    - "build/**"
+    - '*.md'
+    - '*.json'
+    - '*.lock'
+    - 'package-lock.json'
+    - 'yarn.lock'
+    - 'pnpm-lock.yaml'
+    - '.next/**'
+    - 'node_modules/**'
+    - 'public/**'
+    - '*.svg'
+    - '*.ico'
+    - '*.png'
+    - '*.jpg'
+    - '*.jpeg'
+    - '*.gif'
+    - '.husky/**'
+    - 'dist/**'
+    - 'build/**'
 
   # 리뷰에 포함할 경로
   included:
-    - "src/**/*.ts"
-    - "src/**/*.tsx"
-    - "src/**/*.js"
-    - "src/**/*.jsx"
-    - "*.config.ts"
-    - "*.config.js"
+    - 'src/**/*.ts'
+    - 'src/**/*.tsx'
+    - 'src/**/*.js'
+    - 'src/**/*.jsx'
+    - '*.config.ts'
+    - '*.config.js'
 
 # 채팅 설정
 chat:
