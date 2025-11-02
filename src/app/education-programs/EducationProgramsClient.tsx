@@ -156,7 +156,59 @@ export default function EducationProgramsClient({
             result.educationDtoList?.[result.educationDtoList.length - 1]
               ?.educationId
           );
-          data = (result.educationDtoList || []).map((edu) => ({
+          data = (result.educationDtoList || []).map((edu) => {
+            return {
+              id: edu.educationId.toString(),
+              educationId: edu.educationId,
+              trprId: edu.educationId.toString(),
+              title: edu.title,
+              subTitle: edu.subTitle,
+              institution: '',
+              address: edu.address,
+              traStartDate: edu.traStartDate,
+              traEndDate: edu.traEndDate,
+              trainTarget: '',
+              contents: '',
+              certificate: '',
+              grade: '',
+              regCourseMan: '',
+              courseMan: edu.courseMan,
+              realMan: '',
+              yardMan: '',
+              telNo: '',
+              stdgScor: '',
+              eiEmplCnt3: '',
+              eiEmplRate3: '',
+              eiEmplCnt3Gt10: '',
+              eiEmplRate6: '',
+              ncsCd: '',
+              trprDegr: edu.trprDegr,
+              instCd: '',
+              trngAreaCd: '',
+              trainTargetCd: '',
+              trainstCstId: '',
+              subTitleLink: '',
+              titleLink: edu.titleLink,
+              titleIcon: '',
+              imageUrl: edu.imageUrl,
+              isBookmark: edu.isBookmark,
+              recommendScore: edu.score ?? undefined,
+              keyword1: edu.keyword1,
+              keyword2: edu.keyword2,
+            };
+          });
+          newTotalElements = result.totalElements || 0;
+        }
+      } else {
+        const result = await getAllEducationsAnonymous({
+          keyword: debouncedSearchKeyword || undefined,
+          pageNo: page - 1,
+          pageSize: 20,
+          startYmd: '',
+          endYmd: '',
+        });
+        data = (result.educationDtoList || []).map((edu) => {
+          return {
             id: edu.educationId.toString(),
             educationId: edu.educationId,
             trprId: edu.educationId.toString(),
@@ -192,54 +244,10 @@ export default function EducationProgramsClient({
             imageUrl: edu.imageUrl,
             isBookmark: edu.isBookmark,
             recommendScore: edu.score ?? undefined,
-          }));
-          newTotalElements = result.totalElements || 0;
-        }
-      } else {
-        const result = await getAllEducationsAnonymous({
-          keyword: debouncedSearchKeyword || undefined,
-          pageNo: page - 1,
-          pageSize: 20,
-          startYmd: '',
-          endYmd: '',
+            keyword1: edu.keyword1,
+            keyword2: edu.keyword2,
+          };
         });
-        data = (result.educationDtoList || []).map((edu) => ({
-          id: edu.educationId.toString(),
-          educationId: edu.educationId,
-          trprId: edu.educationId.toString(),
-          title: edu.title,
-          subTitle: edu.subTitle,
-          institution: '',
-          address: edu.address,
-          traStartDate: edu.traStartDate,
-          traEndDate: edu.traEndDate,
-          trainTarget: '',
-          contents: '',
-          certificate: '',
-          grade: '',
-          regCourseMan: '',
-          courseMan: edu.courseMan,
-          realMan: '',
-          yardMan: '',
-          telNo: '',
-          stdgScor: '',
-          eiEmplCnt3: '',
-          eiEmplRate3: '',
-          eiEmplCnt3Gt10: '',
-          eiEmplRate6: '',
-          ncsCd: '',
-          trprDegr: edu.trprDegr,
-          instCd: '',
-          trngAreaCd: '',
-          trainTargetCd: '',
-          trainstCstId: '',
-          subTitleLink: '',
-          titleLink: edu.titleLink,
-          titleIcon: '',
-          imageUrl: edu.imageUrl,
-          isBookmark: edu.isBookmark,
-          recommendScore: edu.score ?? undefined,
-        }));
         newTotalElements = result.totalElements || 0;
       }
 

@@ -239,6 +239,8 @@ export interface EducationSummary {
   imageUrl?: string;
   isBookmark?: boolean;
   recommendScore?: number;
+  keyword1?: string;
+  keyword2?: string;
 }
 
 // Education API 응답 타입 (HRD Course)

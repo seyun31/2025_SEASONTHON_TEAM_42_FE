@@ -126,7 +126,6 @@ const Tag = ({
 
 // 추천도 표시 컴포넌트
 const RecommendationScore = () => {
-  // 교육과정에는 추천도가 없으므로 아예 렌더링하지 않음
   return null;
 };
 
@@ -230,9 +229,14 @@ export default function EducationCard({
   const renderTags = (isCompact = false) => {
     const tags = [];
 
-    // keyword1과 keyword2를 태그로 표시
-    if (education.contents && education.contents.trim() !== '') {
-      tags.push(education.contents.trim());
+    // keyword1을 태그로 표시
+    if (education.keyword1 && education.keyword1.trim() !== '') {
+      tags.push(education.keyword1.trim());
+    }
+
+    // keyword2를 태그로 표시
+    if (education.keyword2 && education.keyword2.trim() !== '') {
+      tags.push(education.keyword2.trim());
     }
 
     // 기존 trainTarget도 유지

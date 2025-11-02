@@ -67,7 +67,7 @@ async function fetchInitialEducations(
             traStartDate: edu.traStartDate || '',
             traEndDate: edu.traEndDate || '',
             trainTarget: '',
-            contents: edu.keyword1 || edu.keyword2 || '',
+            contents: '',
             certificate: '',
             grade: '',
             regCourseMan: '0',
@@ -92,6 +92,8 @@ async function fetchInitialEducations(
             imageUrl: edu.imageUrl || '',
             isBookmark: Boolean(edu.isBookmark),
             recommendScore: edu.score || undefined,
+            keyword1: edu.keyword1,
+            keyword2: edu.keyword2,
           })
         );
         return { educations, totalElements: educations.length };
@@ -161,7 +163,7 @@ async function fetchInitialEducations(
           traStartDate: edu.traStartDate || '',
           traEndDate: edu.traEndDate || '',
           trainTarget: '',
-          contents: edu.keyword1 || edu.keyword2 || '',
+          contents: '',
           certificate: '',
           grade: '',
           regCourseMan: '0',
@@ -186,6 +188,8 @@ async function fetchInitialEducations(
           imageUrl: edu.imageUrl || '',
           isBookmark: Boolean(edu.isBookmark),
           recommendScore: edu.score || undefined,
+          keyword1: edu.keyword1,
+          keyword2: edu.keyword2,
         })
       );
       return {
@@ -237,7 +241,7 @@ async function fetchInitialEducations(
           traStartDate: edu.traStartDate || '',
           traEndDate: edu.traEndDate || '',
           trainTarget: '',
-          contents: edu.keyword1 || edu.keyword2 || '',
+          contents: '',
           certificate: '',
           grade: '',
           regCourseMan: '0',
@@ -262,6 +266,8 @@ async function fetchInitialEducations(
           imageUrl: edu.imageUrl || '',
           isBookmark: Boolean(edu.isBookmark),
           recommendScore: edu.score || undefined,
+          keyword1: edu.keyword1,
+          keyword2: edu.keyword2,
         })
       );
       return {

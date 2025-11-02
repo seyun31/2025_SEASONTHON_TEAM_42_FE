@@ -1323,7 +1323,7 @@ export const getRecommendedEducations = async (): Promise<
       traStartDate: edu.traStartDate || '',
       traEndDate: edu.traEndDate || '',
       trainTarget: '',
-      contents: edu.keyword1 || edu.keyword2 || '',
+      contents: '',
       certificate: '',
       grade: '',
       regCourseMan: '0',
@@ -1348,6 +1348,8 @@ export const getRecommendedEducations = async (): Promise<
       imageUrl: edu.imageUrl || '',
       isBookmark: edu.isBookmark || false,
       recommendScore: edu.score ?? undefined,
+      keyword1: edu.keyword1,
+      keyword2: edu.keyword2,
     }));
   } catch (error) {
     console.error('Error fetching recommended educations:', error);
@@ -1431,52 +1433,8 @@ export const getAllEducationsAnonymous = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // 새로운 response 구조에 맞게 변환
-    const mappedData = result.data.educationDtoList.map(
-      (item: EducationDto) => ({
-        id: item.educationId.toString(),
-        educationId: item.educationId,
-        trprId: item.educationId.toString(),
-        title: item.title || '제목 없음',
-        subTitle: item.subTitle || '',
-        institution: item.subTitle || '',
-        address: item.address || '',
-        traStartDate: item.traStartDate || '',
-        traEndDate: item.traEndDate || '',
-        trainTarget: '',
-        contents: item.keyword1 || item.keyword2 || '',
-        certificate: '',
-        grade: '',
-        regCourseMan: '0',
-        courseMan: item.courseMan || '0',
-        realMan: '0',
-        yardMan: '0',
-        telNo: '',
-        stdgScor: '0',
-        eiEmplCnt3: '0',
-        eiEmplRate3: '0',
-        eiEmplCnt3Gt10: '0',
-        eiEmplRate6: '0',
-        ncsCd: '',
-        trprDegr: item.trprDegr || '',
-        instCd: '',
-        trngAreaCd: '',
-        trainTargetCd: '',
-        trainstCstId: '',
-        subTitleLink: '',
-        titleLink: item.titleLink || '',
-        titleIcon: '',
-        imageUrl: item.imageUrl || '',
-        isBookmark: item.isBookmark || false,
-        recommendScore: item.score || undefined,
-      })
-    );
-
-    return {
-      totalElements: result.data.totalElements || mappedData.length,
-      numberOfElements: result.data.numberOfElements || mappedData.length,
-      educationDtoList: mappedData,
-    };
+    // API 응답을 그대로 반환
+    return result.data;
   } catch (error) {
     console.error('Error fetching all educations:', error);
     throw error;
@@ -1596,6 +1554,7 @@ export const getHrdEducations = async (filters?: {
             item
           );
           return {
+            trprId: parseInt(item.trprId || index.toString()),
             educationId: parseInt(item.trprId || index.toString()),
             title: item.title || '제목 없음',
             subTitle: item.subTitle || '',
@@ -1613,7 +1572,7 @@ export const getHrdEducations = async (filters?: {
           };
         }
       );
-      totalElements = result.data.totalElements || mappedData.length;
+      totalElements = result.data.scn_cnt || mappedData.length;
     } else {
       console.log(
         'getHrdEducations - No educationDtoList or srchList found in result.data:',
