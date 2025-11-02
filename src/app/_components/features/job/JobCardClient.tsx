@@ -61,17 +61,9 @@ const styles = {
         : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#E1F5EC]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-500 ease-out ${
-      isHovered ? 'bg-[B4E6CE]' : 'bg-primary-20'
-    } ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,
+    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-500 ease-out ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,
   compactTag: (isHovered: boolean, isExpanded: boolean) =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 transition-all duration-400 ease-in-out ${
-      isExpanded
-        ? 'bg-primary-20'
-        : isHovered
-          ? 'bg-primary-20'
-          : 'bg-primary-20'
-    }`,
+    `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-400 ease-in-out`,
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
     textAlign: 'right' as const,

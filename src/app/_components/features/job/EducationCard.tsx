@@ -50,7 +50,7 @@ const styles = {
     `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-secondary4'
+        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#9FC2FF33]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
