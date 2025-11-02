@@ -103,7 +103,8 @@ chat:
 # 지식 기반 설정
 knowledge_base:
   # 학습 모드 활성화
-  learnings: true
+  learnings:
+    scope: auto
 
   # 옵트아웃 설정
   opt_out: false
