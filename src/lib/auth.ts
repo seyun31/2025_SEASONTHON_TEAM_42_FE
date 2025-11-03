@@ -43,34 +43,20 @@ export function getUserData(): UserData | null {
   }
 }
 
-// 인증 데이터 삭제 (로그아웃 시 사용)
-// 메인 페이지로 리다이렉트
-export async function clearAuthData(
-  redirectToMain: boolean = true
-): Promise<void> {
+// 인증 데이터 삭제 (로그아웃 시 사용) -> 즉시 로컬 데이터 삭제, 서버 호출은 백그라운드에서
+export function clearAuthData(): void {
   if (typeof window === 'undefined') return;
 
-  // localStorage에서 사용자 데이터 삭제
+  // localStorage에서 사용자 데이터 즉시 삭제
   localStorage.removeItem('userData');
 
-  // 서버의 HttpOnly 쿠키 삭제를 위한 API 호출
-  try {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-  } catch (error) {
+  // 서버의 HttpOnly 쿠키 삭제를 위한 API 호출 (백그라운드에서 실행)
+  fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  }).catch((error) => {
     console.error('로그아웃 API 호출 실패:', error);
-  }
-
-  // 로그아웃 후 페이지 새로고침 또는 리다이렉트
-  if (redirectToMain) {
-    // 메인 페이지로 리다이렉트
-    window.location.href = '/';
-  } else {
-    // 현재 페이지 새로고침
-    window.location.reload();
-  }
+  });
 }
 
 // API 호출을 통해 사용자 정보 가져오기

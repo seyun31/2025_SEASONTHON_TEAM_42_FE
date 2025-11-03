@@ -33,6 +33,7 @@ interface UserCheckListProps {
   hasRoadmap?: boolean;
   roadmapData?: RoadMapResponse | null;
   onRoadmapUpdate?: () => void;
+  isLoading?: boolean;
 }
 
 export default function UserCheckList({
@@ -40,6 +41,7 @@ export default function UserCheckList({
   hasRoadmap = true,
   roadmapData,
   onRoadmapUpdate,
+  isLoading = false,
 }: UserCheckListProps) {
   const router = useRouter();
   const [selectedStepId, setSelectedStepId] = useState<number | null>(null);
@@ -456,6 +458,19 @@ export default function UserCheckList({
     }
   };
 
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
+        <div className="text-center bg-white/40 rounded-2xl px-6 py-4">
+          <p className="text-black text-lg md:text-xl font-medium">
+            로드맵을 불러오는 중...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // 로드맵이 없거나 API 데이터가 없는 경우
   if (!hasRoadmap || !roadmapData) {
     // 로드맵이 없는 경우 - 단순한 중앙 정렬 레이아웃
@@ -498,7 +513,7 @@ export default function UserCheckList({
       <div className="flex flex-col xl:flex-row xl:items-stretch gap-4">
         {/* 왼쪽 - 로드맵 시각화 */}
         <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0">
-          <RoadmapHeader userName={userName} />
+          <RoadmapHeader userName={userName} multiLine={true} />
 
           {/* 로드맵 차트 */}
           <div className="flex-1 relative flex items-center justify-center">

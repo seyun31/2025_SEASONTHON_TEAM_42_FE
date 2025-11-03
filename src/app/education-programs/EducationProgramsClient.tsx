@@ -112,25 +112,11 @@ export default function EducationProgramsClient({
       let data: EducationSummary[] = [];
       let newTotalElements = 0;
 
-      console.log('[EducationProgramsClient] fetchEducations called:', {
-        page,
-        isLoggedIn,
-        activeTab,
-      });
-
       if (isLoggedIn) {
         if (activeTab === 'custom') {
-          console.log(
-            '[EducationProgramsClient] Calling getRecommendedEducations'
-          );
           data = await getRecommendedEducations();
           newTotalElements = data.length;
         } else {
-          console.log(
-            '[EducationProgramsClient] Calling getHrdEducations with page:',
-            page
-          );
-          console.log('[EducationProgramsClient] Sending pageNo:', page - 1);
           const result = await getHrdEducations({
             keyword: debouncedSearchKeyword || undefined,
             pageNo: page - 1,
@@ -138,24 +124,6 @@ export default function EducationProgramsClient({
             startYmd: '20250101',
             endYmd: '20251231',
           });
-          console.log('[EducationProgramsClient] Received result:', result);
-          console.log(
-            '[EducationProgramsClient] Total elements:',
-            result.totalElements
-          );
-          console.log(
-            '[EducationProgramsClient] First item educationId:',
-            result.educationDtoList?.[0]?.educationId
-          );
-          console.log(
-            '[EducationProgramsClient] First item title:',
-            result.educationDtoList?.[0]?.title
-          );
-          console.log(
-            '[EducationProgramsClient] Last item educationId:',
-            result.educationDtoList?.[result.educationDtoList.length - 1]
-              ?.educationId
-          );
           data = (result.educationDtoList || []).map((edu) => {
             return {
               id: edu.educationId.toString(),
@@ -255,10 +223,6 @@ export default function EducationProgramsClient({
       setTotalElements(newTotalElements);
       setTotalPages(Math.max(1, Math.ceil(newTotalElements / 20)));
     } catch (error) {
-      console.error(
-        '[EducationProgramsClient] Error fetching educations:',
-        error
-      );
       setEducations([]);
       setTotalElements(0);
       setTotalPages(1);
@@ -302,7 +266,7 @@ export default function EducationProgramsClient({
         <main className="min-h-screen bg-white">
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
-              <SearchBar />
+              <SearchBar borderColor="#9FC2FF" />
               <EducationFilter onFilterChange={setFilters} />
               {isLoggedIn && (
                 <EducationTab
@@ -329,7 +293,10 @@ export default function EducationProgramsClient({
       <main className="min-h-screen bg-white">
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
-            <SearchBar onSearchChange={setSearchKeyword} />
+            <SearchBar
+              onSearchChange={setSearchKeyword}
+              borderColor="#9FC2FF"
+            />
             <EducationFilter onFilterChange={setFilters} />
             {isLoggedIn && (
               <EducationTab

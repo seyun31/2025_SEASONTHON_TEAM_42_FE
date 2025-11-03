@@ -118,10 +118,15 @@ export default function Header() {
   };
 
   const handleLogout = () => {
-    clearAuthData();
+    // 즉시 UI 상태 업데이트
     setUserData(null);
     setIsLoggedIn(false);
     setIsLoadingProfile(false);
+
+    // 로컬 스토리지 및 쿠키 삭제 (백그라운드)
+    clearAuthData();
+
+    // 메인 페이지로 즉시 이동
     router.push('/');
   };
 

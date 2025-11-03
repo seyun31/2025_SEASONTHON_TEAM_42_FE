@@ -12,16 +12,20 @@ import RoadmapHeader from '@/components/ui/RoadmapHeader';
 export default function CareerRoadmap() {
   const [userName, setUserName] = useState<string>('');
   const [roadmapData, setRoadmapData] = useState<RoadMapResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { hasRoadmap, setHasRoadmap } = useRoadmapStore();
 
   const fetchRoadmapData = useCallback(async () => {
     try {
+      setIsLoading(true);
       const data = await getRoadMap();
       setRoadmapData(data);
       setHasRoadmap(true);
     } catch (err) {
       console.error('로드맵 데이터 가져오기 실패:', err);
       setHasRoadmap(false);
+    } finally {
+      setIsLoading(false);
     }
   }, [setHasRoadmap]);
 
@@ -31,6 +35,8 @@ export default function CareerRoadmap() {
       setUserName(userData.name);
       // 로그인한 사용자의 경우 로드맵 데이터 가져오기
       fetchRoadmapData();
+    } else {
+      setIsLoading(false);
     }
   }, [fetchRoadmapData]);
 
@@ -61,6 +67,7 @@ export default function CareerRoadmap() {
               hasRoadmap={hasRoadmap}
               roadmapData={roadmapData}
               onRoadmapUpdate={fetchRoadmapData}
+              isLoading={isLoading}
             />
           )}
         </div>

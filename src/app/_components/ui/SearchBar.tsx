@@ -3,9 +3,13 @@ import { IoSearchOutline } from 'react-icons/io5';
 
 interface SearchBarProps {
   onSearchChange?: (keyword: string) => void;
+  borderColor?: string;
 }
 
-export default function SearchBar({ onSearchChange }: SearchBarProps) {
+export default function SearchBar({
+  onSearchChange,
+  borderColor = '#00AD38',
+}: SearchBarProps) {
   const [searchValue, setSearchValue] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +25,10 @@ export default function SearchBar({ onSearchChange }: SearchBarProps) {
   };
 
   return (
-    <div className="flex flex-col items-start gap-[10px] w-full p-3 md:p-6 rounded-[100px] border-2 md:border-4 border-[#00AD38] shadow-[0_10px_10px_0_rgba(87,134,218,0.20)]">
+    <div
+      className="flex flex-col items-start gap-[10px] w-full p-3 md:p-6 rounded-[100px] border-2 md:border-4 shadow-[0_10px_10px_0_rgba(87,134,218,0.20)]"
+      style={{ borderColor }}
+    >
       <div className="flex items-center w-full">
         <button
           type="button"
