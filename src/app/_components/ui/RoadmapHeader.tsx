@@ -12,9 +12,9 @@ export default function RoadmapHeader({
   onDetailClick,
 }: RoadmapHeaderProps) {
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div className="flex items-center justify-between mb-4 sm:mb-8">
       <div className="bg-white/40 rounded-2xl px-3 py-2 flex items-start gap-3 flex-col">
-        <span className="text-black text-title-medium">
+        <span className="text-black text-base sm:text-title-medium">
           {userName ? `${userName}님의 취업 로드맵` : '취업 로드맵'}
         </span>
         {showDetailLink && userName && (

@@ -17,7 +17,7 @@ export default function RoadmapBackground({
 }: RoadmapBackgroundProps) {
   return (
     <div
-      className={`relative rounded-2xl p-8 text-white overflow-hidden ${className}`}
+      className={`relative rounded-2xl p-4 sm:p-6 xl:p-8 text-white overflow-hidden ${className}`}
       style={{
         backgroundImage: 'url(/assets/Icons/roadmap_bg.svg)',
         backgroundSize: 'cover',

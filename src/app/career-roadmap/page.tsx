@@ -40,13 +40,13 @@ export default function CareerRoadmap() {
         <div className="max-w-[1200px] mx-auto">
           {!userName ? (
             // 로그인하지 않은 경우
-            <RoadmapBackground className="h-[420px] w-[1200px] flex-shrink-0">
+            <RoadmapBackground className="w-full aspect-[588/860]">
               <RoadmapHeader />
 
               {/* 로그인 안내 */}
-              <div className="flex-1 relative flex items-center justify-center">
-                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
-                  <p className="text-black text-title-xlarge opacity-90">
+              <div className="flex-1 relative flex items-center justify-center px-2">
+                <div className="text-center bg-white/40 rounded-2xl px-3 py-2 sm:px-4 sm:py-3 flex items-center gap-3">
+                  <p className="text-black text-lg sm:text-title-large xl:text-title-xlarge opacity-90 font-bold">
                     로그인 하시고
                     <br />
                     취업 로드맵 받아보세요!

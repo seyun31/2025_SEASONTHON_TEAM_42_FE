@@ -134,88 +134,94 @@ export default function AICoachRoadmapSection() {
                 onDetailClick={() => router.push('/career-roadmap')}
               />
 
-              {/* 로드맵 차트 또는 로그인 안내 */}
-              <div className="flex-1 relative flex items-center justify-center">
-                {!userName ? (
-                  <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3 ">
-                    <p className="text-black text-title-xlarge opacity-90">
-                      로그인 하시고
-                      <br />
-                      취업 로드맵 받아보세요!
-                    </p>
-                  </div>
-                ) : loading ? (
-                  <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
-                    <p className="text-black text-title-xlarge opacity-90">
-                      로드맵을 불러오는 중...
-                    </p>
-                  </div>
-                ) : error ? (
-                  <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
-                    <p className="text-black text-title-xlarge opacity-90">
-                      {error}
-                    </p>
-                  </div>
-                ) : (
-                  <>
-                    {/* 연결선들 */}
-                    <svg
-                      className="absolute inset-0 w-full h-full z-10"
-                      viewBox="0 0 100 100"
-                      preserveAspectRatio="none"
-                    >
-                      {roadmapSteps.length > 0
-                        ? roadmapSteps.map((step, index) => {
-                            if (index === roadmapSteps.length - 1) return null;
-                            const nextStep = roadmapSteps[index + 1];
-                            return (
-                              <path
-                                key={`line-${index}`}
-                                d={`M ${step.position.x} ${step.position.y} L ${nextStep.position.x} ${nextStep.position.y}`}
-                                stroke="white"
-                                strokeWidth={2}
-                                fill="none"
-                              />
-                            );
-                          })
-                        : null}
-                    </svg>
+              {/* 로드맵 차트 또는 로그인 안내 - 고정 비율 컨테이너로 반응형 비율 유지 */}
+              <div
+                className="relative w-full"
+                style={{ aspectRatio: '445 / 652' }}
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {!userName ? (
+                    <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3 ">
+                      <p className="text-black text-title-xlarge opacity-90">
+                        로그인 하시고
+                        <br />
+                        취업 로드맵 받아보세요!
+                      </p>
+                    </div>
+                  ) : loading ? (
+                    <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                      <p className="text-black text-title-xlarge opacity-90">
+                        로드맵을 불러오는 중...
+                      </p>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
+                      <p className="text-black text-title-xlarge opacity-90">
+                        {error}
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* 연결선들 */}
+                      <svg
+                        className="absolute inset-0 w-full h-full z-10"
+                        viewBox="0 0 100 100"
+                        preserveAspectRatio="none"
+                      >
+                        {roadmapSteps.length > 0
+                          ? roadmapSteps.map((step, index) => {
+                              if (index === roadmapSteps.length - 1)
+                                return null;
+                              const nextStep = roadmapSteps[index + 1];
+                              return (
+                                <path
+                                  key={`line-${index}`}
+                                  d={`M ${step.position.x} ${step.position.y} L ${nextStep.position.x} ${nextStep.position.y}`}
+                                  stroke="white"
+                                  strokeWidth={2}
+                                  fill="none"
+                                />
+                              );
+                            })
+                          : null}
+                      </svg>
 
-                    {/* 로드맵 단계들 */}
-                    {roadmapSteps.length > 0
-                      ? roadmapSteps.map((step) => (
-                          <div
-                            key={step.id}
-                            className="absolute flex flex-col items-center z-20"
-                            style={{
-                              left: `${step.position.x}%`,
-                              top: `${step.position.y}%`,
-                              transform: 'translate(-50%, -50%)',
-                            }}
-                          >
-                            <div className="mb-2">
-                              <RoadmapPosition
-                                isCompleted={step.completed}
-                                isPressed={selectedStepId === step.id}
-                                onClick={() => handleStepClick(step.id)}
-                              />
-                            </div>
-                            <span
-                              className="text-white text-4xl whitespace-nowrap font-regular"
+                      {/* 로드맵 단계들 */}
+                      {roadmapSteps.length > 0
+                        ? roadmapSteps.map((step) => (
+                            <div
+                              key={step.id}
+                              className="absolute flex flex-col items-center z-20"
                               style={{
-                                position: 'absolute',
-                                top: '50%',
-                                left: '60px',
-                                transform: 'translateY(-50%)',
+                                left: `${step.position.x}%`,
+                                top: `${step.position.y}%`,
+                                transform: 'translate(-50%, -50%)',
                               }}
                             >
-                              {step.name}
-                            </span>
-                          </div>
-                        ))
-                      : null}
-                  </>
-                )}
+                              <div className="mb-2">
+                                <RoadmapPosition
+                                  isCompleted={step.completed}
+                                  isPressed={selectedStepId === step.id}
+                                  onClick={() => handleStepClick(step.id)}
+                                />
+                              </div>
+                              <span
+                                className="text-white text-4xl whitespace-nowrap font-regular"
+                                style={{
+                                  position: 'absolute',
+                                  top: '50%',
+                                  left: '60px',
+                                  transform: 'translateY(-50%)',
+                                }}
+                              >
+                                {step.name}
+                              </span>
+                            </div>
+                          ))
+                        : null}
+                    </>
+                  )}
+                </div>
               </div>
             </RoadmapBackground>
           </div>
