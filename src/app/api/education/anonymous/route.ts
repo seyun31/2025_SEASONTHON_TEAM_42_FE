@@ -10,13 +10,31 @@ export async function GET(request: Request): Promise<Response> {
 
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('keyword') || '';
+    const page = searchParams.get('page') || '';
+    const size = searchParams.get('size') || '';
     const startYmd = searchParams.get('startYmd') || '';
     const endYmd = searchParams.get('endYmd') || '';
 
+    console.log('[Education Anonymous API] Request params:', {
+      keyword,
+      page,
+      size,
+      startYmd,
+      endYmd,
+    });
+
     const url = new URL(`${backendUrl}/education/all/anonymous`);
     if (keyword) url.searchParams.append('keyword', keyword);
+    if (page) {
+      url.searchParams.append('page', page);
+    }
+    if (size) {
+      url.searchParams.append('size', size);
+    }
     if (startYmd) url.searchParams.append('startYmd', startYmd);
     if (endYmd) url.searchParams.append('endYmd', endYmd);
+
+    console.log('[Education Anonymous API] Backend URL:', url.toString());
 
     const response = await fetch(url.toString(), {
       method: 'GET',

@@ -36,6 +36,7 @@ export interface ApiResponse<T> {
 
 // 교육 DTO 타입 정의
 export interface EducationDto {
+  trprId: number;
   educationId: number;
   title: string;
   subTitle: string;
@@ -54,29 +55,34 @@ export interface EducationDto {
 
 // 전체 채용 조회 API 응답 타입
 export interface AllResponse {
-  managerPhone: string;
-  recruitNumber: unknown;
-  description: string;
-  jobCodeName: string;
   jobId: number;
   companyName: string;
-  companyLogo: string;
-  jobTitle: string;
-  jobCategory: string;
-  workLocation: string;
+  jobCodeName: string;
+  recruitNumber: number;
   employmentType: string;
-  salary: string;
-  workPeriod: string;
-  experience: string;
-  requiredSkills: string;
-  preferredSkills: string;
+  workLocation: string;
+  description: string;
+  wage: string;
+  insurance: string;
+  workTime: string;
+  managerPhone: string;
+  jobTitle: string;
+  screeningMethod: string;
+  receptionMethod: string;
+  requiredDocuments: string;
+  jobCategory: string;
   postingDate: string;
   closingDate: string;
-  applyLink: string;
-  requiredDocuments?: string;
   imageUrl: string;
   isBookmark: boolean;
   score: number;
+  companyLogo?: string;
+  salary?: string;
+  workPeriod?: string;
+  experience?: string;
+  requiredSkills?: string;
+  preferredSkills?: string;
+  applyLink?: string;
 }
 
 export interface SearchAllResponse {
@@ -240,6 +246,8 @@ export interface EducationSummary {
   imageUrl?: string;
   isBookmark?: boolean;
   recommendScore?: number;
+  keyword1?: string;
+  keyword2?: string;
 }
 
 // Education API 응답 타입 (HRD Course)

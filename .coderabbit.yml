@@ -1,0 +1,129 @@
+# CodeRabbit Configuration File
+
+language: ko
+
+reviews:
+  # 자동 리뷰 활성화
+  auto_review:
+    enabled: true
+    drafts: false
+
+  # 리뷰 수준 설정
+  profile: chill
+
+  # 요청 변경사항 활성화
+  request_changes_workflow: true
+
+  # 높은 수준의 요약 제공
+  high_level_summary: true
+
+  # 시 형식의 요약 비활성화
+  poem: false
+
+  # 리뷰 상태
+  review_status: true
+
+  # 도구 설정
+  tools:
+    shellcheck:
+      enabled: false
+
+    ruff:
+      enabled: false
+
+    markdownlint:
+      enabled: true
+
+    biome:
+      enabled: false
+
+    hadolint:
+      enabled: false
+
+    swiftlint:
+      enabled: false
+
+    phpstan:
+      enabled: false
+
+    golangci-lint:
+      enabled: false
+
+    yamllint:
+      enabled: true
+
+    gitleaks:
+      enabled: true
+
+    checkov:
+      enabled: false
+
+    detekt:
+      enabled: false
+
+    eslint:
+      enabled: true
+
+# 경로 필터 설정
+path_filters:
+  # 리뷰에서 제외할 경로
+  excluded:
+    - '*.md'
+    - '*.json'
+    - '*.lock'
+    - 'package-lock.json'
+    - 'yarn.lock'
+    - 'pnpm-lock.yaml'
+    - '.next/**'
+    - 'node_modules/**'
+    - 'public/**'
+    - '*.svg'
+    - '*.ico'
+    - '*.png'
+    - '*.jpg'
+    - '*.jpeg'
+    - '*.gif'
+    - '.husky/**'
+    - 'dist/**'
+    - 'build/**'
+
+  # 리뷰에 포함할 경로
+  included:
+    - 'src/**/*.ts'
+    - 'src/**/*.tsx'
+    - 'src/**/*.js'
+    - 'src/**/*.jsx'
+    - '*.config.ts'
+    - '*.config.js'
+
+# 채팅 설정
+chat:
+  auto_reply: true
+
+# 지식 기반 설정
+knowledge_base:
+  # 학습 모드 활성화
+  learnings:
+    scope: auto
+
+  # 옵트아웃 설정
+  opt_out: false
+
+# 리뷰 주제 설정
+reviews_topics:
+  - performance
+  - security
+  - best-practices
+  - accessibility
+  - error-handling
+  - code-style
+  - testing
+  - documentation
+
+# 코멘트 설정
+comments:
+  # 해결된 스레드 축소
+  collapse_walkthrough: false
+
+  # 자동 댓글 활성화
+  auto_comment: true

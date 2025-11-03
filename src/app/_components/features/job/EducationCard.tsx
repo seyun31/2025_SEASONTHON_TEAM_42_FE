@@ -47,10 +47,10 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 // 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-secondary4 overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-secondary4'
+        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#9FC2FF33]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
@@ -126,7 +126,6 @@ const Tag = ({
 
 // 추천도 표시 컴포넌트
 const RecommendationScore = () => {
-  // 교육과정에는 추천도가 없으므로 아예 렌더링하지 않음
   return null;
 };
 
@@ -230,9 +229,14 @@ export default function EducationCard({
   const renderTags = (isCompact = false) => {
     const tags = [];
 
-    // keyword1과 keyword2를 태그로 표시
-    if (education.contents && education.contents.trim() !== '') {
-      tags.push(education.contents.trim());
+    // keyword1을 태그로 표시
+    if (education.keyword1 && education.keyword1.trim() !== '') {
+      tags.push(education.keyword1.trim());
+    }
+
+    // keyword2를 태그로 표시
+    if (education.keyword2 && education.keyword2.trim() !== '') {
+      tags.push(education.keyword2.trim());
     }
 
     // 기존 trainTarget도 유지

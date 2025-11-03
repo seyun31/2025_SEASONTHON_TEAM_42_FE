@@ -726,12 +726,12 @@ export const getHrdCourses = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1171,12 +1171,12 @@ export const getEducationCourses = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1300,7 +1300,7 @@ export const getRecommendedEducations = async (): Promise<
       );
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
+    const result: EducationDataResponse = await response.json();
     console.log('getRecommendedEducations - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
@@ -1311,43 +1311,45 @@ export const getRecommendedEducations = async (): Promise<
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // AllResponse를 EducationSummary로 변환
-    return result.data.jobDtoList.map((item) => ({
-      id: item.jobId.toString(),
-      educationId: item.jobId,
-      trprId: item.jobId.toString(),
-      title: item.jobTitle || '제목 없음',
-      subTitle: item.jobCodeName || '',
-      institution: item.companyName || '',
-      address: item.workLocation || '',
-      traStartDate: item.postingDate || '',
-      traEndDate: item.closingDate || '',
+    // EducationDto를 EducationSummary로 변환
+    return (result.data.educationDtoList || []).map((edu) => ({
+      id: edu.educationId.toString(),
+      educationId: edu.educationId,
+      trprId: edu.educationId.toString(),
+      title: edu.title || '',
+      subTitle: edu.subTitle || '',
+      institution: edu.subTitle || '',
+      address: edu.address || '',
+      traStartDate: edu.traStartDate || '',
+      traEndDate: edu.traEndDate || '',
       trainTarget: '',
-      contents: item.description || '',
+      contents: '',
       certificate: '',
       grade: '',
-      regCourseMan: item.recruitNumber?.toString() || '0',
-      courseMan: item.recruitNumber?.toString() || '0',
+      regCourseMan: '0',
+      courseMan: edu.courseMan || '0',
       realMan: '0',
       yardMan: '0',
-      telNo: item.managerPhone || '',
+      telNo: '',
       stdgScor: '0',
       eiEmplCnt3: '0',
       eiEmplRate3: '0',
       eiEmplCnt3Gt10: '0',
       eiEmplRate6: '0',
       ncsCd: '',
-      trprDegr: '',
+      trprDegr: edu.trprDegr || '',
       instCd: '',
       trngAreaCd: '',
       trainTargetCd: '',
       trainstCstId: '',
       subTitleLink: '',
-      titleLink: '',
+      titleLink: edu.titleLink || '',
       titleIcon: '',
-      imageUrl: item.imageUrl,
-      isBookmark: item.isBookmark || false,
-      recommendScore: item.score,
+      imageUrl: edu.imageUrl || '',
+      isBookmark: edu.isBookmark || false,
+      recommendScore: edu.score ?? undefined,
+      keyword1: edu.keyword1,
+      keyword2: edu.keyword2,
     }));
   } catch (error) {
     console.error('Error fetching recommended educations:', error);
@@ -1358,17 +1360,30 @@ export const getRecommendedEducations = async (): Promise<
 // 전체 교육 조회 (비로그인 시)
 export const getAllEducationsAnonymous = async (filters?: {
   keyword?: string;
+  pageNo?: number;
+  pageSize?: number;
   startYmd?: string;
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log('Making API request to /api/education/anonymous');
+    console.log(
+      'Making API request to /api/education/anonymous with filters:',
+      filters
+    );
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
     if (filters?.keyword) {
       queryParams.append('keyword', filters.keyword);
+    }
+
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
+    }
+
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1418,52 +1433,8 @@ export const getAllEducationsAnonymous = async (filters?: {
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    // 새로운 response 구조에 맞게 변환
-    const mappedData = result.data.educationDtoList.map(
-      (item: EducationDto) => ({
-        id: item.educationId.toString(),
-        educationId: item.educationId,
-        trprId: item.educationId.toString(),
-        title: item.title || '제목 없음',
-        subTitle: item.subTitle || '',
-        institution: item.subTitle || '',
-        address: item.address || '',
-        traStartDate: item.traStartDate || '',
-        traEndDate: item.traEndDate || '',
-        trainTarget: '',
-        contents: item.keyword1 || item.keyword2 || '',
-        certificate: '',
-        grade: '',
-        regCourseMan: '0',
-        courseMan: item.courseMan || '0',
-        realMan: '0',
-        yardMan: '0',
-        telNo: '',
-        stdgScor: '0',
-        eiEmplCnt3: '0',
-        eiEmplRate3: '0',
-        eiEmplCnt3Gt10: '0',
-        eiEmplRate6: '0',
-        ncsCd: '',
-        trprDegr: item.trprDegr || '',
-        instCd: '',
-        trngAreaCd: '',
-        trainTargetCd: '',
-        trainstCstId: '',
-        subTitleLink: '',
-        titleLink: item.titleLink || '',
-        titleIcon: '',
-        imageUrl: item.imageUrl || '',
-        isBookmark: item.isBookmark || false,
-        recommendScore: item.score || undefined,
-      })
-    );
-
-    return {
-      totalElements: result.data.totalElements || mappedData.length,
-      numberOfElements: result.data.numberOfElements || mappedData.length,
-      educationDtoList: mappedData,
-    };
+    // API 응답을 그대로 반환
+    return result.data;
   } catch (error) {
     console.error('Error fetching all educations:', error);
     throw error;
@@ -1491,7 +1462,10 @@ export const getHrdEducations = async (filters?: {
       );
     }
 
-    console.log('Making API request to /education/hrd-course');
+    console.log(
+      'Making API request to /education/hrd-course with filters:',
+      filters
+    );
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
@@ -1500,12 +1474,12 @@ export const getHrdEducations = async (filters?: {
       queryParams.append('keyword', filters.keyword);
     }
 
-    if (filters?.pageNo) {
-      queryParams.append('pageNo', filters.pageNo.toString());
+    if (filters?.pageNo !== undefined) {
+      queryParams.append('page', filters.pageNo.toString());
     }
 
-    if (filters?.pageSize) {
-      queryParams.append('pageSize', filters.pageSize.toString());
+    if (filters?.pageSize !== undefined) {
+      queryParams.append('size', filters.pageSize.toString());
     }
 
     if (filters?.startYmd) {
@@ -1521,12 +1495,16 @@ export const getHrdEducations = async (filters?: {
       ? `${backendUrl}/education/hrd-course?${queryString}`
       : `${backendUrl}/education/hrd-course`;
 
+    console.log('getHrdEducations - Fetching URL:', url);
+    console.log('getHrdEducations - Query params:', queryString);
+
     const response = await fetch(url, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      cache: 'no-store',
     });
 
     console.log('getHrdEducations - API Response status:', response.status);
@@ -1552,6 +1530,7 @@ export const getHrdEducations = async (filters?: {
     }
 
     let mappedData: EducationDto[] = [];
+    let totalElements = 0;
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
@@ -1560,6 +1539,7 @@ export const getHrdEducations = async (filters?: {
         result.data.educationDtoList.length
       );
       mappedData = result.data.educationDtoList;
+      totalElements = result.data.totalElements || mappedData.length;
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {
@@ -1574,6 +1554,7 @@ export const getHrdEducations = async (filters?: {
             item
           );
           return {
+            trprId: parseInt(item.trprId || index.toString()),
             educationId: parseInt(item.trprId || index.toString()),
             title: item.title || '제목 없음',
             subTitle: item.subTitle || '',
@@ -1591,6 +1572,7 @@ export const getHrdEducations = async (filters?: {
           };
         }
       );
+      totalElements = result.data.scn_cnt || mappedData.length;
     } else {
       console.log(
         'getHrdEducations - No educationDtoList or srchList found in result.data:',
@@ -1608,9 +1590,10 @@ export const getHrdEducations = async (filters?: {
       'getHrdEducations - Final mapped data length:',
       mappedData.length
     );
+    console.log('getHrdEducations - Total elements:', totalElements);
 
     return {
-      totalElements: mappedData.length, // TODO: API에서 실제 totalElements를 반환하도록 수정 필요
+      totalElements,
       numberOfElements: mappedData.length,
       educationDtoList: mappedData,
     };

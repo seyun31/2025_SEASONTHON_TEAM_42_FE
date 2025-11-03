@@ -97,14 +97,13 @@ export default function JobRecommendationsSection() {
       id: job.jobId,
       jobId: job.jobId.toString(),
       companyName: job.companyName,
-      companyLogo: job.imageUrl || job.companyLogo, // imageUrl을 우선 사용하고, 없으면 companyLogo 사용
+      companyLogo: job.imageUrl || job.companyLogo || '/default-profile.png', // imageUrl을 우선 사용하고, 없으면 companyLogo 사용, 둘 다 없으면 기본 이미지
       jobTitle: job.jobTitle,
       jobCategory: job.jobCategory,
       workLocation: job.workLocation,
       employmentType: job.employmentType,
-      salary: (job as { wage?: string }).wage || job.salary, // API에서는 wage 필드 사용
-      workPeriod:
-        (job as { workTime?: string }).workTime || job.workPeriod || '미정', // API에서는 workTime 필드 사용
+      salary: job.wage || job.salary || '급여 미정',
+      workPeriod: job.workTime || job.workPeriod || '미정',
       experience: job.experience || '경력 무관', // API에 experience가 없으므로 기본값 설정
       requiredSkills: job.requiredSkills || '', // API에서 제공되는 requiredSkills 사용
       preferredSkills: job.preferredSkills || '',
@@ -135,17 +134,10 @@ export default function JobRecommendationsSection() {
             </a>
           </div>
 
-          <div className="flex flex-row gap-6">
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index} />
-              ))}
-            </div>
-            <div className="flex flex-col gap-6 flex-1">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <JobCardSkeleton key={index + 4} />
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <JobCardSkeleton key={index} />
+            ))}
           </div>
         </div>
       </section>
@@ -179,25 +171,14 @@ export default function JobRecommendationsSection() {
           </a>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          <div className="flex flex-col gap-6 flex-1">
-            {jobs.slice(0, 4).map((job, index) => (
-              <JobCard
-                key={job.jobId || index}
-                job={convertToJobCardFormat(job)}
-                onToggleScrap={toggleFavorite}
-              />
-            ))}
-          </div>
-          <div className="flex flex-col gap-6 flex-1">
-            {jobs.slice(4, 8).map((job, index) => (
-              <JobCard
-                key={job.jobId || index + 4}
-                job={convertToJobCardFormat(job)}
-                onToggleScrap={toggleFavorite}
-              />
-            ))}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {jobs.slice(0, 8).map((job, index) => (
+            <JobCard
+              key={job.jobId || index}
+              job={convertToJobCardFormat(job)}
+              onToggleScrap={toggleFavorite}
+            />
+          ))}
         </div>
       </div>
     </section>
