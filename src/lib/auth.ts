@@ -75,7 +75,9 @@ export async function fetchUserData(): Promise<UserData | null> {
 
     if (result.result === 'SUCCESS') {
       // localStorage에 저장
-      localStorage.setItem('userData', JSON.stringify(result.data));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('userData', JSON.stringify(result.data));
+      }
       return result.data;
     }
 

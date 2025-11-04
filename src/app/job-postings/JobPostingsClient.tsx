@@ -6,7 +6,7 @@ import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getRecommendedJobs,
@@ -52,6 +52,7 @@ export default function JobPostingsClient({
   const [openCardId, setOpenCardId] = useState<string | null>(
     getInitialOpenCard()
   );
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
@@ -96,6 +97,12 @@ export default function JobPostingsClient({
 
   // 카드 토글 핸들러
   const handleCardToggle = (jobId: string) => {
+    // 기존 타이머가 있으면 정리
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
     // 같은 카드를 클릭하면 닫기
     if (openCardId === jobId) {
       setOpenCardId(null);
@@ -106,9 +113,10 @@ export default function JobPostingsClient({
     // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
     if (openCardId !== null) {
       setOpenCardId(null);
-      setTimeout(() => {
+      closeTimeoutRef.current = setTimeout(() => {
         setOpenCardId(jobId);
         updateURL(activeTab, currentPage, jobId);
+        closeTimeoutRef.current = null;
       }, 300); // 닫는 애니메이션 시간
     } else {
       // 열려있는 카드가 없으면 바로 열기
@@ -208,6 +216,15 @@ export default function JobPostingsClient({
     fetchJobs(currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
+
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);

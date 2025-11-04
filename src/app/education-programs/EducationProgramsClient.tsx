@@ -52,6 +52,7 @@ export default function EducationProgramsClient({
   const [openCardId, setOpenCardId] = useState<string | null>(
     getInitialOpenCard()
   );
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
     useState<EducationSummary[]>(initialEducations);
@@ -99,6 +100,12 @@ export default function EducationProgramsClient({
 
   // 카드 토글 핸들러
   const handleCardToggle = (educationId: string) => {
+    // 기존 타이머가 있으면 정리
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+
     // 같은 카드를 클릭하면 닫기
     if (openCardId === educationId) {
       setOpenCardId(null);
@@ -109,9 +116,10 @@ export default function EducationProgramsClient({
     // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
     if (openCardId !== null) {
       setOpenCardId(null);
-      setTimeout(() => {
+      closeTimeoutRef.current = setTimeout(() => {
         setOpenCardId(educationId);
         updateURL(activeTab, currentPage, educationId);
+        closeTimeoutRef.current = null;
       }, 300); // 닫는 애니메이션 시간
     } else {
       // 열려있는 카드가 없으면 바로 열기
@@ -287,6 +295,15 @@ export default function EducationProgramsClient({
     fetchEducations(currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
+
+  // 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const toggleFavorite = (educationId: string) => {
     // 교육 데이터의 isBookmark 상태를 토글

@@ -86,6 +86,10 @@ function HeartListsContent() {
     searchParams.get('open')
   );
 
+  useEffect(() => {
+    setOpenCardId(searchParams.get('open'));
+  }, [searchParams]);
+
   const handleTabClick = (tabName: string) => {
     setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
     router.push(`/heart-lists?tab=${tabName}`);
