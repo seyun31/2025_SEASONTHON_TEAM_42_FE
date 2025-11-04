@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     // 쿠키 설정
     response.cookies.set('accessToken', accessToken, {
       httpOnly: true, // JavaScript에서 접근 불가 - XSS 공격 방지
-      secure: process.env.NODE_ENV === 'development', // HTTPS일 때만
+      secure: process.env.NODE_ENV === 'production', // HTTPS일 때만
       sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60, // 7일
       path: '/',
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('refreshToken', refreshToken, {
       httpOnly: true, // JavaScript에서 접근 불가 - XSS 공격 방지
-      secure: process.env.NODE_ENV === 'development', // HTTPS일 때만
+      secure: process.env.NODE_ENV === 'production', // HTTPS일 때만
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60, // 30일
       path: '/',

@@ -7,7 +7,7 @@ import EducationTab from '@/components/ui/EducationTab';
 import EducationFilter from '@/components/ui/EducationFilter';
 import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getAllEducationsAnonymous,
@@ -261,7 +261,7 @@ export default function EducationProgramsClient({
       setEducations(data);
       setTotalElements(newTotalElements);
       setTotalPages(Math.max(1, Math.ceil(newTotalElements / 20)));
-    } catch {
+    } catch (_error) {
       setEducations([]);
       setTotalElements(0);
       setTotalPages(1);

@@ -35,6 +35,20 @@ export async function POST(): Promise<Response> {
       );
     }
 
+    if (!backendUrl) {
+      return Response.json(
+        {
+          result: 'ERROR',
+          data: null,
+          error: {
+            code: 'CONFIG_ERROR',
+            message: 'Backend URL이 설정되지 않았습니다.',
+          },
+        },
+        { status: 500 }
+      );
+    }
+
     const response = await fetch(`${backendUrl}/v1/auth/recreate`, {
       method: 'POST',
       headers: {

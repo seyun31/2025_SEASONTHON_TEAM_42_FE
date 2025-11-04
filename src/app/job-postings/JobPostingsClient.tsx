@@ -7,7 +7,7 @@ import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
 import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getRecommendedJobs,
   getAllJobs,
@@ -55,7 +55,7 @@ export default function JobPostingsClient({
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
-  const [totalElements, setTotalElements] =
+  const [_totalElements, setTotalElements] =
     useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
     Math.max(1, Math.ceil((initialTotalElements || initialJobs.length) / 10))

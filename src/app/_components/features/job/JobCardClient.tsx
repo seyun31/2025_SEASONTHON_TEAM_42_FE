@@ -2,6 +2,7 @@
 
 import { JobSummary } from '@/types/job';
 import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
@@ -161,7 +162,7 @@ const DetailItem = ({
   isPrimary = false,
 }: {
   label: string;
-  value: string | React.ReactNode;
+  value: string | ReactNode;
   isPrimary?: boolean;
 }) => (
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
