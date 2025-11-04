@@ -1,5 +1,6 @@
 // 통합된 전체 데이터 형식
 export interface JobSummary {
+  managerPhone?: string;
   id: number;
   jobId: string;
   companyName: string;

@@ -14,6 +14,7 @@ export default function JobRecommendationsSection() {
   const [jobs, setJobs] = useState<AllResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = getUserData();
@@ -91,6 +92,26 @@ export default function JobRecommendationsSection() {
     setFavorites(newFavorites);
   };
 
+  // 카드 토글 핸들러
+  const handleCardToggle = (jobId: string) => {
+    // 같은 카드를 클릭하면 닫기
+    if (openCardId === jobId) {
+      setOpenCardId(null);
+      return;
+    }
+
+    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
+    if (openCardId !== null) {
+      setOpenCardId(null);
+      setTimeout(() => {
+        setOpenCardId(jobId);
+      }, 300); // 닫는 애니메이션 시간
+    } else {
+      // 열려있는 카드가 없으면 바로 열기
+      setOpenCardId(jobId);
+    }
+  };
+
   // API 데이터를 JobCard 컴포넌트에 맞는 형태로 변환
   const convertToJobCardFormat = (job: AllResponse) => {
     return {
@@ -113,6 +134,7 @@ export default function JobRecommendationsSection() {
       requiredDocuments: job.requiredDocuments,
       jobRecommendScore: job.score || null,
       isScrap: job.isBookmark,
+      managerPhone: job.managerPhone,
     };
   };
 
@@ -172,13 +194,19 @@ export default function JobRecommendationsSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {jobs.slice(0, 8).map((job, index) => (
-            <JobCard
-              key={job.jobId || index}
-              job={convertToJobCardFormat(job)}
-              onToggleScrap={toggleFavorite}
-            />
-          ))}
+          {jobs.slice(0, 8).map((job, index) => {
+            const cardId = job.jobId.toString();
+            const isOpen = openCardId === cardId;
+            return (
+              <JobCard
+                key={job.jobId || index}
+                job={convertToJobCardFormat(job)}
+                onToggleScrap={toggleFavorite}
+                isOpen={isOpen}
+                onToggle={handleCardToggle}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

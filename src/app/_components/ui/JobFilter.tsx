@@ -382,26 +382,30 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
   return (
     <div ref={filterRef} className="w-full mt-6">
       {/* 필터 바 */}
-      <div className="flex flex-row items-stretch md:items-center gap-3 md:gap-4">
+      <div className="flex flex-wrap items-stretch md:items-center gap-3 md:gap-4">
         {/* 지역 필터 */}
-        <RegionSelector
-          selectedRegion={filters.selectedRegion}
-          selectedDistricts={filters.selectedDistricts}
-          isOpen={isDropdownOpen.region}
-          onToggle={() => toggleDropdown('region')}
-          onRegionChange={handleRegionChange}
-          onDistrictsChange={handleDistrictsChange}
-        />
+        <div className="order-1">
+          <RegionSelector
+            selectedRegion={filters.selectedRegion}
+            selectedDistricts={filters.selectedDistricts}
+            isOpen={isDropdownOpen.region}
+            onToggle={() => toggleDropdown('region')}
+            onRegionChange={handleRegionChange}
+            onDistrictsChange={handleDistrictsChange}
+          />
+        </div>
 
         {/* 근무형태 필터 */}
-        <FilterDropdown
-          label="근무형태"
-          options={employmentTypeOptions}
-          values={filters.employmentType}
-          isOpen={isDropdownOpen.employmentType}
-          onToggle={() => toggleDropdown('employmentType')}
-          onChange={(values) => handleFilterChange('employmentType', values)}
-        />
+        <div className="order-2">
+          <FilterDropdown
+            label="근무형태"
+            options={employmentTypeOptions}
+            values={filters.employmentType}
+            isOpen={isDropdownOpen.employmentType}
+            onToggle={() => toggleDropdown('employmentType')}
+            onChange={(values) => handleFilterChange('employmentType', values)}
+          />
+        </div>
 
         {/* 직무 필터 */}
         <FilterDropdown
@@ -413,23 +417,25 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
           onChange={(values) => handleFilterChange('jobCategory', values)}
         />
 
-        {/* 데스크탑용 필터 적용하기 버튼 */}
-        <button
-          onClick={() => onFilterChange?.(filters)}
-          className="hidden md:block ml-auto px-6 py-3 bg-primary-90 text-white rounded-xl text-body-medium font-medium hover:bg-primary-80 transition-colors cursor-pointer"
-        >
-          필터 적용하기
-        </button>
-      </div>
-
-      {/* 모바일용 필터 적용하기 버튼 */}
-      <div className="mt-4 md:hidden flex justify-start">
-        <button
-          onClick={() => onFilterChange?.(filters)}
-          className="px-4 py-2 bg-primary-90 text-white rounded-xl text-sm font-medium hover:bg-primary-80 transition-colors cursor-pointer"
-        >
-          필터 적용하기
-        </button>
+        {/* 필터 적용하기 버튼 */}
+        <div className="order-4 md:order-3">
+          <button
+            onClick={() => onFilterChange?.(filters)}
+            className="
+              w-full md:w-auto
+              px-4 md:px-6 py-2 md:py-3
+              bg-primary-90 text-white
+              rounded-full md:rounded-[100px]
+              hover:bg-primary-80 transition-colors
+              text-sm md:text-[28px] font-medium md:font-[400]
+              md:leading-[140%] md:tracking-[-0.025em]
+              cursor-pointer
+              whitespace-nowrap
+            "
+          >
+            필터 적용하기
+          </button>
+        </div>
       </div>
 
       {/* 활성 필터 표시 */}

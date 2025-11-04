@@ -14,6 +14,11 @@ const formatSalary = (salary: string | null | undefined): string => {
   });
 };
 
+const formatWorkPeriod = (workPeriod: string | null | undefined): string => {
+  if (!workPeriod) return '근무시간 미정';
+  return workPeriod.replace(/^\(근무시간\)\s*/g, '');
+};
+
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
   if (!closingDate) return 'D-?';
   try {
@@ -40,9 +45,9 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
     const timeDiff = targetDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
     if (daysLeft < 0) {
-      return '마감됨';
+      return '마감';
     } else if (daysLeft === 0) {
-      return '오늘 마감';
+      return 'D-Day';
     } else if (daysLeft === 1) {
       return '내일 마감';
     } else {
@@ -156,7 +161,7 @@ const DetailItem = ({
   isPrimary = false,
 }: {
   label: string;
-  value: string;
+  value: string | React.ReactNode;
   isPrimary?: boolean;
 }) => (
   <div className="grid grid-cols-[4rem_1fr] md:grid-cols-[5rem_1fr] gap-2 text-sm">
@@ -172,17 +177,24 @@ const DetailItem = ({
 interface JobCardClientProps {
   job: JobSummary;
   onToggleScrap: (jobId: string) => void;
+  isOpen?: boolean;
+  onToggle?: (jobId: string) => void;
 }
 
 export default function JobCardClient({
   job,
   onToggleScrap,
+  isOpen = false,
+  onToggle,
 }: JobCardClientProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isScrap, setIsScrap] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // isOpen prop이 제공되면 외부에서 제어, 아니면 내부 상태 사용
+  const [internalIsExpanded, setInternalIsExpanded] = useState(false);
+  const isExpanded = onToggle !== undefined ? isOpen : internalIsExpanded;
 
   useEffect(() => {
     const userData = getUserData();
@@ -218,16 +230,33 @@ export default function JobCardClient({
 
   const handleCardClick = () => {
     if (isExpanded) return;
+
     setIsAnimating(true);
-    setTimeout(() => setIsExpanded(true), 100);
-    setTimeout(() => setIsAnimating(false), 800);
+
+    if (onToggle) {
+      // 외부에서 제어하는 경우
+      onToggle(job.jobId);
+      setTimeout(() => setIsAnimating(false), 800);
+    } else {
+      // 내부 상태로 제어하는 경우
+      setTimeout(() => setInternalIsExpanded(true), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    }
   };
 
   const handleClose = () => {
     if (!isExpanded) return;
     setIsAnimating(true);
-    setTimeout(() => setIsExpanded(false), 100);
-    setTimeout(() => setIsAnimating(false), 800);
+
+    if (onToggle) {
+      // 외부에서 제어하는 경우 - 같은 카드를 클릭하면 닫기
+      onToggle(job.jobId);
+      setTimeout(() => setIsAnimating(false), 800);
+    } else {
+      // 내부 상태로 제어하는 경우
+      setTimeout(() => setInternalIsExpanded(false), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    }
   };
 
   const handleApplyClick = async (e: React.MouseEvent) => {
@@ -257,14 +286,14 @@ export default function JobCardClient({
     const categories =
       job.jobCategory && job.jobCategory.trim() !== ''
         ? job.jobCategory
-            .split(',')
+            .split(/,(?![^(]*\))/)
             .filter(
               (category) => category.trim() !== '' && category.trim() !== '.'
             )
         : [];
     const skills =
       job.requiredSkills
-        ?.split(',')
+        ?.split(/,(?![^(]*\))/)
         .filter((skill) => skill.trim() !== '' && skill.trim() !== '.') || [];
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
@@ -297,15 +326,29 @@ export default function JobCardClient({
 
   const renderDetails = () => (
     <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
-      <DetailItem label="디데이" value={calculateDaysLeft(job.closingDate)} />
+      <DetailItem
+        label="마감일"
+        value={
+          <>
+            {job.closingDate || '마감일 미정'}{' '}
+            <span style={{ color: '#00AD38' }}>
+              ({calculateDaysLeft(job.closingDate)})
+            </span>
+          </>
+        }
+      />
       <DetailItem
         label="경력"
         value={job.experience || '경력 미정'}
         isPrimary
       />
       <DetailItem label="급여" value={formatSalary(job.salary)} isPrimary />
-      <DetailItem label="근무기간" value={job.workPeriod} />
       <DetailItem label="고용형태" value={job.employmentType} />
+      <DetailItem label="근무시간" value={formatWorkPeriod(job.workPeriod)} />
+      <DetailItem
+        label="연락처"
+        value={job.managerPhone || '전화번호 미공개'}
+      />
     </div>
   );
 
@@ -425,7 +468,9 @@ export default function JobCardClient({
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
             <p className="text-gray-800 text-xl md:text-3xl leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-semibold">
-              {job.jobTitle || '직무명 미정'}
+              {(job.jobTitle || '직무명 미정').length > 52
+                ? `${(job.jobTitle || '직무명 미정').substring(0, 52)}···`
+                : job.jobTitle || '직무명 미정'}
             </p>
 
             {renderTags(true)}

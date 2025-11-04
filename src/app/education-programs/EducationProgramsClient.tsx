@@ -44,7 +44,14 @@ export default function EducationProgramsClient({
     return pageParam ? parseInt(pageParam) : 1;
   };
 
+  const getInitialOpenCard = (): string | null => {
+    return searchParams.get('open');
+  };
+
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>(getInitialTab());
+  const [openCardId, setOpenCardId] = useState<string | null>(
+    getInitialOpenCard()
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
     useState<EducationSummary[]>(initialEducations);
@@ -72,7 +79,11 @@ export default function EducationProgramsClient({
   });
 
   // URL 업데이트 함수
-  const updateURL = (tab: 'custom' | 'all', page: number) => {
+  const updateURL = (
+    tab: 'custom' | 'all',
+    page: number,
+    openCard: string | null = null
+  ) => {
     const params = new URLSearchParams();
     if (tab === 'custom') {
       params.set('tab', 'recommend');
@@ -80,7 +91,33 @@ export default function EducationProgramsClient({
       params.set('tab', 'all');
       params.set('page', page.toString());
     }
+    if (openCard) {
+      params.set('open', openCard);
+    }
     router.push(`/education-programs?${params.toString()}`, { scroll: false });
+  };
+
+  // 카드 토글 핸들러
+  const handleCardToggle = (educationId: string) => {
+    // 같은 카드를 클릭하면 닫기
+    if (openCardId === educationId) {
+      setOpenCardId(null);
+      updateURL(activeTab, currentPage, null);
+      return;
+    }
+
+    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
+    if (openCardId !== null) {
+      setOpenCardId(null);
+      setTimeout(() => {
+        setOpenCardId(educationId);
+        updateURL(activeTab, currentPage, educationId);
+      }, 300); // 닫는 애니메이션 시간
+    } else {
+      // 열려있는 카드가 없으면 바로 열기
+      setOpenCardId(educationId);
+      updateURL(activeTab, currentPage, educationId);
+    }
   };
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchEducations 호출
@@ -88,13 +125,15 @@ export default function EducationProgramsClient({
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setEducations([]); // 이전 데이터 클리어
     setActiveTab(tab);
-    updateURL(tab, 1);
+    setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
+    updateURL(tab, 1, null);
   };
 
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchEducations 호출
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    updateURL(activeTab, page);
+    setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
+    updateURL(activeTab, page, null);
   };
 
   // 검색어 디바운싱 -> 사용자가 타이핑을 멈춘 후 실제 검색이 실행될 수 있게 함
@@ -310,14 +349,21 @@ export default function EducationProgramsClient({
             ) : educations.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                  {educations.map((education, index) => (
-                    <EducationCard
-                      key={education.trprId || index}
-                      education={education}
-                      onToggleBookmark={toggleFavorite}
-                      isBookmarked={education.isBookmark || false}
-                    />
-                  ))}
+                  {educations.map((education, index) => {
+                    const cardId =
+                      education.educationId?.toString() || education.trprId;
+                    const isOpen = openCardId === cardId;
+                    return (
+                      <EducationCard
+                        key={education.trprId || index}
+                        education={education}
+                        onToggleBookmark={toggleFavorite}
+                        isBookmarked={education.isBookmark || false}
+                        isOpen={isOpen}
+                        onToggle={handleCardToggle}
+                      />
+                    );
+                  })}
                 </div>
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">

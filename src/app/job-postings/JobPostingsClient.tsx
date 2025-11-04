@@ -43,8 +43,15 @@ export default function JobPostingsClient({
     return pageParam ? parseInt(pageParam) : 1;
   };
 
+  const getInitialOpenCard = (): string | null => {
+    return searchParams.get('open');
+  };
+
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'custom' | 'all'>(getInitialTab());
+  const [openCardId, setOpenCardId] = useState<string | null>(
+    getInitialOpenCard()
+  );
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
@@ -69,7 +76,11 @@ export default function JobPostingsClient({
   });
 
   // URL 업데이트 함수
-  const updateURL = (tab: 'custom' | 'all', page: number) => {
+  const updateURL = (
+    tab: 'custom' | 'all',
+    page: number,
+    openCard: string | null = null
+  ) => {
     const params = new URLSearchParams();
     if (tab === 'custom') {
       params.set('tab', 'recommend');
@@ -77,7 +88,33 @@ export default function JobPostingsClient({
       params.set('tab', 'all');
       params.set('page', page.toString());
     }
+    if (openCard) {
+      params.set('open', openCard);
+    }
     router.push(`/job-postings?${params.toString()}`, { scroll: false });
+  };
+
+  // 카드 토글 핸들러
+  const handleCardToggle = (jobId: string) => {
+    // 같은 카드를 클릭하면 닫기
+    if (openCardId === jobId) {
+      setOpenCardId(null);
+      updateURL(activeTab, currentPage, null);
+      return;
+    }
+
+    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
+    if (openCardId !== null) {
+      setOpenCardId(null);
+      setTimeout(() => {
+        setOpenCardId(jobId);
+        updateURL(activeTab, currentPage, jobId);
+      }, 300); // 닫는 애니메이션 시간
+    } else {
+      // 열려있는 카드가 없으면 바로 열기
+      setOpenCardId(jobId);
+      updateURL(activeTab, currentPage, jobId);
+    }
   };
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchJobs 호출
@@ -85,13 +122,15 @@ export default function JobPostingsClient({
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setJobs([]); // 이전 데이터 클리어
     setActiveTab(tab);
-    updateURL(tab, 1);
+    setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
+    updateURL(tab, 1, null);
   };
 
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchJobs 호출
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    updateURL(activeTab, page);
+    setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
+    updateURL(activeTab, page, null);
   };
 
   // 검색어 디바운싱 -> 사용자가 타이핑을 멈춘 후 실제 검색이 실행될 수 있게 함
@@ -202,6 +241,7 @@ export default function JobPostingsClient({
         requiredDocuments: job.requiredDocuments,
         jobRecommendScore: job.score || null,
         isScrap: job.isBookmark,
+        managerPhone: job.managerPhone,
       };
     } else {
       return {
@@ -273,17 +313,26 @@ export default function JobPostingsClient({
               />
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-              {jobs.map((job, index) => (
-                <JobCard
-                  key={
-                    ('jobId' in job && typeof job.jobId === 'number'
-                      ? job.jobId
-                      : job.jobId) || index
-                  }
-                  job={convertToJobCardFormat(job)}
-                  onToggleScrap={toggleScrap}
-                />
-              ))}
+              {jobs.map((job, index) => {
+                const cardId =
+                  ('jobId' in job && typeof job.jobId === 'number'
+                    ? job.jobId.toString()
+                    : job.jobId) || index.toString();
+                const isOpen = openCardId === cardId;
+                return (
+                  <JobCard
+                    key={
+                      ('jobId' in job && typeof job.jobId === 'number'
+                        ? job.jobId
+                        : job.jobId) || index
+                    }
+                    job={convertToJobCardFormat(job)}
+                    onToggleScrap={toggleScrap}
+                    isOpen={isOpen}
+                    onToggle={handleCardToggle}
+                  />
+                );
+              })}
             </div>
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">
