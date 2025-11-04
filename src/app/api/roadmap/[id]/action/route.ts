@@ -6,7 +6,7 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 // 로드맵 액션 추가
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -37,7 +37,7 @@ export async function POST(
       );
     }
 
-    const roadmapId = params.id;
+    const { id: roadmapId } = await params;
     const body = await request.json();
 
     const response = await fetch(

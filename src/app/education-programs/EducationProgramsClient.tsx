@@ -261,7 +261,7 @@ export default function EducationProgramsClient({
       setEducations(data);
       setTotalElements(newTotalElements);
       setTotalPages(Math.max(1, Math.ceil(newTotalElements / 20)));
-    } catch (error) {
+    } catch {
       setEducations([]);
       setTotalElements(0);
       setTotalPages(1);

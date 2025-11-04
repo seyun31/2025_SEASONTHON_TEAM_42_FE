@@ -6,7 +6,7 @@ const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 // 로드맵 액션 완료/미완료 토글
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -37,7 +37,7 @@ export async function POST(
       );
     }
 
-    const roadMapActionId = params.id;
+    const { id: roadMapActionId } = await params;
 
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
       method: 'POST',
@@ -84,7 +84,7 @@ export async function POST(
 // 로드맵 액션 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -115,7 +115,7 @@ export async function PUT(
       );
     }
 
-    const roadMapActionId = params.id;
+    const { id: roadMapActionId } = await params;
     const body = await request.json();
 
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
@@ -164,7 +164,7 @@ export async function PUT(
 // 로드맵 액션 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const cookieStore = await cookies();
@@ -195,7 +195,7 @@ export async function DELETE(
       );
     }
 
-    const roadMapActionId = params.id;
+    const { id: roadMapActionId } = await params;
 
     const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
       method: 'DELETE',
