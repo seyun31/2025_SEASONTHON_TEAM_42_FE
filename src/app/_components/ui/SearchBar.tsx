@@ -40,7 +40,7 @@ export default function SearchBar({
         <input
           type="text"
           placeholder="직무명이나 직업 분야를 검색해보세요!"
-          className="flex-1 text-lg md:text-2xl outline-none border-0 bg-transparent ml-2"
+          className="flex-1 text-[16px] md:text-2xl outline-none border-0 bg-transparent ml-2 placeholder:text-[16px] md:placeholder:text-2xl"
           value={searchValue}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}

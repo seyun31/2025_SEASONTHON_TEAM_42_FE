@@ -64,7 +64,7 @@ const styles = {
     `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-w-[588px] h-[450px] opacity-100 hover:bg-[#E1F5EC]'
+        : 'max-w-[588px] md:h-[450px] h-[320px] opacity-100 hover:bg-[#E1F5EC]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
   tag: (_isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-500 ease-out ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,

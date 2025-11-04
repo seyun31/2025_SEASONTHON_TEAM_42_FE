@@ -64,7 +64,7 @@ const styles = {
           ease-in-out ${
             isExpanded
               ? 'max-h-[2000px] opacity-100 bg-white'
-              : 'max-w-[588px] h-[450px] opacity-100 hover:bg-[#9FC2FF33]'
+              : 'max-w-[588px] md:h-[450px] h-[320px] opacity-100 hover:bg-[#9FC2FF33]'
           } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>

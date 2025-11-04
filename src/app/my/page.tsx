@@ -64,7 +64,7 @@ export default function My() {
           {/* 프로필 섹션 */}
           <div className="mb-16">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-25 h-25 rounded-full overflow-hidden flex items-center justify-center">
+              <div className="md:w-25 md:h-25 w-16 h-16 rounded-full overflow-hidden flex items-center justify-center">
                 {userData?.profileImage ? (
                   <Image
                     src={userData.profileImage}
@@ -94,7 +94,7 @@ export default function My() {
                   </div>
                 )}
               </div>
-              <h3 className="text-[36px] text-gray-80 font-semibold leading-[140%] tracking-[-2.5%]">
+              <h3 className="md:text-[36px] text-2xl text-gray-80 font-semibold leading-[140%] tracking-[-2.5%]">
                 {userData?.name || '사용자'}님의 프로필
               </h3>
             </div>
@@ -102,7 +102,7 @@ export default function My() {
 
           {/* 추천 직업 카드 섹션 */}
           <div className="mb-8">
-            <h3 className="text-[28px] text-gray-80 mb-6 ml-4 font-semibold leading-[140%] tracking-[-2.5%]">
+            <h3 className="md:text-[28px] text-[20px] text-gray-80 mb-6 ml-4 font-semibold leading-[140%] tracking-[-2.5%]">
               {userData?.name || '사용자'}님의 추천 직업 카드
             </h3>
 
