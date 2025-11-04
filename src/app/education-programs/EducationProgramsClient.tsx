@@ -130,6 +130,11 @@ export default function EducationProgramsClient({
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchEducations 호출
   const handleTabChange = (tab: 'custom' | 'all') => {
+    // 기존 타이머가 있으면 정리
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setEducations([]); // 이전 데이터 클리어
     setActiveTab(tab);
@@ -139,6 +144,11 @@ export default function EducationProgramsClient({
 
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchEducations 호출
   const handlePageChange = (page: number) => {
+    // 기존 타이머가 있으면 정리
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
     setCurrentPage(page);
     setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
     updateURL(activeTab, page, null);
