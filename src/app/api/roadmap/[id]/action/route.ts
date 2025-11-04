@@ -40,17 +40,41 @@ export async function POST(
     const { id: roadmapId } = await params;
     const body = await request.json();
 
-    const response = await fetch(
-      `${backendUrl}/roadmap/${roadmapId}/roadmapAction`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+
+    let response: Response;
+    try {
+      response = await fetch(
+        `${backendUrl}/roadmap/${roadmapId}/roadmapAction`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeoutId);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        return NextResponse.json(
+          {
+            result: 'ERROR',
+            data: null,
+            error: {
+              code: 'TIMEOUT_ERROR',
+              message: '백엔드 요청 시간이 초과되었습니다.',
+            },
+          },
+          { status: 504 }
+        );
       }
-    );
+      throw error;
+    }
 
     if (!response.ok) {
       const errorText = await response.text();

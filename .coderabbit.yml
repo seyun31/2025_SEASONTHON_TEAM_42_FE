@@ -9,7 +9,7 @@ reviews:
     drafts: false
 
   # 리뷰 수준 설정
-  profile: chill
+  profile: zen
 
   # 요청 변경사항 활성화
   request_changes_workflow: true
