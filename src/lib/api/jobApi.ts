@@ -73,8 +73,6 @@ export const toggleJobScrap = async (jobId: string): Promise<boolean> => {
 // 맞춤형 일자리 추천 (로그인 시)
 export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
   try {
-    console.log('Making API request to /api/job/recommend');
-
     const response = await fetch('/api/job/recommend', {
       method: 'GET',
       headers: {
@@ -83,25 +81,19 @@ export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('getRecommendedJobs - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('getRecommendedJobs - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch recommended jobs: ${response.status} ${response.statusText}`
       );
     }
 
     const result: ApiResponse<SearchAllResponse> = await response.json();
-    console.log('getRecommendedJobs - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('getRecommendedJobs - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
-    console.log('getRecommendedJobs - jobDtoList:', result.data.jobDtoList);
     return result.data.jobDtoList || [];
   } catch (error) {
     console.error('Error fetching recommended jobs:', error);
@@ -119,8 +111,6 @@ export const getAllJobs = async (filters?: {
   jobCategory?: string[];
 }): Promise<SearchAllResponse> => {
   try {
-    console.log('Making API request to /job/all/anonymous');
-
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     if (!backendUrl) {
@@ -205,8 +195,6 @@ export const getAllJobsForLoggedIn = async (filters?: {
   jobCategory?: string[];
 }): Promise<SearchAllResponse> => {
   try {
-    console.log('Making API request to /api/job/all');
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -275,8 +263,6 @@ export const getAllJobsForLoggedIn = async (filters?: {
 // 로드맵 조회
 export const getRoadMap = async (): Promise<RoadMapResponse> => {
   try {
-    console.log('Making API request to /api/roadmap/recommend (GET)');
-
     const response = await fetch('/api/roadmap/recommend', {
       method: 'GET',
       headers: {
@@ -286,21 +272,16 @@ export const getRoadMap = async (): Promise<RoadMapResponse> => {
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('getRoadMap - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('getRoadMap - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch roadmap: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-    console.log('getRoadMap - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('getRoadMap - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -316,9 +297,6 @@ export const recommendRoadMap = async (
   request: RoadMapRequest
 ): Promise<RoadMapResponse> => {
   try {
-    console.log('Making API request to /api/roadmap/recommend (POST)');
-    console.log('Request body:', request);
-
     const response = await fetch('/api/roadmap/recommend', {
       method: 'POST',
       headers: {
@@ -328,21 +306,16 @@ export const recommendRoadMap = async (
       body: JSON.stringify(request),
     });
 
-    console.log('recommendRoadMap - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('recommendRoadMap - API Error Response:', errorText);
       throw new Error(
         `Failed to recommend roadmap: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-    console.log('recommendRoadMap - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('recommendRoadMap - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -358,8 +331,6 @@ export const toggleRoadMapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    console.log(`Making API request to /api/roadmap/${roadMapActionId} (POST)`);
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'POST',
       headers: {
@@ -368,21 +339,16 @@ export const toggleRoadMapAction = async (
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('toggleRoadMapAction - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('toggleRoadMapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to toggle roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('toggleRoadMapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('toggleRoadMapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -694,9 +660,6 @@ export const updateRoadmapAction = async (
   try {
     const requestBody: ActionUpdateRequest = { action };
 
-    console.log(`Making API request to /api/roadmap/${roadMapActionId} (PUT)`);
-    console.log('Request body:', requestBody);
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'PUT',
       headers: {
@@ -706,21 +669,16 @@ export const updateRoadmapAction = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log('updateRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('updateRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to update roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('updateRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('updateRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -734,10 +692,6 @@ export const deleteRoadmapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    console.log(
-      `Making API request to /api/roadmap/${roadMapActionId} (DELETE)`
-    );
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'DELETE',
       headers: {
@@ -746,21 +700,16 @@ export const deleteRoadmapAction = async (
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('deleteRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('deleteRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to delete roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('deleteRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('deleteRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -777,11 +726,6 @@ export const addRoadmapAction = async (
   try {
     const requestBody = { action };
 
-    console.log(
-      `Making API request to /api/roadmap/${roadmapId}/action (POST)`
-    );
-    console.log('Request body:', requestBody);
-
     const response = await fetch(`/api/roadmap/${roadmapId}/action`, {
       method: 'POST',
       headers: {
@@ -791,21 +735,16 @@ export const addRoadmapAction = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log('addRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('addRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to add roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('addRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('addRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -819,10 +758,6 @@ export const recommendRoadmapAction = async (
   category: string
 ): Promise<string[]> => {
   try {
-    console.log(
-      `Making API request to /api/roadmap/action/recommend?category=${category}`
-    );
-
     const response = await fetch(
       `/api/roadmap/action/recommend?category=${encodeURIComponent(category)}`,
       {
@@ -834,14 +769,8 @@ export const recommendRoadmapAction = async (
       }
     );
 
-    console.log(
-      'recommendRoadmapAction - API Response status:',
-      response.status
-    );
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('recommendRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to recommend roadmap action: ${response.status} ${response.statusText}`
       );
@@ -850,13 +779,7 @@ export const recommendRoadmapAction = async (
     const result: ApiResponse<RoadmapActionRecommendResponse> =
       await response.json();
 
-    console.log('recommendRoadmapAction - API Response data:', result);
-
     if (result.result !== 'SUCCESS') {
-      console.error(
-        'recommendRoadmapAction - API returned error:',
-        result.error
-      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1134,30 +1057,16 @@ export const getRecommendedEducations = async (): Promise<
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log(
-      'getRecommendedEducations - API Response status:',
-      response.status
-    );
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        'getRecommendedEducations - API Error Response:',
-        errorText
-      );
       throw new Error(
         `Failed to fetch recommended educations: ${response.status} ${response.statusText}`
       );
     }
 
     const result: EducationDataResponse = await response.json();
-    console.log('getRecommendedEducations - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error(
-        'getRecommendedEducations - API returned error:',
-        result.error
-      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1216,11 +1125,6 @@ export const getAllEducationsAnonymous = async (filters?: {
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log(
-      'Making API request to /api/education/anonymous with filters:',
-      filters
-    );
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -1256,30 +1160,16 @@ export const getAllEducationsAnonymous = async (filters?: {
       },
     });
 
-    console.log(
-      'getAllEducationsAnonymous - API Response status:',
-      response.status
-    );
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(
-        'getAllEducationsAnonymous - API Error Response:',
-        errorText
-      );
       throw new Error(
         `Failed to fetch all educations: ${response.status} ${response.statusText}`
       );
     }
 
     const result = await response.json();
-    console.log('getAllEducationsAnonymous - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error(
-        'getAllEducationsAnonymous - API returned error:',
-        result.error
-      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1300,11 +1190,6 @@ export const getHrdEducations = async (filters?: {
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log(
-      'Making API request to /api/education/all with filters:',
-      filters
-    );
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -1333,9 +1218,6 @@ export const getHrdEducations = async (filters?: {
       ? `/api/education/all?${queryString}`
       : `/api/education/all`;
 
-    console.log('getHrdEducations - Fetching URL:', url);
-    console.log('getHrdEducations - Query params:', queryString);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -1345,11 +1227,8 @@ export const getHrdEducations = async (filters?: {
       cache: 'no-store',
     });
 
-    console.log('getHrdEducations - API Response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('getHrdEducations - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch HRD educations: ${response.status} ${response.statusText}`
       );
@@ -1358,12 +1237,8 @@ export const getHrdEducations = async (filters?: {
     const result = (await response.json()) as
       | EducationDataResponse
       | EducationApiResponse;
-    console.log('getHrdEducations - API Response data:', result);
-    console.log('getHrdEducations - result.result:', result.result);
-    console.log('getHrdEducations - result.data:', result.data);
 
     if (result.result !== 'SUCCESS') {
-      console.error('getHrdEducations - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1372,25 +1247,13 @@ export const getHrdEducations = async (filters?: {
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
-      console.log(
-        'getHrdEducations - Found educationDtoList, length:',
-        result.data.educationDtoList.length
-      );
       mappedData = result.data.educationDtoList;
       totalElements = result.data.totalElements || mappedData.length;
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {
-      console.log(
-        'getHrdEducations - Found srchList, length:',
-        result.data.srchList.length
-      );
       mappedData = result.data.srchList.map(
         (item: CardCourseItem, index: number) => {
-          console.log(
-            `getHrdEducations - Mapping CardCourseItem ${index}:`,
-            item
-          );
           return {
             trprId: parseInt(item.trprId || index.toString()),
             educationId: parseInt(item.trprId || index.toString()),
@@ -1412,23 +1275,12 @@ export const getHrdEducations = async (filters?: {
       );
       totalElements = result.data.scn_cnt || mappedData.length;
     } else {
-      console.log(
-        'getHrdEducations - No educationDtoList or srchList found in result.data:',
-        result.data
-      );
       return {
         totalElements: 0,
         numberOfElements: 0,
         educationDtoList: [],
       };
     }
-
-    console.log('getHrdEducations - Final mapped data:', mappedData);
-    console.log(
-      'getHrdEducations - Final mapped data length:',
-      mappedData.length
-    );
-    console.log('getHrdEducations - Total elements:', totalElements);
 
     return {
       totalElements,

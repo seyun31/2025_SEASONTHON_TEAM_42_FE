@@ -56,12 +56,6 @@ export default function OAuth2SuccessPage() {
         // URL 끝에 슬래시가 있으면 제거
         const cleanBackendUrl = backendUrl.replace(/\/$/, '');
 
-        console.log(
-          'Making request to backend with token:',
-          accessToken.substring(0, 20) + '...'
-        );
-        console.log('Backend URL:', cleanBackendUrl);
-
         const response = await fetch(`${cleanBackendUrl}/v1/user`, {
           method: 'GET',
           headers: {
@@ -70,11 +64,8 @@ export default function OAuth2SuccessPage() {
           },
         });
 
-        console.log('API response status:', response.status);
-
         if (!response.ok) {
           const errorData = await response.json();
-          console.log('API error response:', errorData);
           throw new Error(
             `사용자 정보를 가져오는데 실패했습니다. ${errorData.details || ''}`
           );

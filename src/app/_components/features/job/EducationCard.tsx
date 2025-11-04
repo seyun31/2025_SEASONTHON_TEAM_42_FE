@@ -59,12 +59,12 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 // 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer 
-          shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-1000 
-          ease-[cubic-bezier(0.4,0,0.2,1)] ${
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer
+          shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full mx-auto transition-all duration-700
+          ease-in-out ${
             isExpanded
-              ? 'max-w-full max-h-[2000px] opacity-100 bg-white'
-              : 'max-w-[588px] max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#9FC2FF33]'
+              ? 'max-h-[2000px] opacity-100 bg-white'
+              : 'max-w-[588px] h-[450px] opacity-100 hover:bg-[#9FC2FF33]'
           } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
@@ -281,9 +281,12 @@ export default function EducationCard({
       tags.push(...categories.map((cat) => cat.trim()));
     }
 
+    // 최대 3개로 제한
+    const limitedTags = tags.slice(0, 3);
+
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
-        {tags.map((tag, i) => (
+        {limitedTags.map((tag, i) => (
           <Tag
             key={`tag-${i}`}
             isHovered={isHovered}
@@ -451,14 +454,16 @@ export default function EducationCard({
                 : education.title || '교육과정명 미정'}
             </p>
 
-            {renderTags(true)}
+            <div className="absolute bottom-14 left-3 md:left-5">
+              {renderTags(true)}
+            </div>
 
-            <div className="flex justify-between items-center transition-all duration-400 ease-in-out">
+            <div className="absolute bottom-5 justify-between items-center transition-all duration-400 ease-in-out">
               <div className="flex items-center gap-2 pt-1 md:pt-[10px]">
                 <span className="text-base md:text-body-medium-medium text-gray-500 font-medium">
                   금액
                 </span>
-                <span className="text-base md:text-body-medium-medium text-secondary4 font-semibold">
+                <span className="text-base md:text-body-medium-medium text-[#5786DA] font-semibold">
                   {education.courseMan
                     ? `${Number(education.courseMan).toLocaleString()}원`
                     : '금액 미정'}
