@@ -90,7 +90,7 @@ function FilterDropdown({
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-sm md:text-3xl">{label}</span>
+        <span className="text-sm md:text-2xl">{label}</span>
         <svg
           className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
@@ -188,7 +188,7 @@ function RegionSelector({
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-sm md:text-3xl">지역</span>
+        <span className="text-sm md:text-2xl">지역</span>
         <svg
           className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
@@ -427,7 +427,7 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
               bg-primary-90 text-white
               rounded-full md:rounded-[100px]
               hover:bg-primary-80 transition-colors
-              text-sm md:text-[28px] font-medium md:font-[400]
+              text-sm md:text-2xl font-medium md:font-[400]
               md:leading-[140%] md:tracking-[-0.025em]
               cursor-pointer
               whitespace-nowrap
