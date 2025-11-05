@@ -6,7 +6,7 @@ import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import JobFilter from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getRecommendedJobs,
@@ -52,7 +52,6 @@ export default function JobPostingsClient({
   const [openCardId, setOpenCardId] = useState<string | null>(
     getInitialOpenCard()
   );
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
@@ -97,41 +96,24 @@ export default function JobPostingsClient({
 
   // 카드 토글 핸들러
   const handleCardToggle = (jobId: string) => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
+    // jobId를 문자열로 통일
+    const jobIdStr = String(jobId);
+    const currentOpenId = openCardId ? String(openCardId) : null;
 
     // 같은 카드를 클릭하면 닫기
-    if (openCardId === jobId) {
+    if (currentOpenId === jobIdStr) {
       setOpenCardId(null);
       updateURL(activeTab, currentPage, null);
       return;
     }
 
-    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
-    if (openCardId !== null) {
-      setOpenCardId(null);
-      closeTimeoutRef.current = setTimeout(() => {
-        setOpenCardId(jobId);
-        updateURL(activeTab, currentPage, jobId);
-        closeTimeoutRef.current = null;
-      }, 300); // 닫는 애니메이션 시간
-    } else {
-      // 열려있는 카드가 없으면 바로 열기
-      setOpenCardId(jobId);
-      updateURL(activeTab, currentPage, jobId);
-    }
+    // 새로운 카드를 먼저 열고, 다른 카드는 동시에 닫힘 (상태 업데이트는 동시에 가능)
+    setOpenCardId(jobIdStr);
+    updateURL(activeTab, currentPage, jobIdStr);
   };
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchJobs 호출
   const handleTabChange = (tab: 'custom' | 'all') => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setJobs([]); // 이전 데이터 클리어
     setActiveTab(tab);
@@ -141,11 +123,6 @@ export default function JobPostingsClient({
 
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchJobs 호출
   const handlePageChange = (page: number) => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
     setCurrentPage(page);
     setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
     updateURL(activeTab, page, null);
@@ -227,15 +204,6 @@ export default function JobPostingsClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  // 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
     if (newFavorites.has(jobId)) {
@@ -304,7 +272,7 @@ export default function JobPostingsClient({
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
               <SearchBar />
-              <JobFilter onFilterChange={setFilters} />
+              {isLoggedIn && <JobFilter onFilterChange={setFilters} />}
               {isLoggedIn && (
                 <JobTab
                   activeTab={activeTab}
@@ -312,10 +280,19 @@ export default function JobPostingsClient({
                   isLoggedIn={isLoggedIn}
                 />
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <JobCardSkeleton key={index} />
-                ))}
+              <div className="flex flex-col md:flex-row gap-6 mt-12">
+                {/* 왼쪽 컬럼 */}
+                <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <JobCardSkeleton key={index * 2} />
+                  ))}
+                </div>
+                {/* 오른쪽 컬럼 */}
+                <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <JobCardSkeleton key={index * 2 + 1} />
+                  ))}
+                </div>
               </div>
             </div>
           </section>
@@ -331,7 +308,7 @@ export default function JobPostingsClient({
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
             <SearchBar onSearchChange={setSearchKeyword} />
-            <JobFilter onFilterChange={setFilters} />
+            {isLoggedIn && <JobFilter onFilterChange={setFilters} />}
             {isLoggedIn && (
               <JobTab
                 activeTab={activeTab}
@@ -339,27 +316,69 @@ export default function JobPostingsClient({
                 isLoggedIn={isLoggedIn}
               />
             )}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-              {jobs.map((job, index) => {
-                const cardId =
-                  ('jobId' in job && typeof job.jobId === 'number'
-                    ? job.jobId.toString()
-                    : job.jobId) || index.toString();
-                const isOpen = openCardId === cardId;
-                return (
-                  <JobCard
-                    key={
+            <div className="flex flex-col md:flex-row gap-6 mt-12">
+              {/* 왼쪽 컬럼 */}
+              <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                {jobs
+                  .filter((_, index) => index % 2 === 0)
+                  .map((job, filteredIndex) => {
+                    const originalIndex = filteredIndex * 2;
+                    const cardId =
                       ('jobId' in job && typeof job.jobId === 'number'
-                        ? job.jobId
-                        : job.jobId) || index
-                    }
-                    job={convertToJobCardFormat(job)}
-                    onToggleScrap={toggleScrap}
-                    isOpen={isOpen}
-                    onToggle={handleCardToggle}
-                  />
-                );
-              })}
+                        ? job.jobId.toString()
+                        : job.jobId) || originalIndex.toString();
+                    const isOpen = openCardId
+                      ? String(openCardId) === String(cardId)
+                      : false;
+                    return (
+                      <div
+                        key={
+                          ('jobId' in job && typeof job.jobId === 'number'
+                            ? job.jobId
+                            : job.jobId) || originalIndex
+                        }
+                      >
+                        <JobCard
+                          job={convertToJobCardFormat(job)}
+                          onToggleScrap={toggleScrap}
+                          isOpen={isOpen}
+                          onToggle={handleCardToggle}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
+              {/* 오른쪽 컬럼 */}
+              <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                {jobs
+                  .filter((_, index) => index % 2 === 1)
+                  .map((job, filteredIndex) => {
+                    const originalIndex = filteredIndex * 2 + 1;
+                    const cardId =
+                      ('jobId' in job && typeof job.jobId === 'number'
+                        ? job.jobId.toString()
+                        : job.jobId) || originalIndex.toString();
+                    const isOpen = openCardId
+                      ? String(openCardId) === String(cardId)
+                      : false;
+                    return (
+                      <div
+                        key={
+                          ('jobId' in job && typeof job.jobId === 'number'
+                            ? job.jobId
+                            : job.jobId) || originalIndex
+                        }
+                      >
+                        <JobCard
+                          job={convertToJobCardFormat(job)}
+                          onToggleScrap={toggleScrap}
+                          isOpen={isOpen}
+                          onToggle={handleCardToggle}
+                        />
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">

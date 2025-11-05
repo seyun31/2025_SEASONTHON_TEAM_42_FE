@@ -7,7 +7,7 @@ import EducationTab from '@/components/ui/EducationTab';
 import EducationFilter from '@/components/ui/EducationFilter';
 import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   getAllEducationsAnonymous,
@@ -52,7 +52,6 @@ export default function EducationProgramsClient({
   const [openCardId, setOpenCardId] = useState<string | null>(
     getInitialOpenCard()
   );
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [educations, setEducations] =
     useState<EducationSummary[]>(initialEducations);
@@ -100,41 +99,24 @@ export default function EducationProgramsClient({
 
   // 카드 토글 핸들러
   const handleCardToggle = (educationId: string) => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
+    // educationId를 문자열로 통일
+    const educationIdStr = String(educationId);
+    const currentOpenId = openCardId ? String(openCardId) : null;
 
     // 같은 카드를 클릭하면 닫기
-    if (openCardId === educationId) {
+    if (currentOpenId === educationIdStr) {
       setOpenCardId(null);
       updateURL(activeTab, currentPage, null);
       return;
     }
 
-    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
-    if (openCardId !== null) {
-      setOpenCardId(null);
-      closeTimeoutRef.current = setTimeout(() => {
-        setOpenCardId(educationId);
-        updateURL(activeTab, currentPage, educationId);
-        closeTimeoutRef.current = null;
-      }, 300); // 닫는 애니메이션 시간
-    } else {
-      // 열려있는 카드가 없으면 바로 열기
-      setOpenCardId(educationId);
-      updateURL(activeTab, currentPage, educationId);
-    }
+    // 새로운 카드를 먼저 열고, 다른 카드는 동시에 닫힘 (상태 업데이트는 동시에 가능)
+    setOpenCardId(educationIdStr);
+    updateURL(activeTab, currentPage, educationIdStr);
   };
 
   // 탭 변경 핸들러 -> useEffect가 activeTab 변경을 감지하여 fetchEducations 호출
   const handleTabChange = (tab: 'custom' | 'all') => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setEducations([]); // 이전 데이터 클리어
     setActiveTab(tab);
@@ -144,11 +126,6 @@ export default function EducationProgramsClient({
 
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchEducations 호출
   const handlePageChange = (page: number) => {
-    // 기존 타이머가 있으면 정리
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
     setCurrentPage(page);
     setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
     updateURL(activeTab, page, null);
@@ -306,15 +283,6 @@ export default function EducationProgramsClient({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
-  // 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-      }
-    };
-  }, []);
-
   const toggleFavorite = (educationId: string) => {
     // 교육 데이터의 isBookmark 상태를 토글
     setEducations((prevEducations) =>
@@ -333,7 +301,7 @@ export default function EducationProgramsClient({
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
               <SearchBar borderColor="#9FC2FF" />
-              <EducationFilter onFilterChange={setFilters} />
+              {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
               {isLoggedIn && (
                 <EducationTab
                   activeTab={activeTab}
@@ -341,10 +309,19 @@ export default function EducationProgramsClient({
                   isLoggedIn={isLoggedIn}
                 />
               )}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <EducationCardSkeleton key={index} />
-                ))}
+              <div className="flex flex-col md:flex-row gap-6 mt-12">
+                {/* 왼쪽 컬럼 */}
+                <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <EducationCardSkeleton key={index * 2} />
+                  ))}
+                </div>
+                {/* 오른쪽 컬럼 */}
+                <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                  {Array.from({ length: 4 }).map((_, index) => (
+                    <EducationCardSkeleton key={index * 2 + 1} />
+                  ))}
+                </div>
               </div>
             </div>
           </section>
@@ -363,7 +340,7 @@ export default function EducationProgramsClient({
               onSearchChange={setSearchKeyword}
               borderColor="#9FC2FF"
             />
-            <EducationFilter onFilterChange={setFilters} />
+            {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
             {isLoggedIn && (
               <EducationTab
                 activeTab={activeTab}
@@ -375,22 +352,57 @@ export default function EducationProgramsClient({
               <EmptyEducations isLoggedIn={isLoggedIn} activeTab={activeTab} />
             ) : educations.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                  {educations.map((education, index) => {
-                    const cardId =
-                      education.educationId?.toString() || education.trprId;
-                    const isOpen = openCardId === cardId;
-                    return (
-                      <EducationCard
-                        key={education.trprId || index}
-                        education={education}
-                        onToggleBookmark={toggleFavorite}
-                        isBookmarked={education.isBookmark || false}
-                        isOpen={isOpen}
-                        onToggle={handleCardToggle}
-                      />
-                    );
-                  })}
+                <div className="flex flex-col md:flex-row gap-6 mt-12">
+                  {/* 왼쪽 컬럼 */}
+                  <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                    {educations
+                      .filter((_, index) => index % 2 === 0)
+                      .map((education, filteredIndex) => {
+                        const originalIndex = filteredIndex * 2;
+                        const cardId =
+                          education.educationId?.toString() ||
+                          education.trprId ||
+                          originalIndex.toString();
+                        const isOpen = openCardId
+                          ? String(openCardId) === String(cardId)
+                          : false;
+                        return (
+                          <EducationCard
+                            key={education.trprId || originalIndex}
+                            education={education}
+                            onToggleBookmark={toggleFavorite}
+                            isBookmarked={education.isBookmark || false}
+                            isOpen={isOpen}
+                            onToggle={handleCardToggle}
+                          />
+                        );
+                      })}
+                  </div>
+                  {/* 오른쪽 컬럼 */}
+                  <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+                    {educations
+                      .filter((_, index) => index % 2 === 1)
+                      .map((education, filteredIndex) => {
+                        const originalIndex = filteredIndex * 2 + 1;
+                        const cardId =
+                          education.educationId?.toString() ||
+                          education.trprId ||
+                          originalIndex.toString();
+                        const isOpen = openCardId
+                          ? String(openCardId) === String(cardId)
+                          : false;
+                        return (
+                          <EducationCard
+                            key={education.trprId || originalIndex}
+                            education={education}
+                            onToggleBookmark={toggleFavorite}
+                            isBookmarked={education.isBookmark || false}
+                            isOpen={isOpen}
+                            onToggle={handleCardToggle}
+                          />
+                        );
+                      })}
+                  </div>
                 </div>
                 {totalPages > 1 && (
                   <div className="flex justify-center items-center gap-1 sm:gap-2 mt-12 mb-8">
