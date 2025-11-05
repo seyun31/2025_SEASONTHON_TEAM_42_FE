@@ -471,9 +471,9 @@ export default function UserCheckList({
     );
   }
 
-  // 로드맵이 없거나 API 데이터가 없는 경우
-  if (!hasRoadmap || !roadmapData) {
-    // 로드맵이 없는 경우 - 단순한 중앙 정렬 레이아웃
+  // 로드맵이 없거나 API 데이터가 없거나 로그인하지 않은 경우
+  if (!userName || !hasRoadmap || !roadmapData) {
+    // 로드맵이 없는 경우 또는 로그인하지 않은 경우 - 단순한 중앙 정렬 레이아웃
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
         {/* 캐릭터 이미지 */}
@@ -986,7 +986,7 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                <div className="absolute top-2 right-2 md:ftop-4 md:right-4">
                   <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
