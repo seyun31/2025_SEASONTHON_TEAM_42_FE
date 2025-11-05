@@ -64,7 +64,7 @@ export default function StrengthDashboard() {
         </h2>
 
         {/* 강점 리포트 카드 그리드 - 반응형 레이아웃 */}
-        <div className="ml-25 grid grid-cols-1 gap-4 md:gap-27 flex-wrap">
+        <div className="md:ml-25 grid grid-cols-1 gap-4 md:gap-27 flex-wrap">
           {strengthReports.map((report, index) => (
             <EditableStrengthReportCard
               key={index}
