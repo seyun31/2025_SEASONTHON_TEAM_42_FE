@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getUserData } from '@/lib/auth';
 import EditableStrengthReportCard from '@/app/_components/features/report/EditableStrengthReportCard';
+import Image from 'next/image';
 
 export default function StrengthDashboard() {
   const [userData, setUserData] = useState<{
@@ -54,6 +55,34 @@ export default function StrengthDashboard() {
       iconType: 'led' as const,
     },
   ];
+
+  const handleGenerateReport = () => {
+    window.location.href = '/ai-chat/job'; // AI 직업 진단 페이지로 이동
+  };
+
+  const noReport =
+    !userData || !strengthReports || strengthReports.length === 0;
+
+  if (noReport) {
+    return (
+      <div className="w-full h-[80vh] flex flex-col items-center justify-center text-center">
+        <Image
+          src="/assets/logos/report-star.svg"
+          alt="No Report"
+          width={328}
+          height={293}
+          className="mb-16"
+        />
+        <button
+          onClick={handleGenerateReport}
+          className="w-[389px] bg-primary-90 text-white rounded-[24px] p-5 font-pretendard font-semibold text-[36px] leading-[140%] tracking-[-0.025em] text-center cursor-pointer"
+          style={{ letterSpacing: '-2.5%' }}
+        >
+          강점 리포트 생성하러가기
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full px-4 md:px-8 py-6 md:py-8">

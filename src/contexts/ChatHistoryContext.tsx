@@ -41,13 +41,18 @@ export interface ChatMessage {
     | 'strengthReport'
     | 'jobCards'
     | 'loading'
-    | 'strengthReportGroup';
+    | 'strengthReportGroup'
+    | 'historyOptions'
+    | 'strengthReportButton'
+    | 'strengthReportPageButton'
+    | 'jobInputButton';
   componentData?:
     | StrengthReportData
     | JobRecommendations
     | StrengthReportData[]
     | LoadingData
-    | null;
+    | null
+    | Record<string, never>;
 }
 
 export interface ChatHistoryContextType {
@@ -66,13 +71,18 @@ export interface ChatHistoryContextType {
       | 'strengthReport'
       | 'jobCards'
       | 'loading'
-      | 'strengthReportGroup',
+      | 'strengthReportGroup'
+      | 'historyOptions'
+      | 'strengthReportButton'
+      | 'strengthReportPageButton'
+      | 'jobInputButton',
     componentData?:
       | StrengthReportData
       | JobRecommendations
       | StrengthReportData[]
       | LoadingData
       | null
+      | Record<string, never>
   ) => void;
   removeMessagesByType: (componentType: string) => void;
   nextStep: () => void;
@@ -149,13 +159,18 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
       | 'strengthReport'
       | 'jobCards'
       | 'loading'
-      | 'strengthReportGroup',
+      | 'strengthReportGroup'
+      | 'historyOptions'
+      | 'strengthReportButton'
+      | 'strengthReportPageButton'
+      | 'jobInputButton',
     componentData?:
       | StrengthReportData
       | JobRecommendations
       | StrengthReportData[]
       | LoadingData
       | null
+      | Record<string, never>
   ) => {
     const newMessage: ChatMessage = {
       id: generateUniqueId(),

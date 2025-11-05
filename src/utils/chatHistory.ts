@@ -58,7 +58,6 @@ interface LoadPreviousConversationParams {
   setStrengthReports: (reports: StrengthReport[]) => void;
   setJobRecommendations: (recommendations: JobRecommendations | null) => void;
   setJobMessageAdded: (added: boolean) => void;
-  setStrengthReportAdded: (added: boolean) => void;
   setShowJobCards: (show: boolean) => void;
 }
 
@@ -73,7 +72,6 @@ export const loadPreviousConversation = async ({
   setStrengthReports,
   setJobRecommendations,
   setJobMessageAdded,
-  setStrengthReportAdded,
   setShowJobCards,
 }: LoadPreviousConversationParams): Promise<void> => {
   try {
@@ -158,8 +156,6 @@ export const loadPreviousConversation = async ({
           reports.forEach((report: StrengthReport) => {
             addComponentMessage('strengthReport', report);
           });
-
-          setStrengthReportAdded(true);
         }
       } catch (strengthError) {
         console.warn('강점 리포트 기록 불러오기 실패:', strengthError);
