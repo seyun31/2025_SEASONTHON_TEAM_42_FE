@@ -81,7 +81,7 @@ function FilterDropdown({
     <div className="relative">
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap ${
+        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap cursor-pointer ${
           isSelected || isOpen
             ? 'bg-primary-20 text-gray-90'
             : 'bg-white text-gray-70 hover:border-primary-50'
@@ -403,7 +403,7 @@ function RegionSelector({
     <div className="relative">
       <button
         onClick={onToggle}
-        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap ${
+        className={`flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 rounded-full border-2 border-primary-20 transition-colors whitespace-nowrap cursor-pointer ${
           selectedRegion || isOpen
             ? 'bg-primary-20 text-gray-90'
             : 'bg-white text-gray-70 hover:border-primary-50'
@@ -570,7 +570,7 @@ export default function EducationFilter({
   return (
     <div ref={filterRef} className="w-full mt-6">
       {/* 필터 바 */}
-      <div className="flex flex-row items-stretch md:items-center gap-3 md:gap-4">
+      <div className="flex flex-wrap items-stretch md:items-center gap-3 md:gap-4">
         {/* 지역 필터 */}
         <RegionSelector
           selectedRegion={filters.selectedRegion}
@@ -601,20 +601,19 @@ export default function EducationFilter({
           onChange={(values) => handleFilterChange('educationCategory', values)}
         />
 
-        {/* 데스크탑용 필터 적용하기 버튼 */}
+        {/* 필터 적용하기 버튼 */}
         <button
           onClick={() => onFilterChange?.(filters)}
-          className="hidden md:block ml-auto px-6 py-3 bg-primary-90 text-white rounded-xl text-body-medium font-medium hover:bg-primary-80 transition-colors"
-        >
-          필터 적용하기
-        </button>
-      </div>
-
-      {/* 모바일용 필터 적용하기 버튼 */}
-      <div className="mt-4 md:hidden flex justify-start">
-        <button
-          onClick={() => onFilterChange?.(filters)}
-          className="px-6 py-3 bg-primary-90 text-white rounded-xl text-body-medium font-medium hover:bg-primary-80 transition-colors"
+          className="
+              px-4 md:px-6 py-2 md:py-3
+              bg-primary-90 text-white
+              rounded-full md:rounded-[100px]
+              hover:bg-primary-80 transition-colors
+              text-sm md:text-[28px] font-medium md:font-[400]
+              md:leading-[140%] md:tracking-[-0.025em]
+              cursor-pointer
+              whitespace-nowrap
+            "
         >
           필터 적용하기
         </button>

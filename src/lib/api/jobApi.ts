@@ -73,31 +73,17 @@ export const toggleJobScrap = async (jobId: string): Promise<boolean> => {
 // 맞춤형 일자리 추천 (로그인 시)
 export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
+    console.log('Making API request to /api/job/recommend');
 
-    console.log('Token found, making API request to /job/recommend/job');
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/recommend/job`, {
+    const response = await fetch('/api/job/recommend', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     console.log('getRecommendedJobs - API Response status:', response.status);
-    console.log('getRecommendedJobs - API Response headers:', response.headers);
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -219,20 +205,7 @@ export const getAllJobsForLoggedIn = async (filters?: {
   jobCategory?: string[];
 }): Promise<SearchAllResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    console.log('Making API request to /job/all');
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
+    console.log('Making API request to /api/job/all');
 
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
@@ -268,16 +241,14 @@ export const getAllJobsForLoggedIn = async (filters?: {
     }
 
     const queryString = queryParams.toString();
-    const url = queryString
-      ? `${backendUrl}/job/all?${queryString}`
-      : `${backendUrl}/job/all`;
+    const url = queryString ? `/api/job/all?${queryString}` : `/api/job/all`;
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     if (!response.ok) {
@@ -304,27 +275,15 @@ export const getAllJobsForLoggedIn = async (filters?: {
 // 로드맵 조회
 export const getRoadMap = async (): Promise<RoadMapResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
+    console.log('Making API request to /api/roadmap/recommend (GET)');
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log('Making API request to /roadmap/recommend (GET)');
-
-    const response = await fetch(`${backendUrl}/roadmap/recommend`, {
+    const response = await fetch('/api/roadmap/recommend', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         accept: 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     console.log('getRoadMap - API Response status:', response.status);
@@ -357,27 +316,15 @@ export const recommendRoadMap = async (
   request: RoadMapRequest
 ): Promise<RoadMapResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log('Making API request to /roadmap/recommend (POST)');
+    console.log('Making API request to /api/roadmap/recommend (POST)');
     console.log('Request body:', request);
 
-    const response = await fetch(`${backendUrl}/roadmap/recommend`, {
+    const response = await fetch('/api/roadmap/recommend', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
       body: JSON.stringify(request),
     });
 
@@ -411,26 +358,14 @@ export const toggleRoadMapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
+    console.log(`Making API request to /api/roadmap/${roadMapActionId} (POST)`);
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log(`Making API request to /roadmap/${roadMapActionId} (POST)`);
-
-    const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
+    const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     console.log('toggleRoadMapAction - API Response status:', response.status);
@@ -543,24 +478,12 @@ export const getRecommendedOccupations = async (): Promise<RecommendJob> => {
 // 북마크 등록
 export const bookmarkJob = async (jobId: number): Promise<MemberJobMap[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/v1/bookmark?jobId=${jobId}`, {
+    const response = await fetch(`/api/bookmark?jobId=${jobId}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     if (!response.ok) {
@@ -589,24 +512,12 @@ export const cancelBookmark = async (
   jobId: number
 ): Promise<MemberJobMap[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/v1/bookmark?jobId=${jobId}`, {
+    const response = await fetch(`/api/bookmark?jobId=${jobId}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     if (!response.ok) {
@@ -781,29 +692,17 @@ export const updateRoadmapAction = async (
   action: string
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
     const requestBody: ActionUpdateRequest = { action };
 
-    console.log(`Making API request to /roadmap/${roadMapActionId} (PUT)`);
+    console.log(`Making API request to /api/roadmap/${roadMapActionId} (PUT)`);
     console.log('Request body:', requestBody);
 
-    const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
+    const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'PUT',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
       body: JSON.stringify(requestBody),
     });
 
@@ -835,26 +734,16 @@ export const deleteRoadmapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
+    console.log(
+      `Making API request to /api/roadmap/${roadMapActionId} (DELETE)`
+    );
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log(`Making API request to /roadmap/${roadMapActionId} (DELETE)`);
-
-    const response = await fetch(`${backendUrl}/roadmap/${roadMapActionId}`, {
+    const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'DELETE',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     console.log('deleteRoadmapAction - API Response status:', response.status);
@@ -886,36 +775,21 @@ export const addRoadmapAction = async (
   action: string
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
     const requestBody = { action };
 
     console.log(
-      `Making API request to /roadmap/${roadmapId}/roadmapAction (POST)`
+      `Making API request to /api/roadmap/${roadmapId}/action (POST)`
     );
     console.log('Request body:', requestBody);
 
-    const response = await fetch(
-      `${backendUrl}/roadmap/${roadmapId}/roadmapAction`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      }
-    );
+    const response = await fetch(`/api/roadmap/${roadmapId}/action`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include', // HttpOnly 쿠키 포함
+      body: JSON.stringify(requestBody),
+    });
 
     console.log('addRoadmapAction - API Response status:', response.status);
 
@@ -945,30 +819,18 @@ export const recommendRoadmapAction = async (
   category: string
 ): Promise<string[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
     console.log(
-      `Making API request to /roadmap/roadmapAction/recommend?category=${category}`
+      `Making API request to /api/roadmap/action/recommend?category=${category}`
     );
 
     const response = await fetch(
-      `${backendUrl}/roadmap/roadmapAction/recommend?category=${encodeURIComponent(category)}`,
+      `/api/roadmap/action/recommend?category=${encodeURIComponent(category)}`,
       {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // HttpOnly 쿠키 포함
       }
     );
 
@@ -1262,26 +1124,14 @@ export const getRecommendedEducations = async (): Promise<
   EducationSummary[]
 > => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
+    console.log('Making API request to /api/education/recommend');
 
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    console.log('Making API request to /education/recommend');
-
-    const response = await fetch(`${backendUrl}/education/recommend`, {
+    const response = await fetch('/api/education/recommend', {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
     });
 
     console.log(
@@ -1450,20 +1300,8 @@ export const getHrdEducations = async (filters?: {
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
     console.log(
-      'Making API request to /education/hrd-course with filters:',
+      'Making API request to /api/education/all with filters:',
       filters
     );
 
@@ -1492,8 +1330,8 @@ export const getHrdEducations = async (filters?: {
 
     const queryString = queryParams.toString();
     const url = queryString
-      ? `${backendUrl}/education/hrd-course?${queryString}`
-      : `${backendUrl}/education/hrd-course`;
+      ? `/api/education/all?${queryString}`
+      : `/api/education/all`;
 
     console.log('getHrdEducations - Fetching URL:', url);
     console.log('getHrdEducations - Query params:', queryString);
@@ -1501,9 +1339,9 @@ export const getHrdEducations = async (filters?: {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // HttpOnly 쿠키 포함
       cache: 'no-store',
     });
 

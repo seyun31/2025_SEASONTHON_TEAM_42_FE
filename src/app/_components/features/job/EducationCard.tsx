@@ -28,6 +28,7 @@ const calculateDuration = (startDate: string, endDate: string): string => {
   if (!startDate || !endDate) return '기간 미정';
 
   try {
+    const now = new Date();
     const start = new Date(formatDate(startDate));
     const end = new Date(formatDate(endDate));
 
@@ -35,7 +36,18 @@ const calculateDuration = (startDate: string, endDate: string): string => {
       return '기간 미정';
     }
 
-    const diffTime = Math.abs(end.getTime() - start.getTime());
+    // 현재 날짜가 시작일 이전인 경우
+    if (now < start) {
+      return '모집중';
+    }
+
+    // 현재 날짜가 종료일 이후인 경우
+    if (now > end) {
+      return '모집마감';
+    }
+
+    // 그 외: 남은 기간 계산
+    const diffTime = end.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     return `D - ${diffDays}`;
@@ -47,14 +59,16 @@ const calculateDuration = (startDate: string, endDate: string): string => {
 // 공통 스타일 클래스
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
-      isExpanded
-        ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#9FC2FF33]'
-    } ${isAnimating ? 'pointer-events-none' : ''}`,
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#BEC7D6] overflow-hidden cursor-pointer 
+          shadow-[0px_10px_10px_0px_#5786DA33] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-1000 
+          ease-[cubic-bezier(0.4,0,0.2,1)] ${
+            isExpanded
+              ? 'max-w-full max-h-[2000px] opacity-100 bg-white'
+              : 'max-w-[588px] max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#9FC2FF33]'
+          } ${isAnimating ? 'pointer-events-none' : ''}`,
 
   tag: (isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-500 ease-out ${
+    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] ${
       isExpanded
         ? 'opacity-100 translate-y-0 scale-100'
         : isVisible
@@ -63,7 +77,7 @@ const styles = {
     }`,
 
   compactTag: () =>
-    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-400 ease-in-out`,
+    `flex px-2 py-1 rounded-full text-sm md:text-base transition-all duration-600 ease-[cubic-bezier(0.4,0,0.2,1)]`,
 
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
@@ -153,18 +167,25 @@ interface EducationCardProps {
   education: EducationSummary;
   onToggleBookmark: (educationId: string) => void;
   isBookmarked?: boolean;
+  isOpen?: boolean;
+  onToggle?: (educationId: string) => void;
 }
 
 export default function EducationCard({
   education,
   onToggleBookmark,
   isBookmarked = false,
+  isOpen = false,
+  onToggle,
 }: EducationCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
   const [isHovered, setIsHovered] = useState(false);
   const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+
+  // isOpen prop이 제공되면 외부에서 제어, 아니면 내부 상태 사용
+  const [internalIsExpanded, setInternalIsExpanded] = useState(false);
+  const isExpanded = onToggle !== undefined ? isOpen : internalIsExpanded;
 
   useEffect(() => {
     // education.isBookmark 정보를 우선적으로 사용하고, 없으면 isBookmarked prop 사용
@@ -213,16 +234,31 @@ export default function EducationCard({
     if (isExpanded) return;
 
     setIsAnimating(true);
-    setTimeout(() => setIsExpanded(true), 100);
-    setTimeout(() => setIsAnimating(false), 800);
+
+    if (onToggle) {
+      // 외부에서 제어하는 경우
+      onToggle(education.educationId?.toString() || education.trprId);
+      setTimeout(() => setIsAnimating(false), 800);
+    } else {
+      // 내부 상태로 제어하는 경우
+      setTimeout(() => setInternalIsExpanded(true), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    }
   };
 
   const handleClose = () => {
     if (!isExpanded) return;
     setIsAnimating(true);
 
-    setTimeout(() => setIsExpanded(false), 100);
-    setTimeout(() => setIsAnimating(false), 800);
+    if (onToggle) {
+      // 외부에서 제어하는 경우 - 같은 카드를 클릭하면 닫기
+      onToggle(education.educationId?.toString() || education.trprId);
+      setTimeout(() => setIsAnimating(false), 800);
+    } else {
+      // 내부 상태로 제어하는 경우
+      setTimeout(() => setInternalIsExpanded(false), 100);
+      setTimeout(() => setIsAnimating(false), 800);
+    }
   };
 
   // 태그 렌더링 함수
@@ -264,28 +300,33 @@ export default function EducationCard({
 
   // 상세 정보 렌더링 함수
   const renderDetails = () => (
-    <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
+    <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]">
       <DetailItem
-        label="기간"
-        value={calculateDuration(education.traStartDate, education.traEndDate)}
-        isPrimary
+        label="교육기관"
+        value={education.institution || '기관 미정'}
       />
-      <DetailItem label="시작일" value={formatDate(education.traStartDate)} />
-      <DetailItem label="종료일" value={formatDate(education.traEndDate)} />
       <DetailItem
         label="교육시간"
-        value={education.trprDegr ? `${education.trprDegr}시간` : '미정'}
+        value={education.trprDegr ? `${education.trprDegr}회차` : '미정'}
         isPrimary
+      />
+      <DetailItem
+        label="교육기간"
+        value={
+          formatDate(education.traStartDate) +
+          ' ~ ' +
+          formatDate(education.traEndDate)
+        }
       />
       <DetailItem
         label="수강료"
         value={
           education.courseMan
             ? `${Number(education.courseMan).toLocaleString()}원`
-            : '문의'
+            : '금액 미정'
         }
+        isPrimary
       />
-      <DetailItem label="기관" value={education.institution || '기관 미정'} />
     </div>
   );
 
@@ -353,10 +394,7 @@ export default function EducationCard({
             <div className="flex justify-between items-start my-4 md:my-6">
               <div className="flex flex-col gap-2 md:gap-3 flex-1 min-w-0">
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3 transition-all duration-500 ease-out">
-                  <span
-                    className="text-gray-800 truncate font-semibold"
-                    style={{ fontSize: '28px' }}
-                  >
+                  <span className="text-xl md:text-2xl text-gray-800 truncate font-semibold">
                     {education.subTitle || '교육과정명 미정'}
                   </span>
                   <span className="text-base md:text-body-small-medium text-gray-500 truncate">
@@ -384,10 +422,7 @@ export default function EducationCard({
             </div>
 
             {/* 교육과정 설명 */}
-            <p
-              className="text-gray-800 leading-relaxed mb-6 md:mb-12 transition-all duration-500 ease-out font-medium"
-              style={{ fontSize: '28px' }}
-            >
+            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-semibold">
               {education.title || education.contents || '교육과정 설명 미정'}
             </p>
 
@@ -410,11 +445,10 @@ export default function EducationCard({
         ) : (
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
-            <p
-              className="text-gray-800 text-bold leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-medium"
-              style={{ fontSize: '28px' }}
-            >
-              {education.title || '교육과정명 미정'}
+            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-semibold">
+              {(education.title || '교육과정명 미정').length > 52
+                ? `${(education.title || '교육과정명 미정').substring(0, 52)}···`
+                : education.title || '교육과정명 미정'}
             </p>
 
             {renderTags(true)}
@@ -422,13 +456,12 @@ export default function EducationCard({
             <div className="flex justify-between items-center transition-all duration-400 ease-in-out">
               <div className="flex items-center gap-2 pt-1 md:pt-[10px]">
                 <span className="text-base md:text-body-medium-medium text-gray-500 font-medium">
-                  기간
+                  금액
                 </span>
                 <span className="text-base md:text-body-medium-medium text-secondary4 font-semibold">
-                  {calculateDuration(
-                    education.traStartDate,
-                    education.traEndDate
-                  )}
+                  {education.courseMan
+                    ? `${Number(education.courseMan).toLocaleString()}원`
+                    : '금액 미정'}
                 </span>
               </div>
             </div>

@@ -1,81 +1,70 @@
-// 쿠키에서 토큰을 가져오는 유틸리티 함수들
+// 인증 관련 유틸리티 함수들 (HttpOnly 쿠키 사용)
 
-export function getAccessToken(): string | null {
-  if (typeof document === 'undefined') return null;
-
-  const cookies = document.cookie.split(';');
-  const accessTokenCookie = cookies.find((cookie) =>
-    cookie.trim().startsWith('accessToken=')
-  );
-
-  return accessTokenCookie ? accessTokenCookie.split('=')[1] : null;
-}
-
-export function getRefreshToken(): string | null {
-  if (typeof document === 'undefined') return null;
-
-  const cookies = document.cookie.split(';');
-  const refreshTokenCookie = cookies.find((cookie) =>
-    cookie.trim().startsWith('refreshToken=')
-  );
-
-  return refreshTokenCookie ? refreshTokenCookie.split('=')[1] : null;
-}
-
-export function getUserData(): {
+export interface UserData {
   userId: number;
   name: string;
   socialProvider: string;
   socialId: string;
   email: string;
   profileImage: string;
-} | null {
+  additionalInfo?: {
+    birthDate: string | null;
+    gender: string | null;
+    address: string | null;
+  };
+}
+
+// 액세스 토큰 접근
+export function getAccessToken(): string | null {
+  console.warn(
+    'getAccessToken is deprecated: 토큰이 HttpOnly 쿠키로 저장되어 클라이언트에서 접근할 수 없습니다. fetchWithAuth를 사용하세요.'
+  );
+  return null;
+}
+
+// 리프레시 토큰 접근
+export function getRefreshToken(): string | null {
+  console.warn(
+    'getRefreshToken is deprecated: 토큰이 HttpOnly 쿠키로 저장되어 클라이언트에서 접근할 수 없습니다.'
+  );
+  return null;
+}
+
+// 로컬 스토리지에서 사용자 데이터 접근
+export function getUserData(): UserData | null {
   if (typeof window === 'undefined') return null;
 
-  const userData = localStorage.getItem('userData');
-  return userData ? JSON.parse(userData) : null;
-}
-
-export function clearAuthData(): void {
-  if (typeof document === 'undefined' || typeof window === 'undefined') return;
-
-  // 쿠키 삭제
-  document.cookie =
-    'accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-  document.cookie =
-    'refreshToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-
-  // localStorage에서 사용자 데이터 삭제
-  localStorage.removeItem('userData');
-}
-
-export async function fetchUserData(): Promise<{
-  userId: number;
-  name: string;
-  socialProvider: string;
-  socialId: string;
-  email: string;
-  profileImage: string;
-} | null> {
-  const accessToken = getAccessToken();
-  if (!accessToken) return null;
-
   try {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const userData = localStorage.getItem('userData');
+    return userData ? JSON.parse(userData) : null;
+  } catch (error) {
+    console.error('Error reading userData from localStorage:', error);
+    return null;
+  }
+}
 
-    if (!backendUrl) {
-      throw new Error('백엔드 URL이 설정되지 않았습니다.');
-    }
+// 인증 데이터 삭제 (로그아웃 시 사용) -> 즉시 로컬 데이터 삭제, 서버 호출은 백그라운드에서
+export function clearAuthData(): void {
+  if (typeof window === 'undefined') return;
 
-    // URL 끝에 슬래시가 있으면 제거
-    const cleanBackendUrl = backendUrl.replace(/\/$/, '');
+  // localStorage에서 사용자 데이터 즉시 삭제
+  localStorage.removeItem('userData');
 
-    const response = await fetch(`${cleanBackendUrl}/v1/user`, {
+  // 서버의 HttpOnly 쿠키 삭제를 위한 API 호출 (백그라운드에서 실행)
+  fetch('/api/auth/logout', {
+    method: 'POST',
+    credentials: 'include',
+  }).catch((error) => {
+    console.error('로그아웃 API 호출 실패:', error);
+  });
+}
+
+// API 호출을 통해 사용자 정보 가져오기
+export async function fetchUserData(): Promise<UserData | null> {
+  try {
+    const response = await fetch('/api/auth/user', {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -85,7 +74,14 @@ export async function fetchUserData(): Promise<{
     const result = await response.json();
 
     if (result.result === 'SUCCESS') {
-      localStorage.setItem('userData', JSON.stringify(result.data));
+      // localStorage에 저장
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('userData', JSON.stringify(result.data));
+        } catch (error) {
+          console.error('localStorage 저장 실패:', error);
+        }
+      }
       return result.data;
     }
 

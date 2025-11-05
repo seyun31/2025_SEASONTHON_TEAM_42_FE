@@ -17,6 +17,7 @@ export default function EducationRecommendationsSection() {
   const [educations, setEducations] = useState<EducationSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [openCardId, setOpenCardId] = useState<string | null>(null);
 
   useEffect(() => {
     const userData = getUserData();
@@ -124,6 +125,26 @@ export default function EducationRecommendationsSection() {
     setFavorites(newFavorites);
   };
 
+  // 카드 토글 핸들러
+  const handleCardToggle = (educationId: string) => {
+    // 같은 카드를 클릭하면 닫기
+    if (openCardId === educationId) {
+      setOpenCardId(null);
+      return;
+    }
+
+    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
+    if (openCardId !== null) {
+      setOpenCardId(null);
+      setTimeout(() => {
+        setOpenCardId(educationId);
+      }, 300); // 닫는 애니메이션 시간
+    } else {
+      // 열려있는 카드가 없으면 바로 열기
+      setOpenCardId(educationId);
+    }
+  };
+
   if (isLoading) {
     return (
       <section className="w-full px-4 py-8">
@@ -176,13 +197,20 @@ export default function EducationRecommendationsSection() {
 
         {educations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {educations.slice(0, 8).map((education, index) => (
-              <EducationCard
-                key={education.trprId || index}
-                education={education}
-                onToggleBookmark={toggleBookmark}
-              />
-            ))}
+            {educations.slice(0, 8).map((education, index) => {
+              const cardId =
+                education.educationId?.toString() || education.trprId;
+              const isOpen = openCardId === cardId;
+              return (
+                <EducationCard
+                  key={education.trprId || index}
+                  education={education}
+                  onToggleBookmark={toggleBookmark}
+                  isOpen={isOpen}
+                  onToggle={handleCardToggle}
+                />
+              );
+            })}
           </div>
         ) : (
           <EmptyEducations isLoggedIn={isLoggedIn} activeTab="custom" />

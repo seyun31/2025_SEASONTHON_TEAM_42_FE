@@ -14,7 +14,6 @@ export default function JobTab({
   const handleCustomTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('JobTab - Custom tab clicked:', { isLoggedIn });
     if (isLoggedIn) {
       onTabChange('custom');
     }
@@ -23,7 +22,6 @@ export default function JobTab({
   const handleAllTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('JobTab - All tab clicked');
     onTabChange('all');
   };
 

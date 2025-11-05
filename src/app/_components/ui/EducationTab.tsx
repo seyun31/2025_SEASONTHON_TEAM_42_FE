@@ -14,7 +14,6 @@ export default function EducationTab({
   const handleCustomTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('EducationTab - Custom tab clicked:', { isLoggedIn });
     if (isLoggedIn) {
       onTabChange('custom');
     } else {
@@ -26,7 +25,6 @@ export default function EducationTab({
   const handleAllTabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('EducationTab - All tab clicked');
     onTabChange('all');
   };
 
@@ -44,7 +42,7 @@ export default function EducationTab({
       >
         맞춤교육
         {activeTab === 'custom' && (
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-90"></div>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-[#9FC2FF]"></div>
         )}
       </button>
       <button
@@ -55,7 +53,7 @@ export default function EducationTab({
       >
         전체교육
         {activeTab === 'all' && (
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-primary-90"></div>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-[#9FC2FF]"></div>
         )}
       </button>
     </div>

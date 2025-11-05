@@ -82,9 +82,48 @@ function HeartListsContent() {
     []
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [openCardId, setOpenCardId] = useState<string | null>(
+    searchParams.get('open')
+  );
+
+  useEffect(() => {
+    setOpenCardId(searchParams.get('open'));
+  }, [searchParams]);
 
   const handleTabClick = (tabName: string) => {
+    setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
     router.push(`/heart-lists?tab=${tabName}`);
+  };
+
+  // 카드 토글 핸들러
+  const handleCardToggle = (cardId: string) => {
+    // 같은 카드를 클릭하면 닫기
+    if (openCardId === cardId) {
+      setOpenCardId(null);
+      const params = new URLSearchParams();
+      params.set('tab', tab || 'jobs');
+      router.push(`/heart-lists?${params.toString()}`, { scroll: false });
+      return;
+    }
+
+    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
+    if (openCardId !== null) {
+      setOpenCardId(null);
+      setTimeout(() => {
+        setOpenCardId(cardId);
+        const params = new URLSearchParams();
+        params.set('tab', tab || 'jobs');
+        params.set('open', cardId);
+        router.push(`/heart-lists?${params.toString()}`, { scroll: false });
+      }, 300); // 닫는 애니메이션 시간
+    } else {
+      // 열려있는 카드가 없으면 바로 열기
+      setOpenCardId(cardId);
+      const params = new URLSearchParams();
+      params.set('tab', tab || 'jobs');
+      params.set('open', cardId);
+      router.push(`/heart-lists?${params.toString()}`, { scroll: false });
+    }
   };
 
   // API 데이터를 JobSummary 형태로 변환하는 함수
@@ -101,7 +140,7 @@ function HeartListsContent() {
       workLocation: item.workLocation,
       employmentType: item.employmentType,
       salary: item.wage,
-      workPeriod: '',
+      workPeriod: item.workTime,
       experience: '',
       requiredSkills: '',
       preferredSkills: '',
@@ -111,6 +150,7 @@ function HeartListsContent() {
       requiredDocuments: item.requiredDocuments,
       jobRecommendScore: null,
       isScrap: true,
+      managerPhone: item.managerPhone,
     };
   };
 
@@ -293,7 +333,7 @@ function HeartListsContent() {
               </button>
             </div>
             <div
-              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-primary-90' : ''}`}
+              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
             >
               <button
                 className={`pb-2 text-title-xlarge text-left cursor-pointer ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
@@ -317,7 +357,7 @@ function HeartListsContent() {
               </button>
             </div>
             <div
-              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-primary-90' : ''}`}
+              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
             >
               <button
                 className={`pb-2 text-xl text-left cursor-pointer ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
@@ -337,13 +377,19 @@ function HeartListsContent() {
                     <p className="text-gray-50 text-lg">로딩 중...</p>
                   </div>
                 ) : jobHistory.length > 0 ? (
-                  jobHistory.map((job) => (
-                    <JobCard
-                      key={job.jobId}
-                      job={job}
-                      onToggleScrap={handleToggleScrap}
-                    />
-                  ))
+                  jobHistory.map((job) => {
+                    const cardId = job.jobId;
+                    const isOpen = openCardId === cardId;
+                    return (
+                      <JobCard
+                        key={job.jobId}
+                        job={job}
+                        onToggleScrap={handleToggleScrap}
+                        isOpen={isOpen}
+                        onToggle={handleCardToggle}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="text-center py-16 w-full">
                     <p className="text-gray-60 text-lg">
@@ -360,13 +406,20 @@ function HeartListsContent() {
                     <p className="text-gray-50 text-lg">로딩 중...</p>
                   </div>
                 ) : educationHistory.length > 0 ? (
-                  educationHistory.map((education) => (
-                    <EducationCard
-                      key={education.id}
-                      education={education}
-                      onToggleBookmark={handleToggleBookmark}
-                    />
-                  ))
+                  educationHistory.map((education) => {
+                    const cardId =
+                      education.educationId?.toString() || education.trprId;
+                    const isOpen = openCardId === cardId;
+                    return (
+                      <EducationCard
+                        key={education.id}
+                        education={education}
+                        onToggleBookmark={handleToggleBookmark}
+                        isOpen={isOpen}
+                        onToggle={handleCardToggle}
+                      />
+                    );
+                  })
                 ) : (
                   <div className="text-center py-16 w-full">
                     <p className="text-gray-60 text-lg">
