@@ -1,6 +1,7 @@
 # CodeRabbit Configuration File
 
 language: ko
+review_style: chill
 
 reviews:
   # 자동 리뷰 활성화
@@ -9,7 +10,7 @@ reviews:
     drafts: false
 
   # 리뷰 수준 설정
-  profile: zen
+  profile: chill
 
   # 요청 변경사항 활성화
   request_changes_workflow: true
