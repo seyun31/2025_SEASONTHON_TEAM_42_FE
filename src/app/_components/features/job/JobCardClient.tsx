@@ -203,6 +203,17 @@ export default function JobCardClient({
     setIsScrap(job.isScrap || false);
   }, [job.isScrap]);
 
+  // 외부에서 isOpen이 변경될 때 애니메이션 처리
+  useEffect(() => {
+    if (onToggle !== undefined) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, onToggle]);
+
   const handleToggleScrap = async (jobId: string) => {
     try {
       if (isScrap) {
@@ -230,18 +241,17 @@ export default function JobCardClient({
   };
 
   const handleCardClick = () => {
-    if (isExpanded) return;
-
+    // onClick에서 이미 isExpanded 체크를 하고 있으므로, 여기서는 항상 열려있지 않은 상태
     setIsAnimating(true);
 
     if (onToggle) {
       // 외부에서 제어하는 경우
       onToggle(job.jobId);
-      setTimeout(() => setIsAnimating(false), 800);
+      setTimeout(() => setIsAnimating(false), 700);
     } else {
       // 내부 상태로 제어하는 경우
       setTimeout(() => setInternalIsExpanded(true), 100);
-      setTimeout(() => setIsAnimating(false), 800);
+      setTimeout(() => setIsAnimating(false), 700);
     }
   };
 
@@ -252,11 +262,11 @@ export default function JobCardClient({
     if (onToggle) {
       // 외부에서 제어하는 경우 - 같은 카드를 클릭하면 닫기
       onToggle(job.jobId);
-      setTimeout(() => setIsAnimating(false), 800);
+      setTimeout(() => setIsAnimating(false), 700);
     } else {
       // 내부 상태로 제어하는 경우
       setTimeout(() => setInternalIsExpanded(false), 100);
-      setTimeout(() => setIsAnimating(false), 800);
+      setTimeout(() => setIsAnimating(false), 700);
     }
   };
 
