@@ -301,7 +301,7 @@ export default function EducationProgramsClient({
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
               <SearchBar borderColor="#9FC2FF" />
-              <EducationFilter onFilterChange={setFilters} />
+              {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
               {isLoggedIn && (
                 <EducationTab
                   activeTab={activeTab}
@@ -340,7 +340,7 @@ export default function EducationProgramsClient({
               onSearchChange={setSearchKeyword}
               borderColor="#9FC2FF"
             />
-            <EducationFilter onFilterChange={setFilters} />
+            {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
             {isLoggedIn && (
               <EducationTab
                 activeTab={activeTab}

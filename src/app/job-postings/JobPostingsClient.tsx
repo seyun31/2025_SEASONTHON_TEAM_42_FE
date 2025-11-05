@@ -272,7 +272,7 @@ export default function JobPostingsClient({
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
               <SearchBar />
-              <JobFilter onFilterChange={setFilters} />
+              {isLoggedIn && <JobFilter onFilterChange={setFilters} />}
               {isLoggedIn && (
                 <JobTab
                   activeTab={activeTab}
@@ -308,7 +308,7 @@ export default function JobPostingsClient({
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
             <SearchBar onSearchChange={setSearchKeyword} />
-            <JobFilter onFilterChange={setFilters} />
+            {isLoggedIn && <JobFilter onFilterChange={setFilters} />}
             {isLoggedIn && (
               <JobTab
                 activeTab={activeTab}
