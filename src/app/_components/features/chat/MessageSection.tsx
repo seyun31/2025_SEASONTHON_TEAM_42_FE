@@ -7,7 +7,6 @@ import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import FlipCard from '@/components/common/FlipCard';
 import { LuRefreshCcw } from 'react-icons/lu';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface StrengthReportData {
   strength: string;
@@ -45,6 +44,7 @@ interface MessageSectionProps {
   onGenerateStrengthReport?: () => void;
   onJobInputClick?: () => void;
   onNavigateToStrengthReport?: () => void;
+  hasStrengthReports?: boolean;
   children?: React.ReactNode;
 }
 
@@ -67,6 +67,7 @@ export default function MessageSection({
   onGenerateStrengthReport,
   onJobInputClick,
   onNavigateToStrengthReport,
+  hasStrengthReports = false,
   children,
 }: MessageSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -190,18 +191,20 @@ export default function MessageSection({
           ))}
         </div>
 
-        {/* 강점 리포트 안내 섹션 */}
-        <div className="text-center mt-40 mb-8">
-          <div className="font-[600] text-[24px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
-            추천 직업을 위한 나만의 강점 리포트도 받아보세요!
+        {/* 강점 리포트 안내 섹션 - 강점 리포트가 없는 경우에만 표시 */}
+        {!hasStrengthReports && (
+          <div className="text-center mt-40 mb-8">
+            <div className="font-[600] text-[24px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+              추천 직업을 위한 나만의 강점 리포트도 받아보세요!
+            </div>
+            <button
+              onClick={onGenerateStrengthReport}
+              className="px-12 py-4 bg-primary-90 text-white rounded-[16px] text-[32px] font-semibold cursor-pointer hover:bg-primary-80 transition-colors"
+            >
+              강점 리포트 받아보기
+            </button>
           </div>
-          <button
-            onClick={onGenerateStrengthReport}
-            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] text-[32px] font-semibold cursor-pointer hover:bg-primary-80 transition-colors"
-          >
-            강점 리포트 받아보기
-          </button>
-        </div>
+        )}
       </div>
     );
   };
@@ -277,20 +280,6 @@ export default function MessageSection({
                     </div>
                   </div>
                 )}
-
-              {message.componentType === 'loading' && (
-                <div className="text-center p-4 flex flex-col items-center gap-4">
-                  <DotLottieReact
-                    src="https://lottie.host/b520eba8-53ae-4860-9a96-79419625c186/zQolKAd3tn.lottie"
-                    loop
-                    autoplay
-                    style={{
-                      width: '300px',
-                      height: '300px',
-                    }}
-                  />
-                </div>
-              )}
 
               {message.componentType === 'jobCards' &&
                 message.componentData && (

@@ -121,7 +121,38 @@ export const loadPreviousConversation = async ({
       // 채팅 기록 실패는 무시하고 계속 진행
     }
 
-    // 2. 강점 리포트 기록 불러오기 (아직 로드되지 않은 경우에만)
+    // 2. 직업 카드 기록 불러오기 (아직 로드되지 않은 경우에만)
+    if (!jobRecommendations) {
+      try {
+        const jobCardResponse = await fetch(
+          '/api/chat/jobs/recommend/occupation'
+        );
+        const jobCardData = await jobCardResponse.json();
+
+        if (
+          jobCardData.result === 'SUCCESS' &&
+          jobCardData.data &&
+          Object.keys(jobCardData.data).length > 0
+        ) {
+          // 직업 추천 완료 메시지 추가
+          addBotMessage(
+            `${userName}님께 잘 어울리는 직업 3가지를 추천드릴게요!\n 마음에 드는 직업이 있다면 ⭐️ 아이콘을 눌러 관심목록에 저장해두세요.\n 나중에 다시 확인하실 때 훨씬 편해요 😀!`
+          );
+
+          // 직업 카드 추가
+          addComponentMessage('jobCards', jobCardData.data);
+          setJobRecommendations(jobCardData.data);
+          setJobMessageAdded(true);
+          setShowJobCards(true);
+        } else {
+        }
+      } catch (jobCardError) {
+        console.warn('직업 카드 기록 불러오기 실패:', jobCardError);
+        // 직업 카드 실패는 무시하고 계속 진행
+      }
+    }
+
+    // 3. 강점 리포트 기록 불러오기 (아직 로드되지 않은 경우에만)
     if (strengthReports.length === 0) {
       try {
         const strengthHistoryResponse = await fetch(
@@ -162,47 +193,8 @@ export const loadPreviousConversation = async ({
         // 강점 리포트 실패는 무시하고 계속 진행
       }
     }
-
-    // 3. 직업 카드 기록 불러오기 (아직 로드되지 않은 경우에만)
-    if (!jobRecommendations) {
-      try {
-        const jobCardResponse = await fetch(
-          '/api/chat/jobs/recommend/occupation'
-        );
-        const jobCardData = await jobCardResponse.json();
-
-        if (
-          jobCardData.result === 'SUCCESS' &&
-          jobCardData.data &&
-          Object.keys(jobCardData.data).length > 0
-        ) {
-          // 직업 추천 완료 메시지 추가
-          addBotMessage(
-            '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n별 아이콘을 눌러 관심목록에 저장하세요!'
-          );
-
-          // 직업 카드 추가
-          addComponentMessage('jobCards', jobCardData.data);
-          setJobRecommendations(jobCardData.data);
-          setJobMessageAdded(true);
-          setShowJobCards(true);
-        } else {
-        }
-      } catch (jobCardError) {
-        console.warn('직업 카드 기록 불러오기 실패:', jobCardError);
-        // 직업 카드 실패는 무시하고 계속 진행
-      }
-    }
-
-    // 모든 기록 불러오기 완료 후 새로운 대화 시작을 위한 준비
-    addBotMessage(
-      '이전 대화 기록입니다.😊 \n아래에서 새로운 상담을 시작하세요!'
-    );
-    addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
   } catch (error) {
     console.error('이전 대화 기록 불러오기 전체 실패:', error);
-    // 실패 시에도 intro 메시지 표시
-    addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
   }
 };
 

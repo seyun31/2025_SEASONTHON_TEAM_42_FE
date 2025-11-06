@@ -50,7 +50,7 @@ export default function ChatInput({
           alt="전송"
           width={0}
           height={0}
-          className="w-[6vw] h-[4.5vh] xs:w-[6vw] xs:h-[4.5vh] md:w-[3.5vw] md:h-[4vh] lg:w-[2.5vw] lg:h-[4.44vh]"
+          className="w-[6vw] h-[4.5vh] xs:w-[6vw] xs:h-[4.5vh] md:w-[3.5vw] md:h-[4vh] lg:w-[2.5vw] lg:h-[4.44vh] cursor-pointer"
         />
       </button>
     </form>

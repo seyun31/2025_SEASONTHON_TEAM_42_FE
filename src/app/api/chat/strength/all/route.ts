@@ -19,7 +19,7 @@ export async function GET(): Promise<Response> {
       );
     }
 
-    const url = new URL(`${backendUrl}/reports/strength/history`);
+    const url = new URL(`${backendUrl}/reports/strength`);
 
     const response = await fetch(url.toString(), {
       method: 'GET',

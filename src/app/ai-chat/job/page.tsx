@@ -100,6 +100,7 @@ function AIChatJobContent() {
   const [showReJobCardModal, setShowReJobCardModal] = useState(false);
   const [showRestartModal, setShowRestartModal] = useState(false);
   const [isWaitingForJobInput, setIsWaitingForJobInput] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
 
   // 이전 대화 기록 불러오기 함수
   const loadPreviousConversationHandler = useCallback(async () => {
@@ -254,13 +255,9 @@ function AIChatJobContent() {
   // AI 채팅 완료 후 직업 추천 가져오기
   const fetchJobRecommendations = useCallback(async () => {
     setIsLoadingRecommendations(true);
+    setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
     try {
-      // 직업 추천 로딩 메시지 표시
-      addComponentMessage('loading', {
-        loadingType: 'jobRecommendation',
-      });
-
       // 맞춤형 직업 추천 조회
       const recommendResponse = await fetch(
         '/api/chat/jobs/recommend/post-occupation',
@@ -279,8 +276,9 @@ function AIChatJobContent() {
       console.error('직업 추천 가져오기 실패:', error);
     } finally {
       setIsLoadingRecommendations(false);
+      setLoadingMessage('');
     }
-  }, [addComponentMessage]);
+  }, [userName]);
 
   // 강점 리포트 플로우 시작 (직업 입력 요청)
   const startStrengthReportFlow = useCallback(() => {
@@ -299,8 +297,8 @@ function AIChatJobContent() {
   // 강점 리포트 생성 (API 호출)
   const generateStrengthReport = useCallback(async () => {
     try {
-      // 로딩 메시지 표시
-      addComponentMessage('loading', { loadingType: 'strengthReport' });
+      // 로딩 메시지 설정
+      setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
 
       // 강점 리포트 조회
       const strengthResponse = await fetch('/api/chat/strength/result', {
@@ -324,7 +322,7 @@ function AIChatJobContent() {
         setStrengthReports(reports);
 
         // 로딩 메시지 제거
-        removeMessagesByType('loading');
+        setLoadingMessage('');
 
         // 강점 리포트 표시
         const expertType = generateExpertType(reports[0].strength);
@@ -350,13 +348,13 @@ function AIChatJobContent() {
         }, 500);
       } else {
         console.error('강점 리포트 조회 실패:', strengthData.error);
-        removeMessagesByType('loading');
+        setLoadingMessage('');
       }
     } catch (error) {
       console.error('강점 리포트 생성 실패:', error);
-      removeMessagesByType('loading');
+      setLoadingMessage('');
     }
-  }, [userName, addBotMessage, removeMessagesByType, addComponentMessage]);
+  }, [userName, addBotMessage, addComponentMessage]);
 
   // 채팅 완료 시 직업 추천 가져오기
   useEffect(() => {
@@ -375,12 +373,9 @@ function AIChatJobContent() {
     if (jobRecommendations && !jobMessageAdded) {
       setJobMessageAdded(true);
 
-      // 로딩 메시지 제거
-      removeMessagesByType('loading');
-
       setTimeout(() => {
         addBotMessage(
-          '개똥님께 잘 어울리는 직업 3가지를 추천드릴게요!\n 마음에 드는 직업이 있다면 ⭐️ 아이콘을 눌러 관심목록에 저장해두세요.\n 나중에 다시 확인하실 때 훨씬 편해요 😀!'
+          `${userName}님께 잘 어울리는 직업 3가지를 추천드릴게요!\n 마음에 드는 직업이 있다면 ⭐️ 아이콘을 눌러 관심목록에 저장해두세요.\n 나중에 다시 확인하실 때 훨씬 편해요 😀!`
         );
 
         setTimeout(() => {
@@ -388,23 +383,16 @@ function AIChatJobContent() {
           setShowJobCards(true);
           // 새로 생성된 직업 카드에만 버튼 표시
           setShowMoreJobCardsButton(true);
-
-          // 강점 리포트가 없으면 생성 버튼 표시
-          setTimeout(() => {
-            if (strengthReports.length === 0) {
-              addComponentMessage('strengthReportButton', {});
-            }
-          }, 1000);
         }, 1500);
       }, 500);
     }
   }, [
     jobRecommendations,
     jobMessageAdded,
-    removeMessagesByType,
     addBotMessage,
     addComponentMessage,
     setShowJobCards,
+    strengthReports.length,
   ]);
 
   const getCurrentQuestion = () => {
@@ -608,10 +596,8 @@ function AIChatJobContent() {
     setShowReJobCardModal(false);
 
     try {
-      // 로딩 메시지 표시
-      addComponentMessage('loading', {
-        loadingType: 'jobRecommendation',
-      });
+      // 로딩 메시지 설정
+      setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
       // 추가 직업 추천 API 호출
       const response = await fetch('/api/chat/jobs/recommend/post-occupation', {
@@ -621,7 +607,7 @@ function AIChatJobContent() {
 
       if (data.result === 'SUCCESS') {
         // 로딩 메시지 제거
-        removeMessagesByType('loading');
+        setLoadingMessage('');
 
         // 기존 직업 카드를 제거하고 새로운 카드로 교체
         removeMessagesByType('jobCards');
@@ -638,14 +624,14 @@ function AIChatJobContent() {
           }, 300);
         }, 500);
       } else {
-        removeMessagesByType('loading');
+        setLoadingMessage('');
         addBotMessage(
           '죄송합니다. 추가 직업 추천을 가져오는데 실패했습니다. 다시 시도해주세요.'
         );
       }
     } catch (error) {
       console.error('추가 직업 카드 요청 실패:', error);
-      removeMessagesByType('loading');
+      setLoadingMessage('');
       addBotMessage(
         '죄송합니다. 네트워크 오류가 발생했습니다. 다시 시도해주세요.'
       );
@@ -688,29 +674,36 @@ function AIChatJobContent() {
   const showQuestionOptions =
     currentQuestion && currentOptions && currentOptions.length > 0;
 
-  // 로딩 상태 처리
-  if (userLoading) {
-    return (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="text-center">
-          <p className="text-chat-message">사용자 정보를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
   // 로그아웃 상태 확인
   const isLoggedOut = !userData?.data;
 
   return (
     <>
+      {/* 사용자 정보 로딩 오버레이 */}
+      {userLoading && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/Icons/character_running.webp"
+              alt="loading"
+              width={328}
+              height={293}
+              className="mb-16"
+            />
+            <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+              사용자 정보 불러오는중!
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 로그아웃 상태일 때 표시할 에러 컴포넌트 */}
-      {isLoggedOut && (
+      {isLoggedOut && !userLoading && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
           <div className="flex flex-col items-center gap-4">
             <Image
               src="/assets/logos/bad-gate-star.svg"
-              alt="꿈별이 error페이지 이미지"
+              alt="꿈별이 error 페이지 이미지"
               width={375}
               height={316}
               className="max-w-full h-auto"
@@ -724,48 +717,69 @@ function AIChatJobContent() {
         </div>
       )}
 
-      <div
-        className={`absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0 ${isLoggedOut ? 'blur-sm pointer-events-none' : ''}`}
-      >
-        <MessageSection
-          messages={messages}
-          showStartButton={showStartButton}
-          showQuestionOptions={showQuestionOptions || false}
-          currentQuestionOptions={currentOptions}
-          selectedOptions={selectedOptions}
-          canSkip={currentQuestion?.canSkip || false}
-          onStartClick={handleStartClick}
-          onOptionClick={handleOptionClick}
-          onCompleteClick={handleCompleteClick}
-          onSkipClick={handleSkipClick}
-          onGetMoreJobCards={handleGetMoreJobCards}
-          showMoreJobCardsButton={showMoreJobCardsButton}
-          onRestartFromBeginning={handleRestartFromBeginning}
-          onViewHistory={handleViewHistory}
-          onGetStrengthReport={handleGetStrengthReport}
-          onGenerateStrengthReport={startStrengthReportFlow}
-          onJobInputClick={handleJobInputClick}
-          onNavigateToStrengthReport={handleNavigateToStrengthReport}
-        />
+      <div className="absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0">
+        <div className={isLoggedOut ? 'blur-sm pointer-events-none' : ''}>
+          <MessageSection
+            messages={messages}
+            showStartButton={showStartButton}
+            showQuestionOptions={showQuestionOptions || false}
+            currentQuestionOptions={currentOptions}
+            selectedOptions={selectedOptions}
+            canSkip={currentQuestion?.canSkip || false}
+            onStartClick={handleStartClick}
+            onOptionClick={handleOptionClick}
+            onCompleteClick={handleCompleteClick}
+            onSkipClick={handleSkipClick}
+            onGetMoreJobCards={handleGetMoreJobCards}
+            showMoreJobCardsButton={showMoreJobCardsButton}
+            onRestartFromBeginning={handleRestartFromBeginning}
+            onViewHistory={handleViewHistory}
+            onGetStrengthReport={handleGetStrengthReport}
+            onGenerateStrengthReport={startStrengthReportFlow}
+            onJobInputClick={handleJobInputClick}
+            onNavigateToStrengthReport={handleNavigateToStrengthReport}
+            hasStrengthReports={strengthReports.length > 0}
+          />
 
-        {/* 진행바 및 입력창 컨테이너
-      <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
-        {/* 진행바 */}
-        {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
-          <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
-            <ProgressBar currentStep={currentStep} totalSteps={10} />
+          {/* 진행바 및 입력창 컨테이너
+        <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
+          {/* 진행바 */}
+          {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+            <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+              <ProgressBar currentStep={currentStep} totalSteps={10} />
+            </div>
+          )}
+        </div>
+
+        {/* 입력창 - 로그아웃 상태에서는 숨김 */}
+        {!isLoggedOut && (
+          <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
+            <ChatInput
+              value={textInput}
+              onChange={setTextInput}
+              onSend={handleCompleteClick}
+            />
           </div>
         )}
-
-        {/* 입력창 */}
-        <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
-          <ChatInput
-            value={textInput}
-            onChange={setTextInput}
-            onSend={handleCompleteClick}
-          />
-        </div>
       </div>
+
+      {/* 로딩 오버레이 */}
+      {loadingMessage && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/Icons/character_cheer.png"
+              alt="loading"
+              width={235}
+              height={304}
+              className="mb-16"
+            />
+            <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+              {loadingMessage}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ReJobCardModal */}
       {showReJobCardModal && (
