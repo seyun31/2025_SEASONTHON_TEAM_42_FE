@@ -513,8 +513,46 @@ export default function UserCheckList({
       />
       <div className="flex flex-col xl:flex-row xl:items-stretch gap-4">
         {/* 왼쪽 - 로드맵 시각화 */}
-        <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0">
-          <RoadmapHeader userName={userName} multiLine={true} />
+        <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0 relative">
+          {/* 로드맵 헤더와 수정/삭제 버튼 */}
+          <div className="flex justify-between mb-4 sm:mb-8">
+            <RoadmapHeader userName={userName} multiLine={true} />
+            {/* 로드맵 수정/삭제 버튼 */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // TODO: 로드맵 수정 기능 구현
+                  router.push('/ai-chat/roadmap');
+                }}
+                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex justify-center transition-colors"
+                aria-label="로드맵 수정"
+              >
+                <Image
+                  src="/assets/Icons/drop-edit.svg"
+                  alt="수정"
+                  width={24}
+                  height={24}
+                />
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: 로드맵 삭제 기능 구현
+                  if (confirm('로드맵을 삭제하시겠습니까?')) {
+                    // 삭제 로직 추가
+                  }
+                }}
+                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                aria-label="로드맵 삭제"
+              >
+                <Image
+                  src="/assets/Icons/drop-delete.svg"
+                  alt="삭제"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </div>
+          </div>
 
           {/* 로드맵 차트 */}
           <div className="flex-1 relative flex items-center justify-center">
@@ -636,7 +674,7 @@ export default function UserCheckList({
         <div className="flex flex-col gap-4 w-full xl:h-full">
           {/* 상단 카드 - 취업 정보 */}
           <div
-            className="bg-white rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 md:px-8 h-auto min-h-[200px] md:h-60 w-full bg-white flex-shrink-0"
+            className="bg-white rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 md:px-8 h-auto min-h-[200px] md:h-60 w-full bg-white flex-shrink-0 relative"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
@@ -647,8 +685,45 @@ export default function UserCheckList({
                 <div>
                   {roadmapData &&
                     roadmapData.roadmapInputResponse.dday !== undefined && (
-                      <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight mb-2">
-                        D+{roadmapData.roadmapInputResponse.dday}
+                      <div className="flex items-center gap-2 mb-2 justify-between">
+                        <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight">
+                          D+{roadmapData.roadmapInputResponse.dday}
+                        </div>
+                        {/* 취업 정보 수정/삭제 버튼 */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              // TODO: 취업 정보 수정 기능 구현
+                              router.push('/ai-chat/roadmap');
+                            }}
+                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                            aria-label="취업 정보 수정"
+                          >
+                            <Image
+                              src="/assets/Icons/drop-edit.svg"
+                              alt="수정"
+                              width={24}
+                              height={24}
+                            />
+                          </button>
+                          <button
+                            onClick={() => {
+                              // TODO: 취업 정보 삭제 기능 구현
+                              if (confirm('취업 정보를 삭제하시겠습니까?')) {
+                                // 삭제 로직 추가
+                              }
+                            }}
+                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                            aria-label="취업 정보 삭제"
+                          >
+                            <Image
+                              src="/assets/Icons/drop-delete.svg"
+                              alt="삭제"
+                              width={24}
+                              height={24}
+                            />
+                          </button>
+                        </div>
                       </div>
                     )}
                   <div className="text-gray-800 text-sm md:text-xl lg:text-3xl xl:text-title-xlarge">
