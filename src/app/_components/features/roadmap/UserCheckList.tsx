@@ -23,6 +23,7 @@ import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
 import CompletionAnimation from '@/components/ui/CompletionAnimation';
 import RoadmapHeader from '@/components/ui/RoadmapHeader';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import {
   convertApiDataToRoadmapSteps,
   USER_MAP_POSITIONS,
@@ -778,9 +779,6 @@ export default function UserCheckList({
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
                         editingItem?.itemId === item.id;
-                      const isDeleting =
-                        deletingItem?.stepId === selectedStepId &&
-                        deletingItem?.itemId === item.id;
 
                       return (
                         <div
@@ -835,28 +833,6 @@ export default function UserCheckList({
                                   </button>
                                   <button
                                     onClick={cancelEditing}
-                                    disabled={loading}
-                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    취소
-                                  </button>
-                                </div>
-                              </div>
-                            ) : isDeleting ? (
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm md:text-sm lg:text-body-large text-gray-800 flex-1">
-                                  정말 삭제하시겠습니까?
-                                </span>
-                                <div className="flex gap-1 md:gap-2">
-                                  <button
-                                    onClick={confirmDelete}
-                                    disabled={loading}
-                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    삭제
-                                  </button>
-                                  <button
-                                    onClick={cancelDeleting}
                                     disabled={loading}
                                     className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
@@ -1018,6 +994,12 @@ export default function UserCheckList({
           </div>
         </div>
       </div>
+      {/* 삭제 확인 모달 */}
+      <DeleteConfirmModal
+        isOpen={deletingItem !== null}
+        onClose={cancelDeleting}
+        onConfirm={confirmDelete}
+      />
     </>
   );
 }
