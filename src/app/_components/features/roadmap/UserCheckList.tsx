@@ -650,7 +650,7 @@ export default function UserCheckList({
                         D+{roadmapData.roadmapInputResponse.dday}
                       </div>
                     )}
-                  <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge">
+                  <div className="text-gray-800 text-sm md:text-xl lg:text-3xl xl:text-title-xlarge">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.career
                       : defaultCareerInfo.jobTitle}
@@ -721,7 +721,7 @@ export default function UserCheckList({
             {selectedStepId ? (
               // 체크리스트 표시
               <div className="h-full flex flex-col">
-                <div className="flex flex-col md:flex-row items-start md:items-end gap-2 mb-2 md:mb-0">
+                <div className="flex flex-col md:flex-row items-start md:items-end gap-2 mb-2 md:mb-0 flex-shrink-0">
                   <div className="text-primary-90 text-base md:text-xl lg:text-2xl xl:text-header-medium">
                     {apiRoadmapSteps.length > 0
                       ? `${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
@@ -746,10 +746,10 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col justify-center">
+                <div className="flex-1 flex flex-col overflow-y-auto min-h-0">
                   {/* 에러 메시지 */}
                   {error && (
-                    <div className="mb-4 p-2 md:p-3 bg-red-100 border border-red-300 rounded-lg">
+                    <div className="mb-4 p-2 md:p-3 bg-red-100 border border-red-300 rounded-lg flex-shrink-0">
                       <p className="text-red-700 text-xs md:text-sm lg:text-body-medium">
                         {error}
                       </p>
@@ -773,7 +773,7 @@ export default function UserCheckList({
                       />
                     </div>
                   )} */}
-                  <div className="space-y-2 md:space-y-3 lg:space-y-4">
+                  <div className="space-y-2 md:space-y-3 lg:space-y-4 pr-2">
                     {checklistItems[selectedStepId]?.map((item) => {
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
@@ -986,7 +986,7 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="absolute top-2 right-2 md:ftop-4 md:right-4">
+                {/* <div className="absolute top-2 right-2 md:ftop-4 md:right-4">
                   <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
@@ -994,13 +994,13 @@ export default function UserCheckList({
                     height={134}
                     className="w-auto h-12 md:h-24 lg:h-32 xl:h-[134px]"
                   />
-                </div>
+                </div> */}
               </div>
             ) : (
               // 기본 안내 메시지
               <div className="h-full flex flex-col justify-center items-center">
-                <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge mb-4 px-4 text-center">
-                  로드맵의 별을 눌러서
+                <div className="text-gray-800 text-sm md:text-lg lg:text-4xl lg:font-semibold xl:text-title-xlarge mb-4 px-4 text-center">
+                  로드맵의 동그라미를 눌러서
                   <br />
                   진행도를 확인하세요!
                 </div>
