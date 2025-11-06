@@ -691,7 +691,7 @@ function AIChatJobContent() {
               className="mb-16"
             />
             <p className="text-2xl md:text-3xl font-semibold text-gray-50">
-              사용자 정보 불러오는중!
+              채팅방으로 이동중
             </p>
           </div>
         </div>
