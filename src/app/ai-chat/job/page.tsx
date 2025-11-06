@@ -20,6 +20,7 @@ import {
 import ReJobCardModal from '@/components/features/chat/ReJobCardModal';
 import RestartConfirmModal from '@/components/features/chat/RestartConfirmModal';
 import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api/axios';
 
 interface Occupation {
   imageUrl: string;
@@ -57,7 +58,10 @@ function AIChatJobContent() {
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
-    queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
+    queryFn: async () => {
+      const { data } = await api.get('/auth/user');
+      return data;
+    },
     retry: 1,
     staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
@@ -229,10 +233,9 @@ function AIChatJobContent() {
         setIsLoadingOptions(true);
 
         try {
-          const response = await fetch(
-            `/api/chat/jobs/options/${currentQuestion.step}`
+          const { data } = await api.get(
+            `/chat/jobs/options/${currentQuestion.step}`
           );
-          const data = await response.json();
 
           if (data.result === 'SUCCESS' && data.data?.optionList) {
             setDynamicOptions(data.data.optionList);
@@ -259,13 +262,9 @@ function AIChatJobContent() {
 
     try {
       // 맞춤형 직업 추천 조회
-      const recommendResponse = await fetch(
-        '/api/chat/jobs/recommend/post-occupation',
-        {
-          method: 'POST',
-        }
+      const { data: recommendData } = await api.post(
+        '/chat/jobs/recommend/post-occupation'
       );
-      const recommendData = await recommendResponse.json();
 
       if (recommendData.result === 'SUCCESS') {
         setJobRecommendations(recommendData.data);
@@ -301,10 +300,7 @@ function AIChatJobContent() {
       setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
 
       // 강점 리포트 조회
-      const strengthResponse = await fetch('/api/chat/strength/result', {
-        method: 'POST',
-      });
-      const strengthData = await strengthResponse.json();
+      const { data: strengthData } = await api.post('/chat/strength/result');
 
       if (
         strengthData.result === 'SUCCESS' &&
@@ -434,15 +430,9 @@ function AIChatJobContent() {
 
       if (currentQuestion?.id) {
         try {
-          await fetch('/api/chat/jobs/save/answer', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              sequence: currentQuestion.id,
-              answer: userResponse,
-            }),
+          await api.post('/chat/jobs/save/answer', {
+            sequence: currentQuestion.id,
+            answer: userResponse,
           });
         } catch (error) {
           console.error('답변 저장 실패:', error);
@@ -468,15 +458,9 @@ function AIChatJobContent() {
     // API로 빈 답변 저장
     if (currentQuestion?.id) {
       try {
-        await fetch('/api/chat/jobs/save/answer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sequence: currentQuestion.id,
-            answer: '',
-          }),
+        await api.post('/chat/jobs/save/answer', {
+          sequence: currentQuestion.id,
+          answer: '',
         });
       } catch (error) {
         console.error('건너뛰기 답변 저장 실패:', error);
@@ -516,9 +500,7 @@ function AIChatJobContent() {
 
     try {
       // API로 채팅 히스토리 초기화 요청
-      await fetch('/api/chat/jobs/reset', {
-        method: 'DELETE',
-      });
+      await api.delete('/chat/jobs/reset');
 
       // 모든 상태 초기화
       resetChat();
@@ -600,10 +582,7 @@ function AIChatJobContent() {
       setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
       // 추가 직업 추천 API 호출
-      const response = await fetch('/api/chat/jobs/recommend/post-occupation', {
-        method: 'POST',
-      });
-      const data = await response.json();
+      const { data } = await api.post('/chat/jobs/recommend/post-occupation');
 
       if (data.result === 'SUCCESS') {
         // 로딩 메시지 제거
@@ -688,7 +667,7 @@ function AIChatJobContent() {
               alt="loading"
               width={328}
               height={293}
-              className="mb-16"
+              className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
             />
             <p className="text-2xl md:text-3xl font-semibold text-gray-50">
               채팅방으로 이동중
@@ -772,7 +751,7 @@ function AIChatJobContent() {
               alt="loading"
               width={235}
               height={304}
-              className="mb-16"
+              className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
             />
             <p className="text-2xl md:text-3xl font-semibold text-gray-50">
               {loadingMessage}

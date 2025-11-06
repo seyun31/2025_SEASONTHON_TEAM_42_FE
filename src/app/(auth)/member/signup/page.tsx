@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import AddressButton from '@/components/ui/AddressButton';
 import RegionSelectModal from '@/components/ui/RegionSelectModal';
-import { getAccessToken } from '@/lib/auth';
 
 export default function Signup() {
   const router = useRouter();
@@ -85,14 +84,6 @@ export default function Signup() {
     setIsSubmitting(true);
 
     try {
-      const accessToken = getAccessToken();
-
-      if (!accessToken) {
-        alert('로그인이 필요합니다. 다시 로그인해주세요.');
-        router.push('/member/login');
-        return;
-      }
-
       // 주소를 city와 street로 분리
       const [city, street] = address ? address.split(' ') : ['', ''];
 
@@ -116,6 +107,7 @@ export default function Signup() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(profileData),
+        credentials: 'include', // 쿠키 포함
       });
 
       const result = await response.json();

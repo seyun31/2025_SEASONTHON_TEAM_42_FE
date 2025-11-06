@@ -4,6 +4,7 @@ import { EducationSummary } from '@/types/job';
 import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
+import { api } from '@/lib/api/axios';
 
 // 날짜 포맷팅 함수
 const formatDate = (dateString: string): string => {
@@ -199,29 +200,14 @@ export default function EducationCard({
     try {
       if (isBookmark) {
         // 북마크 삭제
-        const response = await fetch(
-          `/api/heart-lists/edu/delete?educationId=${educationId}`,
-          {
-            method: 'DELETE',
-          }
-        );
-        if (response.ok) {
-          setIsBookmark(false);
-          onToggleBookmark(educationId);
-        }
+        await api.delete(`/heart-lists/edu/delete?educationId=${educationId}`);
+        setIsBookmark(false);
+        onToggleBookmark(educationId);
       } else {
         // 북마크 저장
-        const response = await fetch('/api/heart-lists/edu/save', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ educationId }),
-        });
-        if (response.ok) {
-          setIsBookmark(true);
-          onToggleBookmark(educationId);
-        }
+        await api.post('/heart-lists/edu/save', { educationId });
+        setIsBookmark(true);
+        onToggleBookmark(educationId);
       }
     } catch (error) {
       console.error('북마크 처리 중 오류:', error);

@@ -23,7 +23,7 @@ import {
   RoadmapActionRecommendResponse,
   ApiResponse as RoadmapApiResponse,
 } from '@/types/roadmap';
-import { getAccessToken } from '@/lib/auth';
+import { api, backendApi } from '@/lib/api/axios';
 
 // 전체 채용공고 목록 조회
 export const getJobList = async (): Promise<JobSummary[]> => {
@@ -82,7 +82,6 @@ export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to fetch recommended jobs: ${response.status} ${response.statusText}`
       );
@@ -273,7 +272,6 @@ export const getRoadMap = async (): Promise<RoadMapResponse> => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to fetch roadmap: ${response.status} ${response.statusText}`
       );
@@ -307,7 +305,6 @@ export const recommendRoadMap = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to recommend roadmap: ${response.status} ${response.statusText}`
       );
@@ -340,7 +337,6 @@ export const toggleRoadMapAction = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to toggle roadmap action: ${response.status} ${response.statusText}`
       );
@@ -400,35 +396,9 @@ export const getJobDetailById = async (
 // 맞춤형 직업 추천
 export const getRecommendedOccupations = async (): Promise<RecommendJob> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/recommend/occupation`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch recommended occupations: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<RecommendJob> = await response.json();
+    const { data: result } = await backendApi.get<ApiResponse<RecommendJob>>(
+      '/job/recommend/occupation'
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -515,59 +485,11 @@ export const getBookmarkedJobs = async (filters?: {
   jobCategory?: string;
 }): Promise<AllResponse[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    // 쿼리 파라미터 생성
-    const queryParams = new URLSearchParams();
-
-    if (filters?.keyword) {
-      queryParams.append('keyword', filters.keyword);
-    }
-
-    if (filters?.workLocation) {
-      queryParams.append('workLocation', filters.workLocation);
-    }
-
-    if (filters?.employmentType) {
-      queryParams.append('employmentType', filters.employmentType);
-    }
-
-    if (filters?.jobCategory) {
-      queryParams.append('jobCategory', filters.jobCategory);
-    }
-
-    const queryString = queryParams.toString();
-    const url = queryString
-      ? `${backendUrl}/job/bookmarks?${queryString}`
-      : `${backendUrl}/job/bookmarks`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+    const { data: result } = await backendApi.get<
+      ApiResponse<SearchAllResponse>
+    >('/job/bookmarks', {
+      params: filters,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch bookmarked jobs: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<SearchAllResponse> = await response.json();
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -670,7 +592,6 @@ export const updateRoadmapAction = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to update roadmap action: ${response.status} ${response.statusText}`
       );
@@ -701,7 +622,6 @@ export const deleteRoadmapAction = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to delete roadmap action: ${response.status} ${response.statusText}`
       );
@@ -736,7 +656,6 @@ export const addRoadmapAction = async (
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to add roadmap action: ${response.status} ${response.statusText}`
       );
@@ -770,7 +689,6 @@ export const recommendRoadmapAction = async (
     );
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to recommend roadmap action: ${response.status} ${response.statusText}`
       );
@@ -795,35 +713,9 @@ export const getAIChatOptions = async (
   sequence: number
 ): Promise<OptionResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/chat/${sequence}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch AI chat options: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<OptionResponse> = await response.json();
+    const { data: result } = await backendApi.get<ApiResponse<OptionResponse>>(
+      `/job/chat/${sequence}`
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -842,38 +734,13 @@ export const saveAIChatAnswer = async (
   answer: string
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(
-      `${backendUrl}/job/chat/${sequence}?answer=${encodeURIComponent(answer)}`,
+    const { data: result } = await backendApi.post<ApiResponse<object>>(
+      `/job/chat/${sequence}`,
+      null,
       {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        params: { answer },
       }
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to save AI chat answer: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<object> = await response.json();
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -887,35 +754,8 @@ export const saveAIChatAnswer = async (
 // AI 채팅 히스토리 조회
 export const getAIChatHistory = async (): Promise<HistoryResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/chat/history`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch AI chat history: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<HistoryResponse> = await response.json();
+    const { data: result } =
+      await backendApi.get<ApiResponse<HistoryResponse>>('/job/chat/history');
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -937,63 +777,30 @@ export const getEducationCourses = async (filters?: {
   endYmd?: string;
 }): Promise<EducationSummary[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    // 쿼리 파라미터 생성
-    const queryParams = new URLSearchParams();
+    const params: Record<string, string> = {};
 
     if (filters?.keyword) {
-      queryParams.append('keyword', filters.keyword);
+      params.keyword = filters.keyword;
     }
-
     if (filters?.pageNo !== undefined) {
-      queryParams.append('page', filters.pageNo.toString());
+      params.page = filters.pageNo.toString();
     }
-
     if (filters?.pageSize !== undefined) {
-      queryParams.append('size', filters.pageSize.toString());
+      params.size = filters.pageSize.toString();
     }
-
     if (filters?.startYmd) {
-      queryParams.append('startYmd', filters.startYmd);
+      params.startYmd = filters.startYmd;
     }
-
     if (filters?.endYmd) {
-      queryParams.append('endYmd', filters.endYmd);
+      params.endYmd = filters.endYmd;
     }
 
-    const queryString = queryParams.toString();
-    const url = queryString
-      ? `${backendUrl}/job/hrd-course?${queryString}`
-      : `${backendUrl}/job/hrd-course`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch education courses: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: EducationApiResponse = await response.json();
+    const { data: result } = await backendApi.get<EducationApiResponse>(
+      '/job/hrd-course',
+      {
+        params,
+      }
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -1058,7 +865,6 @@ export const getRecommendedEducations = async (): Promise<
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to fetch recommended educations: ${response.status} ${response.statusText}`
       );
@@ -1161,7 +967,6 @@ export const getAllEducationsAnonymous = async (filters?: {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to fetch all educations: ${response.status} ${response.statusText}`
       );
@@ -1228,7 +1033,6 @@ export const getHrdEducations = async (filters?: {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
       throw new Error(
         `Failed to fetch HRD educations: ${response.status} ${response.statusText}`
       );
@@ -1296,23 +1100,11 @@ export const getHrdEducations = async (filters?: {
 // 교육 프로그램 찜 목록 조회
 export const getEducationBookmarks = async (): Promise<string[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const response = await fetch('/api/heart-lists/edu/history', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch education bookmarks');
-    }
-
-    const result = await response.json();
+    const { data: result } = await api.get<{
+      result: string;
+      data: Array<{ trprId?: string; id?: string }>;
+      error?: { code: string; message: string };
+    }>('/heart-lists/edu/history');
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -1320,9 +1112,11 @@ export const getEducationBookmarks = async (): Promise<string[]> => {
 
     // API 응답에서 교육 프로그램 ID 목록 추출
     return (
-      result.data?.map(
-        (item: { trprId?: string; id?: string }) => item.trprId || item.id
-      ) || []
+      result.data
+        ?.map(
+          (item: { trprId?: string; id?: string }) => item.trprId || item.id
+        )
+        .filter((id): id is string => !!id) || []
     );
   } catch (error) {
     console.error('Error fetching education bookmarks:', error);

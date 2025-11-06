@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import EmptyRecommendations from '@/components/features/job/EmptyRecommendations';
-import { getUserData, getAccessToken } from '@/lib/auth';
+import { getUserData } from '@/lib/auth';
 import { getRecommendedJobs, getAllJobs } from '@/lib/api/jobApi';
 import { AllResponse } from '@/types/job';
 
@@ -18,8 +18,7 @@ export default function JobRecommendationsSection() {
 
   useEffect(() => {
     const userData = getUserData();
-    const token = getAccessToken();
-    const loggedIn = !!(userData?.name && token);
+    const loggedIn = !!userData?.name;
 
     if (loggedIn) {
       setUserName(userData.name);

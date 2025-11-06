@@ -7,6 +7,7 @@ import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
+import { api } from '@/lib/api/axios';
 
 const formatSalary = (salary: string | null | undefined): string => {
   if (!salary) return '급여 미정';
@@ -217,22 +218,11 @@ export default function JobCardClient({
   const handleToggleScrap = async (jobId: string) => {
     try {
       if (isScrap) {
-        const response = await fetch(
-          `/api/heart-lists/job/delete?jobId=${jobId}`,
-          { method: 'DELETE' }
-        );
-        if (response.ok) {
-          setIsScrap(false);
-        }
+        await api.delete(`/heart-lists/job/delete?jobId=${jobId}`);
+        setIsScrap(false);
       } else {
-        const response = await fetch('/api/heart-lists/job/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobId }),
-        });
-        if (response.ok) {
-          setIsScrap(true);
-        }
+        await api.post('/heart-lists/job/save', { jobId });
+        setIsScrap(true);
       }
       onToggleScrap(jobId);
     } catch (error) {

@@ -338,13 +338,13 @@ export default function MessageSection({
       {groupedMessages.some(
         (msg) => msg.componentType === 'strengthReportButton'
       ) && (
-        <div className="text-center mt-40 mb-8">
-          <div className="font-[600] text-[24px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
-            추천 직업을 위한 나만의 강점 리포트도 받아보세요!
+        <div className="text-center md:mt-40 mt-30 mb-8">
+          <div className="font-[600] md:text-[24px] text-[20px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+            추천 직업을 위한 <br /> 나만의 강점 리포트도 받아보세요!
           </div>
           <button
             onClick={onGenerateStrengthReport}
-            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] text-[32px] font-semibold cursor-pointer hover:bg-primary-80 transition-colors"
+            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] md:rounded-[24px] md:text-[32px] text-[24px] font-semibold cursor-pointer"
           >
             강점 리포트 생성하기
           </button>
@@ -355,13 +355,13 @@ export default function MessageSection({
       {groupedMessages.some(
         (msg) => msg.componentType === 'strengthReportPageButton'
       ) && (
-        <div className="text-center mt-30 mb-8">
-          <div className="font-[600] text-[24px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
-            더 자세한 내용을 보시려면 페이지로 이동해보세요!
+        <div className="text-center md:mt-30 mt-20 mb-8">
+          <div className="font-[600] md:text-[24px] text-[20px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+            더 자세한 내용을 보시려면 <br /> 페이지로 이동해보세요!
           </div>
           <button
             onClick={onNavigateToStrengthReport}
-            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] text-[32px] font-semibold cursor-pointer hover:bg-primary-80 transition-colors"
+            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] md:rounded-[24px] md:text-[32px] text-[24px] font-semibold cursor-pointer"
           >
             강점 리포트 페이지로
           </button>
