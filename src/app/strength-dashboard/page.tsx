@@ -39,6 +39,28 @@ export default function StrengthDashboard() {
     }
   }, []);
 
+  // 외부 클릭 감지로 다운로드 모드 닫기
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isDownloadMode) {
+        const target = event.target as HTMLElement;
+        // 버튼이나 카드 선택 아이콘이 아닌 경우에만 닫기
+        const isButton = target.closest('button');
+        const isCard = target.closest('[data-card-selectable]');
+
+        if (!isButton && !isCard) {
+          setIsDownloadMode(false);
+          setSelectedReports(new Set());
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDownloadMode]);
+
   const fetchStrengthReports = async () => {
     try {
       setIsLoading(true);
@@ -71,11 +93,87 @@ export default function StrengthDashboard() {
     window.location.href = '/ai-chat/job'; // AI 직업 진단 페이지로 이동
   };
 
-  const handleDownloadButtonClick = () => {
-    setIsDownloadMode(!isDownloadMode);
-    if (isDownloadMode) {
-      // 다운로드 모드를 종료하면 선택 초기화
+  const handlePdfDownload = async () => {
+    if (selectedReports.size === 0) {
+      alert('다운로드할 리포트를 선택해주세요.');
+      return;
+    }
+
+    try {
+      // 사용자 데이터 확인
+      console.log('userData:', userData);
+      console.log('userData.name:', userData?.name);
+
+      // 선택된 리포트들의 데이터 수집
+      const selectedReportsData = strengthReports
+        .filter((report) => selectedReports.has(report.strengthReportId))
+        .map((report, index) => ({
+          title: report.strength,
+          experience: report.experience,
+          keywords: report.keyword,
+          jobs: [report.appeal],
+          iconType: getIconType(
+            strengthReports.findIndex(
+              (r) => r.strengthReportId === report.strengthReportId
+            )
+          ),
+        }));
+
+      // 사용자 이름 확인
+      const userName = userData?.name || '사용자';
+
+      // API 호출
+      const response = await fetch('/api/print', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cards: selectedReportsData,
+          userName: userName,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('PDF 생성에 실패했습니다.');
+      }
+
+      // PDF 다운로드
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+
+      // 파일명 생성: 사용자이름_강점리포트_YYMMDD.pdf
+      const now = new Date();
+      const year = String(now.getFullYear()).slice(2); // YY
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // MM
+      const day = String(now.getDate()).padStart(2, '0'); // DD
+      const dateStr = `${year}${month}${day}`;
+
+      a.download = `${userName}_강점리포트_${dateStr}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      // 다운로드 모드 종료 및 선택 초기화
+      setIsDownloadMode(false);
       setSelectedReports(new Set());
+    } catch (error) {
+      console.error('PDF 다운로드 오류:', error);
+    }
+  };
+
+  const handleDownloadButtonClick = () => {
+    // console.log('=== 버튼 클릭됨 ===');
+
+    if (isDownloadMode) {
+      // 다운로드 모드일 때는 PDF 다운로드 실행
+      handlePdfDownload();
+    } else {
+      // 다운로드 모드 활성화
+      setIsDownloadMode(true);
     }
   };
 
@@ -182,20 +280,21 @@ export default function StrengthDashboard() {
         <div className="md:ml-25 grid grid-cols-1 gap-5 md:gap-27 flex-wrap">
           {Array.isArray(strengthReports) &&
             strengthReports.map((report, index) => (
-              <EditableStrengthReportCard
-                key={report.strengthReportId}
-                strengthReportId={report.strengthReportId}
-                title={report.strength}
-                experience={report.experience}
-                keywords={report.keyword}
-                jobs={[report.appeal]}
-                iconType={getIconType(index)}
-                showSelectionIcon={isDownloadMode}
-                isSelected={selectedReports.has(report.strengthReportId)}
-                onSelect={() => handleReportSelect(report.strengthReportId)}
-                onDelete={fetchStrengthReports}
-                onUpdate={fetchStrengthReports}
-              />
+              <div key={report.strengthReportId} data-card-selectable>
+                <EditableStrengthReportCard
+                  strengthReportId={report.strengthReportId}
+                  title={report.strength}
+                  experience={report.experience}
+                  keywords={report.keyword}
+                  jobs={[report.appeal]}
+                  iconType={getIconType(index)}
+                  showSelectionIcon={isDownloadMode}
+                  isSelected={selectedReports.has(report.strengthReportId)}
+                  onSelect={() => handleReportSelect(report.strengthReportId)}
+                  onDelete={fetchStrengthReports}
+                  onUpdate={fetchStrengthReports}
+                />
+              </div>
             ))}
         </div>
       </div>
