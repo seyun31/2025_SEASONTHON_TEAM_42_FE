@@ -39,7 +39,7 @@ export async function DELETE(request: Request): Promise<Response> {
     const backendUrl = new URL(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/bookmark/edu`
     );
-    backendUrl.searchParams.append('educationId', educationId);
+    backendUrl.searchParams.append('jobId', educationId); // 백엔드는 jobId로 받음!
 
     const response = await fetch(backendUrl.toString(), {
       method: 'DELETE',

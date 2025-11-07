@@ -1,10 +1,25 @@
-import { toast } from 'react-toastify';
+import { Bounce, toast } from 'react-toastify';
 
 export const showError = (message: string) => {
   toast.error(message, {
     position: 'top-center',
     autoClose: 2500,
     icon: false,
+    hideProgressBar: true,
+    closeButton: false,
+    transition: Bounce,
+    style: {
+      borderRadius: '32px',
+      textAlign: 'center',
+      backgroundColor: '#FF5555',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '12px 20px',
+      color: '#fff',
+      fontSize: '18px',
+      fontWeight: 600,
+    },
   });
 };
 
@@ -13,6 +28,21 @@ export const showSuccess = (message: string) => {
     position: 'top-center',
     autoClose: 2500,
     icon: false,
+    hideProgressBar: true,
+    closeButton: false,
+    transition: Bounce,
+    style: {
+      borderRadius: '32px',
+      textAlign: 'center',
+      backgroundColor: '#00AD38',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '12px 20px',
+      color: '#fff',
+      fontSize: '18px',
+      fontWeight: 600,
+    },
   });
 };
 

@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
 import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -21,12 +20,7 @@ export async function POST(): Promise<Response> {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get('refreshToken')?.value;
 
-    console.log('[Refresh Token API] 요청 시작');
-    console.log('[Refresh Token API] refreshToken 존재:', !!refreshToken);
-    console.log('[Refresh Token API] backendUrl:', backendUrl);
-
     if (!refreshToken) {
-      console.log('[Refresh Token API] refreshToken 없음');
       return Response.json(
         {
           result: 'ERROR',
@@ -41,7 +35,6 @@ export async function POST(): Promise<Response> {
     }
 
     if (!backendUrl) {
-      console.log('[Refresh Token API] backendUrl 없음');
       return Response.json(
         {
           result: 'ERROR',
@@ -60,17 +53,12 @@ export async function POST(): Promise<Response> {
 
     let response: Response;
     try {
-      console.log(
-        '[Refresh Token API] 백엔드 호출 시작:',
-        `${backendUrl}/v1/auth/recreate`
-      );
       response = await fetch(`${backendUrl}/v1/auth/recreate`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           accept: 'application/json',
+          Authorization: `Bearer ${refreshToken}`,
         },
-        body: JSON.stringify({ refreshToken }),
         signal: controller.signal,
       });
       console.log('[Refresh Token API] 백엔드 응답 상태:', response.status);
@@ -108,7 +96,6 @@ export async function POST(): Promise<Response> {
           const cookieStore = await cookies();
           cookieStore.delete('accessToken');
           cookieStore.delete('refreshToken');
-          console.log('[Refresh Token API] 401 에러로 인한 쿠키 삭제 완료');
         }
 
         // 500 에러인 경우 Sentry에 전송
@@ -152,14 +139,13 @@ export async function POST(): Promise<Response> {
     }
 
     const tokenData: TokenResponse = await response.json();
-    console.log('[Refresh Token API] 토큰 데이터 수신:', tokenData.result);
 
     if (tokenData.result === 'SUCCESS' && tokenData.data) {
-      console.log('[Refresh Token API] 토큰 갱신 성공');
-      // 새로운 토큰을 쿠키에 저장
-      const nextResponse = NextResponse.json(tokenData);
+      // console.log('[Refresh Token API] 토큰 갱신 성공');
 
-      nextResponse.cookies.set('accessToken', tokenData.data.accessToken, {
+      // 쿠키 설정
+      const cookieStore = await cookies();
+      cookieStore.set('accessToken', tokenData.data.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -167,7 +153,7 @@ export async function POST(): Promise<Response> {
         path: '/',
       });
 
-      nextResponse.cookies.set('refreshToken', tokenData.data.refreshToken, {
+      cookieStore.set('refreshToken', tokenData.data.refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
@@ -175,17 +161,13 @@ export async function POST(): Promise<Response> {
         path: '/',
       });
 
-      return nextResponse;
+      // 성공 응답 반환
+      return Response.json(tokenData);
     }
 
-    console.log('[Refresh Token API] 토큰 데이터 반환');
     return Response.json(tokenData);
   } catch (error) {
     console.error('[Refresh Token API] 예외 발생:', error);
-    console.error(
-      '[Refresh Token API] 에러 스택:',
-      error instanceof Error ? error.stack : 'No stack'
-    );
 
     // Sentry에 에러 전송
     const cookieStore = await cookies();

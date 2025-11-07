@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { api } from '@/lib/api/axios';
+import { getUserData } from '@/lib/auth';
+import { showError } from '@/utils/alert';
 
 // 날짜 포맷팅 함수
 const formatDate = (dateString: string): string => {
@@ -196,16 +198,25 @@ export default function EducationCard({
   const handleToggleBookmark = async (educationId: string) => {
     if (isBookmarkLoading) return; // 이미 요청 중이면 중복 요청 방지
 
+    // 비로그인 사용자 체크
+    const userData = getUserData();
+    if (!userData) {
+      showError('로그인 후 이용가능해요');
+      return;
+    }
+
     setIsBookmarkLoading(true);
     try {
       if (isBookmark) {
         // 북마크 삭제
-        await api.delete(`/heart-lists/edu/delete?educationId=${educationId}`);
+        await api.delete(
+          `/api/heart-lists/edu/delete?educationId=${educationId}`
+        );
         setIsBookmark(false);
         onToggleBookmark(educationId);
       } else {
         // 북마크 저장
-        await api.post('/heart-lists/edu/save', { educationId });
+        await api.post('/api/heart-lists/edu/save', { educationId });
         setIsBookmark(true);
         onToggleBookmark(educationId);
       }

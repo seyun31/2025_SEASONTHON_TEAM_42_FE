@@ -1,20 +1,43 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import * as Sentry from '@sentry/nextjs';
 
 export async function POST() {
   try {
-    const cookieStore = await cookies();
+    // console.log("[Logout API] 로그아웃 요청 시작");
 
-    // HttpOnly 쿠키 삭제
-    cookieStore.delete('accessToken');
-    cookieStore.delete('refreshToken');
-
-    return NextResponse.json({
+    const response = NextResponse.json({
       result: 'SUCCESS',
       message: '로그아웃되었습니다.',
     });
+
+    // accessToken 삭제
+    response.cookies.set('accessToken', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 0, // 삭제
+    });
+
+    // efreshToken 삭제
+    response.cookies.set('refreshToken', '', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 0, // ← 삭제 핵심
+    });
+
+    // console.log("[Logout API] 쿠키 삭제 완료");
+
+    return response;
   } catch (error) {
-    console.error('로그아웃 중 오류:', error);
+    console.error('[Logout API] 예외 발생:', error);
+
+    Sentry.captureException(error, {
+      tags: { api: 'auth/logout', method: 'POST' },
+    });
+
     return NextResponse.json(
       {
         result: 'ERROR',

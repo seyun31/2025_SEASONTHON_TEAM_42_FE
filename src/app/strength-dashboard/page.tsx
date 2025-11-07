@@ -6,6 +6,7 @@ import EditableStrengthReportCard from '@/app/_components/features/report/Editab
 import Image from 'next/image';
 import { api } from '@/lib/api/axios';
 import { ArrowDownToLine } from 'lucide-react';
+import { showSuccess, showError } from '@/utils/alert';
 
 interface StrengthReport {
   strengthReportId: number;
@@ -68,7 +69,7 @@ export default function StrengthDashboard() {
         result: string;
         data: { reportList: StrengthReport[] };
         error?: { code: string; message: string };
-      }>('/report/strength-all');
+      }>('/api/report/strength-all');
 
       // 데이터 추출
       let reports: StrengthReport[] = [];
@@ -95,19 +96,15 @@ export default function StrengthDashboard() {
 
   const handlePdfDownload = async () => {
     if (selectedReports.size === 0) {
-      alert('다운로드할 리포트를 선택해주세요.');
+      showError('다운로드할 리포트를 선택해주세요');
       return;
     }
 
     try {
-      // 사용자 데이터 확인
-      console.log('userData:', userData);
-      console.log('userData.name:', userData?.name);
-
       // 선택된 리포트들의 데이터 수집
       const selectedReportsData = strengthReports
         .filter((report) => selectedReports.has(report.strengthReportId))
-        .map((report, index) => ({
+        .map((report) => ({
           title: report.strength,
           experience: report.experience,
           keywords: report.keyword,
@@ -157,10 +154,14 @@ export default function StrengthDashboard() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
+      // PDF 다운로드 완료 알림
+      showSuccess('PDF 다운로드가 완료되었어요');
+
       // 다운로드 모드 종료 및 선택 초기화
       setIsDownloadMode(false);
       setSelectedReports(new Set());
     } catch (error) {
+      showError('PDF가 다운로드되지 않았어요');
       console.error('PDF 다운로드 오류:', error);
     }
   };

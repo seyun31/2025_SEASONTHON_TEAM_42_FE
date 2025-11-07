@@ -10,6 +10,7 @@ export async function GET(): Promise<Response> {
     const accessToken = cookieStore.get('accessToken')?.value;
 
     if (!accessToken) {
+      // console.log('[User API] accessToken 없음 - 401 반환');
       return Response.json(
         {
           result: 'ERROR',
@@ -28,9 +29,19 @@ export async function GET(): Promise<Response> {
       },
     });
 
+    console.log('[User API] 백엔드 응답 상태:', response.status);
+
     if (!response.ok) {
+      console.log(
+        '[User API] 백엔드 응답 실패 - status 그대로 전달:',
+        response.status
+      );
       try {
         const errorData = await response.json();
+        console.error(
+          '[User API] 백엔드 에러 상세:',
+          JSON.stringify(errorData, null, 2)
+        );
         return Response.json(errorData, { status: response.status });
       } catch {
         return Response.json(
@@ -48,10 +59,9 @@ export async function GET(): Promise<Response> {
     }
 
     const userData: UserResponse = await response.json();
+    console.log('[User API] 사용자 정보 조회 성공');
     return Response.json(userData);
   } catch (error) {
-    console.error('User profile fetch error:', error);
-
     // Sentry에 에러 전송
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
@@ -66,14 +76,6 @@ export async function GET(): Promise<Response> {
         hasAccessToken: !!accessToken,
       },
     });
-
-    // 백엔드 API 에러 응답인 경우 그대로 전달
-    if (error instanceof Error && error.message.includes('response')) {
-      try {
-        const errorResponse = JSON.parse(error.message);
-        return Response.json(errorResponse, { status: 500 });
-      } catch {}
-    }
 
     return Response.json(
       {

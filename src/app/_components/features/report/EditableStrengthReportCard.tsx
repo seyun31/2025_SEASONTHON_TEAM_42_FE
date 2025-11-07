@@ -65,19 +65,6 @@ export default function StrengthReportCard({
     setEditedKeywords(newKeywords);
   };
 
-  const handleAddKeyword = () => {
-    if (editedKeywords.length < 5) {
-      setEditedKeywords([...editedKeywords, '']);
-    }
-  };
-
-  const handleRemoveKeyword = (index: number) => {
-    if (editedKeywords.length > 1) {
-      const newKeywords = editedKeywords.filter((_, i) => i !== index);
-      setEditedKeywords(newKeywords);
-    }
-  };
-
   const handleUpdate = async () => {
     try {
       setIsUpdating(true);
@@ -249,11 +236,9 @@ export default function StrengthReportCard({
                     alt="강점 키워드 이미지"
                     width={0}
                     height={0}
-                    className="w-auto h-auto mb-2"
+                    className="w-auto h-auto mb-2 ml-2"
                   />
-                  <p className="text-strength-label font-medium ml-1">
-                    강점 키워드
-                  </p>
+                  <p className="text-strength-label font-medium">강점 키워드</p>
                 </div>
                 <div className="flex-1 flex flex-col items-start pb-2 ml-4 gap-2">
                   {isEditing ? (
@@ -339,9 +324,9 @@ export default function StrengthReportCard({
                     alt="강점 어필 이미지"
                     width={0}
                     height={0}
-                    className="w-auto h-auto"
+                    className="w-auto h-auto ml-1"
                   />
-                  <p className="text-strength-label font-medium ml-2">
+                  <p className="text-strength-label font-medium ml-1">
                     강점 어필
                   </p>
                 </div>
@@ -476,9 +461,9 @@ export default function StrengthReportCard({
                     alt="강점 키워드 이미지"
                     width={0}
                     height={0}
-                    className="w-auto h-auto"
+                    className="w-auto h-auto ml-1"
                   />
-                  <p className="text-strength-label-mobile font-medium">
+                  <p className="text-strength-label-mobile font-medium ml-2">
                     강점 키워드
                   </p>
                 </div>
@@ -523,7 +508,7 @@ export default function StrengthReportCard({
                     height={0}
                     className="w-auto h-auto"
                   />
-                  <p className="text-strength-label-mobile text-black font-medium">
+                  <p className="text-strength-label-mobile text-black font-medium ml-3">
                     경험
                   </p>
                 </div>
@@ -534,7 +519,7 @@ export default function StrengthReportCard({
                     className="w-[50%] h-[43px] py-2 px-6 border-2 border-[#71D193] rounded-[12px] text-strength-content-mobile focus:outline-none focus:border-[#71D193] resize-none overflow-x-auto whitespace-nowrap text-left"
                   />
                 ) : (
-                  <p className="text-strength-content-mobile font-medium break-words">
+                  <p className="text-strength-content-mobile font-medium break-words mt-3 ml-2">
                     {editedExperience}
                   </p>
                 )}
@@ -548,9 +533,9 @@ export default function StrengthReportCard({
                     alt="강점 어필 이미지"
                     width={0}
                     height={0}
-                    className="w-auto h-auto"
+                    className="w-auto h-auto ml-1"
                   />
-                  <p className="text-strength-label-mobile font-medium">
+                  <p className="text-strength-label-mobile font-medium ml-3">
                     강점 어필
                   </p>
                 </div>
@@ -561,7 +546,10 @@ export default function StrengthReportCard({
                     className="w-full min-h-[160px] py-2 px-6 border-2 border-[#71D193] rounded-[12px] text-strength-content-mobile scrollbar-hide focus:outline-none focus:border-[#71D193] text-left"
                   />
                 ) : (
-                  <p className="text-strength-content-mobile font-normal break-words">
+                  <p
+                    className="text-strength-content-mobile font-normal font-regular break-words mt-2"
+                    style={{ fontWeight: 400 }}
+                  >
                     {editedJobs}
                   </p>
                 )}

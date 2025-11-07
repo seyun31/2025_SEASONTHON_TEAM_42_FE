@@ -42,36 +42,33 @@ export default function OAuth2SuccessPage() {
           throw new Error('토큰이 없습니다.');
         }
 
-        // 토큰을 쿠키에 저장
-        document.cookie = `accessToken=${accessToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=strict`;
-        document.cookie = `refreshToken=${refreshToken}; path=/; max-age=${30 * 24 * 60 * 60}; samesite=strict`;
-
-        // 사용자 정보 가져오기 (직접 백엔드로 요청)
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-        if (!backendUrl) {
-          throw new Error('백엔드 URL이 설정되지 않았습니다.');
-        }
-
-        // URL 끝에 슬래시가 있으면 제거
-        const cleanBackendUrl = backendUrl.replace(/\/$/, '');
-
-        const response = await fetch(`${cleanBackendUrl}/v1/user`, {
-          method: 'GET',
+        // 토큰을 httpOnly 쿠키에 저장 (보안)
+        const setTokenResponse = await fetch('/api/auth/set-tokens', {
+          method: 'POST',
           headers: {
-            Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json',
           },
+          body: JSON.stringify({ accessToken, refreshToken }),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
+        if (!setTokenResponse.ok) {
+          throw new Error('토큰 저장에 실패했습니다.');
+        }
+
+        // 사용자 정보 가져오기 (Next.js API Route를 통해)
+        const userInfoResponse = await fetch('/api/auth/user', {
+          method: 'GET',
+          credentials: 'include', // 쿠키 포함
+        });
+
+        if (!userInfoResponse.ok) {
+          const errorData = await userInfoResponse.json();
           throw new Error(
-            `사용자 정보를 가져오는데 실패했습니다. ${errorData.details || ''}`
+            errorData.error?.message || '사용자 정보를 가져오는데 실패했습니다.'
           );
         }
 
-        const result: ApiResponse = await response.json();
+        const result: ApiResponse = await userInfoResponse.json();
 
         if (result.result === 'SUCCESS') {
           setUserData(result.data);

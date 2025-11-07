@@ -8,6 +8,7 @@ import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
 import { api } from '@/lib/api/axios';
+import { showError } from '@/utils/alert';
 
 const formatSalary = (salary: string | null | undefined): string => {
   if (!salary) return '급여 미정';
@@ -67,9 +68,9 @@ const styles = {
         ? 'max-h-[2000px] opacity-100 bg-white'
         : 'max-w-[588px] md:h-[450px] h-[320px] opacity-100 hover:bg-[#E1F5EC]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
-  tag: (_isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
+  tag: (isExpanded: boolean, isVisible: boolean = true) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-500 ease-out ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,
-  compactTag: (_isHovered: boolean, _isExpanded: boolean) =>
+  compactTag: () =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-400 ease-in-out`,
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
@@ -114,9 +115,7 @@ const Tag = ({
 }) => (
   <span
     className={
-      isCompact
-        ? styles.compactTag(isHovered, isExpanded)
-        : styles.tag(isHovered, isExpanded, isVisible)
+      isCompact ? styles.compactTag() : styles.tag(isExpanded, isVisible)
     }
     style={{ transitionDelay: `${delay}ms` }}
   >
@@ -216,12 +215,18 @@ export default function JobCardClient({
   }, [isOpen, onToggle]);
 
   const handleToggleScrap = async (jobId: string) => {
+    // 비로그인 사용자 체크
+    if (!isLoggedIn) {
+      showError('로그인 후 이용가능해요');
+      return;
+    }
+
     try {
       if (isScrap) {
-        await api.delete(`/heart-lists/job/delete?jobId=${jobId}`);
+        await api.delete(`/api/heart-lists/job/delete?jobId=${jobId}`);
         setIsScrap(false);
       } else {
-        await api.post('/heart-lists/job/save', { jobId });
+        await api.post('/api/heart-lists/job/save', { jobId });
         setIsScrap(true);
       }
       onToggleScrap(jobId);

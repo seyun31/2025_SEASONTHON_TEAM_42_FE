@@ -52,6 +52,23 @@ interface ApiStrengthReport {
   job: string[];
 }
 
+interface ApiResponse<T> {
+  result: string;
+  data: T;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+interface OptionsData {
+  optionList: string[];
+}
+
+interface StrengthReportData {
+  reportList: ApiStrengthReport[];
+}
+
 function AIChatJobContent() {
   const router = useRouter();
 
@@ -59,7 +76,7 @@ function AIChatJobContent() {
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
     queryFn: async () => {
-      const { data } = await api.get('/auth/user');
+      const { data } = await api.get<UserResponse>('/api/auth/user');
       return data;
     },
     retry: 1,
@@ -233,8 +250,8 @@ function AIChatJobContent() {
         setIsLoadingOptions(true);
 
         try {
-          const { data } = await api.get(
-            `/chat/jobs/options/${currentQuestion.step}`
+          const { data } = await api.get<ApiResponse<OptionsData>>(
+            `/api/chat/jobs/options/${currentQuestion.step}`
           );
 
           if (data.result === 'SUCCESS' && data.data?.optionList) {
@@ -262,9 +279,9 @@ function AIChatJobContent() {
 
     try {
       // 맞춤형 직업 추천 조회
-      const { data: recommendData } = await api.post(
-        '/chat/jobs/recommend/post-occupation'
-      );
+      const { data: recommendData } = await api.post<
+        ApiResponse<JobRecommendations>
+      >('/chat/jobs/recommend/post-occupation');
 
       if (recommendData.result === 'SUCCESS') {
         setJobRecommendations(recommendData.data);
@@ -300,7 +317,9 @@ function AIChatJobContent() {
       setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
 
       // 강점 리포트 조회
-      const { data: strengthData } = await api.post('/chat/strength/result');
+      const { data: strengthData } = await api.post<
+        ApiResponse<StrengthReportData>
+      >('/api/chat/strength/result');
 
       if (
         strengthData.result === 'SUCCESS' &&
@@ -389,6 +408,7 @@ function AIChatJobContent() {
     addComponentMessage,
     setShowJobCards,
     strengthReports.length,
+    userName,
   ]);
 
   const getCurrentQuestion = () => {
@@ -430,7 +450,7 @@ function AIChatJobContent() {
 
       if (currentQuestion?.id) {
         try {
-          await api.post('/chat/jobs/save/answer', {
+          await api.post('/api/chat/jobs/save/answer', {
             sequence: currentQuestion.id,
             answer: userResponse,
           });
@@ -458,7 +478,7 @@ function AIChatJobContent() {
     // API로 빈 답변 저장
     if (currentQuestion?.id) {
       try {
-        await api.post('/chat/jobs/save/answer', {
+        await api.post('/api/chat/jobs/save/answer', {
           sequence: currentQuestion.id,
           answer: '',
         });
@@ -495,32 +515,25 @@ function AIChatJobContent() {
   };
 
   // 다시 시작 확인
-  const handleRestartConfirm = async () => {
+  const handleRestartConfirm = () => {
     setShowRestartModal(false);
 
-    try {
-      // API로 채팅 히스토리 초기화 요청
-      await api.delete('/chat/jobs/reset');
+    // 모든 상태 초기화
+    resetChat();
+    setSelectedOptions([]);
+    setTextInput('');
+    setJobRecommendations(null);
+    setStrengthReports([]);
+    setJobMessageAdded(false);
+    setCompletionFlowStarted(false);
+    setHasExistingConversation(false);
+    setShowMoreJobCardsButton(false);
 
-      // 모든 상태 초기화
-      resetChat();
-      setSelectedOptions([]);
-      setTextInput('');
-      setJobRecommendations(null);
-      setStrengthReports([]);
-      setJobMessageAdded(false);
-      setCompletionFlowStarted(false);
-      setHasExistingConversation(false);
-      setShowMoreJobCardsButton(false);
-
-      // intro 메시지만 표시하고 대기
-      setTimeout(() => {
-        addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
-        setShowCurrentQuestion(true);
-      }, 100);
-    } catch (error) {
-      console.error('채팅 초기화 실패:', error);
-    }
+    // intro 메시지만 표시하고 대기
+    setTimeout(() => {
+      addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
+      setShowCurrentQuestion(true);
+    }, 100);
   };
 
   // 다시 시작 취소
@@ -582,7 +595,9 @@ function AIChatJobContent() {
       setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
       // 추가 직업 추천 API 호출
-      const { data } = await api.post('/chat/jobs/recommend/post-occupation');
+      const { data } = await api.post<ApiResponse<JobRecommendations>>(
+        '/api/chat/jobs/recommend/post-occupation'
+      );
 
       if (data.result === 'SUCCESS') {
         // 로딩 메시지 제거

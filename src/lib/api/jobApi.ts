@@ -73,27 +73,14 @@ export const toggleJobScrap = async (jobId: string): Promise<boolean> => {
 // 맞춤형 일자리 추천 (로그인 시)
 export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
   try {
-    const response = await fetch('/api/job/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
+    const response =
+      await api.get<ApiResponse<SearchAllResponse>>('/api/job/recommend');
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch recommended jobs: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
-
-    if (result.result !== 'SUCCESS') {
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    return result.data.jobDtoList || [];
+    return response.data.data.jobDtoList || [];
   } catch (error) {
     console.error('Error fetching recommended jobs:', error);
     throw error;
@@ -262,28 +249,15 @@ export const getAllJobsForLoggedIn = async (filters?: {
 // 로드맵 조회
 export const getRoadMap = async (): Promise<RoadMapResponse> => {
   try {
-    const response = await fetch('/api/roadmap/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
+    const response = await api.get<RoadmapApiResponse<RoadMapResponse>>(
+      '/api/roadmap/recommend'
+    );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch roadmap: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-
-    if (result.result !== 'SUCCESS') {
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    return result.data;
+    return response.data.data;
   } catch (error) {
     console.error('Error fetching roadmap:', error);
     throw error;
@@ -295,28 +269,16 @@ export const recommendRoadMap = async (
   request: RoadMapRequest
 ): Promise<RoadMapResponse> => {
   try {
-    const response = await fetch('/api/roadmap/recommend', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-      body: JSON.stringify(request),
-    });
+    const response = await api.post<RoadmapApiResponse<RoadMapResponse>>(
+      '/api/roadmap/recommend',
+      request
+    );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to recommend roadmap: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-
-    if (result.result !== 'SUCCESS') {
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    return result.data;
+    return response.data.data;
   } catch (error) {
     console.error('Error recommending roadmap:', error);
     throw error;
@@ -856,28 +818,16 @@ export const getRecommendedEducations = async (): Promise<
   try {
     console.log('Making API request to /api/education/recommend');
 
-    const response = await fetch('/api/education/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
+    const response = await api.get<EducationDataResponse>(
+      '/api/education/recommend'
+    );
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch recommended educations: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: EducationDataResponse = await response.json();
-
-    if (result.result !== 'SUCCESS') {
-      throw new Error(result.error?.message || 'API request failed');
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
     // EducationDto를 EducationSummary로 변환
-    return (result.data.educationDtoList || []).map((edu) => ({
+    return (response.data.data.educationDtoList || []).map((edu) => ({
       id: edu.educationId.toString(),
       educationId: edu.educationId,
       trprId: edu.educationId.toString(),
@@ -1104,7 +1054,7 @@ export const getEducationBookmarks = async (): Promise<string[]> => {
       result: string;
       data: Array<{ trprId?: string; id?: string }>;
       error?: { code: string; message: string };
-    }>('/heart-lists/edu/history');
+    }>('/api/heart-lists/edu/history');
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
