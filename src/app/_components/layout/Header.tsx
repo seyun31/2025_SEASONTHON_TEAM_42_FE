@@ -114,17 +114,17 @@ export default function Header() {
     return pathname === path;
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // 즉시 UI 상태 업데이트
     setUserData(null);
     setIsLoggedIn(false);
     setIsLoadingProfile(false);
 
-    // 로컬 스토리지 및 쿠키 삭제 (백그라운드)
-    clearAuthData();
+    // 로컬 스토리지 및 쿠키 삭제
+    await clearAuthData();
 
-    // 메인 페이지로 즉시 이동
-    router.push('/');
+    // 메인 페이지로 완전히 새로고침하며 이동
+    window.location.href = '/';
   };
 
   return (

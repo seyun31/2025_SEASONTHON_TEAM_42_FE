@@ -8,7 +8,7 @@ import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
 import { api } from '@/lib/api/axios';
-import { showError } from '@/utils/alert';
+import { showError, showSuccess } from '@/utils/alert';
 
 const formatSalary = (salary: string | null | undefined): string => {
   if (!salary) return '급여 미정';
@@ -280,9 +280,11 @@ export default function JobCardClient({
       if (isScrap) {
         await api.delete(`/api/heart-lists/job/delete?jobId=${jobId}`);
         setIsScrap(false);
+        showError('북마크 삭제 완료!');
       } else {
         await api.post('/api/heart-lists/job/save', { jobId });
         setIsScrap(true);
+        showSuccess('북마크 저장 완료!');
       }
       onToggleScrap(jobId);
     } catch (error) {
@@ -500,7 +502,7 @@ export default function JobCardClient({
                     e.stopPropagation();
                     handleToggleScrap(job.jobId);
                   }}
-                  className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
+                  className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 cursor-pointer ${
                     isScrap ? 'text-yellow-400' : 'text-gray-300'
                   }`}
                 >

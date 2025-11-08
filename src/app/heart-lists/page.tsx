@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import EducationCard from '@/components/features/job/EducationCard';
 import { JobSummary, EducationSummary } from '@/types/job';
+import { showError, showSuccess } from '@/utils/alert';
 
 // API 응답 타입 정의
 interface JobHistoryItem {
@@ -300,9 +301,11 @@ function HeartListsContent() {
               : edu
           )
         );
-        console.log(
-          isCurrentlyBookmarked ? '북마크 해제 성공' : '북마크 추가 성공'
-        );
+        if (isCurrentlyBookmarked) {
+          showError('북마크 삭제 완료!');
+        } else {
+          showSuccess('북마크 저장 완료!');
+        }
       } else {
         console.error('북마크 토글 실패:', data.error);
       }

@@ -6,7 +6,7 @@ import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { api } from '@/lib/api/axios';
 import { getUserData } from '@/lib/auth';
-import { showError } from '@/utils/alert';
+import { showError, showSuccess } from '@/utils/alert';
 
 // 날짜 포맷팅 함수
 const formatDate = (dateString: string): string => {
@@ -214,11 +214,13 @@ export default function EducationCard({
         );
         setIsBookmark(false);
         onToggleBookmark(educationId);
+        showError('북마크 삭제 완료!');
       } else {
         // 북마크 저장
         await api.post('/api/heart-lists/edu/save', { educationId });
         setIsBookmark(true);
         onToggleBookmark(educationId);
+        showSuccess('북마크 저장 완료!');
       }
     } catch (error) {
       console.error('북마크 처리 중 오류:', error);
