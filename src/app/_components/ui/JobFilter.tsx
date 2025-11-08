@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { REGIONS, CITIES } from '@/data/location';
 
-interface FilterOption {
+export interface FilterOption {
   id: string;
   label: string;
   value: string;
@@ -28,7 +28,7 @@ const regionOptions: FilterOption[] = REGIONS.map((region, index) => ({
 }));
 
 //상용직(시간제) / 계약직(시간제) / 상용직 / 계약직
-const employmentTypeOptions: FilterOption[] = [
+export const employmentTypeOptions: FilterOption[] = [
   {
     id: 'permanent',
     label: '정규직',
@@ -97,7 +97,17 @@ function FilterDropdown({
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-sm md:text-2xl">{label}</span>
+        <span className="text-sm md:text-2xl">
+          {values.length > 0
+            ? values
+                .map(
+                  (value) =>
+                    options.find((option) => option.value === value)?.label ??
+                    value
+                )
+                .join(', ')
+            : label}
+        </span>
         <svg
           className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
@@ -173,10 +183,15 @@ function RegionSelector({
   onRegionChange,
   onDistrictsChange,
 }: RegionSelectorProps) {
+  const getDistrictKey = (district: string) => {
+    return selectedRegion ? `${selectedRegion} ${district}` : district;
+  };
+
   const handleDistrictToggle = (district: string) => {
-    const newDistricts = selectedDistricts.includes(district)
-      ? selectedDistricts.filter((d) => d !== district)
-      : [...selectedDistricts, district];
+    const districtKey = getDistrictKey(district);
+    const newDistricts = selectedDistricts.includes(districtKey)
+      ? selectedDistricts.filter((d) => d !== districtKey)
+      : [...selectedDistricts, districtKey];
     onDistrictsChange(newDistricts);
   };
 
@@ -195,7 +210,11 @@ function RegionSelector({
             : 'bg-white text-gray-70 hover:border-primary-50'
         }`}
       >
-        <span className="text-sm md:text-2xl">지역</span>
+        <span className="text-sm md:text-2xl">
+          {selectedDistricts.length > 0
+            ? selectedDistricts.join(', ')
+            : selectedRegion || '지역'}
+        </span>
         <svg
           className={`w-4 h-4 md:w-6 md:h-6 transition-transform ${
             isOpen ? 'rotate-180' : ''
@@ -248,7 +267,8 @@ function RegionSelector({
               {selectedRegion && currentDistricts.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
                   {currentDistricts.map((district, index) => {
-                    const isChecked = selectedDistricts.includes(district);
+                    const districtKey = getDistrictKey(district);
+                    const isChecked = selectedDistricts.includes(districtKey);
                     return (
                       <label
                         key={`${selectedRegion}-${index}`}
@@ -329,7 +349,6 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
   ) => {
     const newFilters = { ...filters, [key]: values };
     setFilters(newFilters);
-    onFilterChange?.(newFilters);
   };
 
   const handleRegionChange = (region: string) => {

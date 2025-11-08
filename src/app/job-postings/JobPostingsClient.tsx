@@ -4,7 +4,7 @@ import JobCard from '@/components/features/job/JobCard';
 import SearchBar from '@/components/ui/SearchBar';
 import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
-import JobFilter from '@/components/ui/JobFilter';
+import JobFilter, { employmentTypeOptions } from '@/components/ui/JobFilter';
 import Footer from '@/components/layout/Footer';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -143,26 +143,33 @@ export default function JobPostingsClient({
       let jobData: (AllResponse | JobResponse)[] = [];
       let newTotalElements = 0;
 
-      const apiFilters = {
-        keyword: debouncedSearchKeyword || undefined,
-        page: page - 1,
-        size: 10,
-        workLocation:
-          filters.selectedDistricts.length > 0
-            ? filters.selectedDistricts
-            : undefined,
-        employmentType:
-          filters.employmentType.length > 0
-            ? filters.employmentType
-            : undefined,
-        jobCategory:
-          filters.jobCategory.length > 0 ? filters.jobCategory : undefined,
-      };
+      const isAllTab = activeTab === 'all';
 
-      if (activeTab === 'custom' && isLoggedIn) {
+      const apiFilters = isAllTab
+        ? {
+            keyword: debouncedSearchKeyword || undefined,
+            page: page - 1,
+            size: 10,
+            workLocation:
+              filters.selectedDistricts.length > 0
+                ? filters.selectedDistricts
+                : undefined,
+            employmentType:
+              filters.employmentType.length > 0
+                ? filters.employmentType
+                : undefined,
+            jobCategory:
+              filters.jobCategory.length > 0 ? filters.jobCategory : undefined,
+          }
+        : {
+            page: page - 1,
+            size: 10,
+          };
+
+      if (!isAllTab && isLoggedIn) {
         jobData = await getRecommendedJobs();
         newTotalElements = jobData.length;
-      } else if (activeTab === 'all' && isLoggedIn) {
+      } else if (isAllTab && isLoggedIn) {
         const result: SearchAllResponse =
           await getAllJobsForLoggedIn(apiFilters);
         jobData = result.jobDtoList || [];
@@ -186,17 +193,48 @@ export default function JobPostingsClient({
     }
   };
 
-  // 탭, 필터, 검색어 변경 시 첫 페이지로 리셋 및 데이터 로드
+  const handleFilterApply = (appliedFilters: typeof filters) => {
+    setFilters(appliedFilters);
+    setOpenCardId(null);
+
+    if (activeTab !== 'all') {
+      setIsLoading(true);
+      setJobs([]);
+      setActiveTab('all');
+      setCurrentPage(1);
+      updateURL('all', 1, null);
+      return;
+    }
+
+    setIsLoading(true);
+    setJobs([]);
+    updateURL('all', 1, null);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  };
+
+  // 탭 변경 시 첫 페이지로 리셋 및 데이터 로드
   useEffect(() => {
-    // 탭이나 필터가 변경되면 페이지를 1로 리셋하고 데이터 로드
     if (currentPage !== 1) {
       setCurrentPage(1);
     } else {
-      // 이미 페이지 1이면 직접 데이터 로드
       fetchJobs(1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, isLoggedIn, filters, debouncedSearchKeyword]);
+  }, [activeTab, isLoggedIn]);
+
+  // 필터나 검색어 변경 시 (전체공고 탭에서만) 첫 페이지로 리셋 후 데이터 로드
+  useEffect(() => {
+    if (activeTab !== 'all') return;
+
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    } else {
+      fetchJobs(1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters, debouncedSearchKeyword]);
 
   // 페이지 변경 시 데이터 로드
   useEffect(() => {
@@ -327,8 +365,58 @@ export default function JobPostingsClient({
       <main className="min-h-screen bg-white">
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
-            <SearchBar onSearchChange={setSearchKeyword} />
-            {isLoggedIn && <JobFilter onFilterChange={setFilters} />}
+            {activeTab === 'all' && (
+              <>
+                <SearchBar onSearchChange={setSearchKeyword} />
+                {isLoggedIn && <JobFilter onFilterChange={handleFilterApply} />}
+                {(debouncedSearchKeyword.trim().length > 0 ||
+                  filters.selectedDistricts.length > 0 ||
+                  filters.employmentType.length > 0 ||
+                  filters.jobCategory.length > 0) && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {debouncedSearchKeyword.trim().length > 0 && (
+                      <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-gray-10 text-gray-80 rounded-full text-sm md:text-base">
+                        <span className="font-medium text-gray-90">검색어</span>
+                        <span>{debouncedSearchKeyword}</span>
+                      </div>
+                    )}
+
+                    {filters.selectedDistricts.map((district) => (
+                      <div
+                        key={`summary-district-${district}`}
+                        className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                      >
+                        <span>{district}</span>
+                      </div>
+                    ))}
+
+                    {filters.employmentType.map((type) => {
+                      const option = employmentTypeOptions.find(
+                        (opt) => opt.value === type
+                      );
+                      if (!option) return null;
+                      return (
+                        <div
+                          key={`summary-employment-${type}`}
+                          className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                        >
+                          <span>{option.label}</span>
+                        </div>
+                      );
+                    })}
+
+                    {filters.jobCategory.map((category) => (
+                      <div
+                        key={`summary-category-${category}`}
+                        className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                      >
+                        <span>{category}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
             {isLoggedIn && (
               <JobTab
                 activeTab={activeTab}
