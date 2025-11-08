@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -9,6 +10,8 @@ import {
   ChecklistItem,
   RoadmapChecklist,
   RoadMapResponse,
+  RoadmapInputResponse,
+  RoadMapUpdateRequest,
 } from '@/types/roadmap';
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
@@ -18,6 +21,8 @@ import {
   updateRoadmapAction,
   deleteRoadmapAction,
   addRoadmapAction,
+  deleteRoadmap,
+  updateRoadmapInput,
 } from '@/lib/api/jobApi';
 import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
@@ -74,6 +79,22 @@ export default function UserCheckList({
     stepId: number;
     itemId: number;
   } | null>(null);
+  const [isEditRoadmapModalOpen, setIsEditRoadmapModalOpen] =
+    useState<boolean>(false);
+  const [roadmapInputForm, setRoadmapInputForm] = useState<{
+    career: string;
+    period: string;
+    experience: string;
+  }>({
+    career: '',
+    period: '',
+    experience: '',
+  });
+  const [roadmapInputData, setRoadmapInputData] =
+    useState<RoadmapInputResponse | null>(null);
+  const [roadmapInputModalError, setRoadmapInputModalError] = useState<
+    string | null
+  >(null);
 
   // API 데이터를 UI용 데이터로 변환
   useEffect(() => {
@@ -94,6 +115,14 @@ export default function UserCheckList({
       // API 데이터가 없으면 빈 배열로 설정하여 기존 UI 표시
       setApiRoadmapSteps([]);
       setChecklistItems(mockRoadmapData.checklists);
+    }
+  }, [roadmapData]);
+
+  useEffect(() => {
+    if (roadmapData?.roadmapInputResponse) {
+      setRoadmapInputData(roadmapData.roadmapInputResponse);
+    } else {
+      setRoadmapInputData(null);
     }
   }, [roadmapData]);
 
@@ -325,6 +354,173 @@ export default function UserCheckList({
     }
   };
 
+  const handleDeleteRoadmap = async () => {
+    const confirmed = confirm('로드맵을 삭제하시겠습니까?');
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      await deleteRoadmap();
+
+      setApiRoadmapSteps([]);
+      setChecklistItems(mockRoadmapData.checklists);
+      setSelectedStepId(null);
+      setCompletedSteps(new Set());
+
+      if (onRoadmapUpdate) {
+        onRoadmapUpdate();
+      }
+
+      router.refresh();
+      alert('로드맵이 삭제되었습니다.');
+    } catch (error) {
+      console.error('로드맵 삭제 실패:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '로드맵 삭제에 실패했습니다. 다시 시도해주세요.';
+      setError(errorMessage);
+      alert(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openEditRoadmapModal = () => {
+    const source =
+      roadmapInputData ?? roadmapData?.roadmapInputResponse ?? null;
+
+    const experienceValue = source?.experience
+      ? source.experience
+          .split(',')
+          .map((item) => item.trim())
+          .join('\n')
+      : '';
+
+    setRoadmapInputForm({
+      career: source?.career ?? '',
+      period: source?.period ?? '',
+      experience: experienceValue,
+    });
+    setRoadmapInputModalError(null);
+    setIsEditRoadmapModalOpen(true);
+  };
+
+  const closeEditRoadmapModal = () => {
+    setIsEditRoadmapModalOpen(false);
+    setRoadmapInputModalError(null);
+  };
+
+  const handleRoadmapInputChange = (
+    field: 'career' | 'period' | 'experience',
+    value: string
+  ) => {
+    setRoadmapInputForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmitRoadmapInput = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    const source =
+      roadmapInputData ?? roadmapData?.roadmapInputResponse ?? null;
+
+    const trimmedCareer = roadmapInputForm.career.trim();
+    const trimmedPeriod = roadmapInputForm.period.trim();
+    const trimmedExperience = roadmapInputForm.experience
+      .split('\n')
+      .map((item) => item.trim())
+      .filter((item) => item !== '')
+      .join(', ');
+
+    const payload: RoadMapUpdateRequest = {};
+
+    if (!source || trimmedCareer !== (source.career ?? '')) {
+      payload.career = trimmedCareer;
+    }
+
+    if (!source || trimmedPeriod !== (source.period ?? '')) {
+      payload.period = trimmedPeriod;
+    }
+
+    if (!source || trimmedExperience !== (source.experience ?? '')) {
+      payload.experience = trimmedExperience;
+    }
+
+    if (Object.keys(payload).length === 0) {
+      alert('변경된 내용이 없습니다.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setRoadmapInputModalError(null);
+
+      await updateRoadmapInput(payload);
+
+      setRoadmapInputData((prev) => {
+        const base = prev ??
+          roadmapData?.roadmapInputResponse ?? {
+            career: '',
+            period: '',
+            experience: '',
+            dday: 0,
+          };
+        return {
+          ...base,
+          ...payload,
+        };
+      });
+
+      if (onRoadmapUpdate) {
+        onRoadmapUpdate();
+      }
+
+      router.refresh();
+      alert('취업 정보가 업데이트되었습니다.');
+      closeEditRoadmapModal();
+    } catch (error) {
+      console.error('로드맵 정보 수정 실패:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '로드맵 정보를 수정하지 못했습니다. 다시 시도해주세요.';
+      setRoadmapInputModalError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const displayCareer =
+    roadmapInputData?.career ??
+    roadmapData?.roadmapInputResponse.career ??
+    defaultCareerInfo.jobTitle;
+  const displayPeriod =
+    roadmapInputData?.period ??
+    roadmapData?.roadmapInputResponse.period ??
+    defaultCareerInfo.targetPeriod;
+  const displayExperience =
+    roadmapInputData?.experience ??
+    roadmapData?.roadmapInputResponse.experience ??
+    defaultCareerInfo.experience;
+  const parsedDefaultDday = parseInt(
+    defaultCareerInfo.dDay?.replace(/[^0-9-]/g, '') || '0',
+    10
+  );
+  const fallbackDday = Number.isNaN(parsedDefaultDday) ? 0 : parsedDefaultDday;
+  const displayDday =
+    roadmapInputData?.dday ??
+    roadmapData?.roadmapInputResponse.dday ??
+    fallbackDday;
+
   const startEditing = (
     stepId: number,
     itemId: number,
@@ -502,6 +698,100 @@ export default function UserCheckList({
   // 로드맵이 있는 경우 - 왼쪽에 로드맵, 오른쪽에 두 개의 카드
   return (
     <>
+      {isEditRoadmapModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 md:p-8 relative">
+            <button
+              type="button"
+              onClick={closeEditRoadmapModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors text-2xl"
+              aria-label="닫기"
+            >
+              ×
+            </button>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
+              취업 정보 수정
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base mb-6">
+              목표 직무, 취업 기간, 보유 경험 정보를 수정해 주세요.
+            </p>
+            {roadmapInputModalError && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {roadmapInputModalError}
+              </div>
+            )}
+            <form onSubmit={handleSubmitRoadmapInput} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  목표 직무
+                </label>
+                <input
+                  type="text"
+                  value={roadmapInputForm.career}
+                  onChange={(event) =>
+                    handleRoadmapInputChange('career', event.target.value)
+                  }
+                  placeholder="예: 백엔드 개발자 전향"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm md:text-base shadow-sm focus:border-primary-80 focus:outline-none focus:ring-2 focus:ring-primary-80/30 transition"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  목표 취업 기간
+                </label>
+                <input
+                  type="text"
+                  value={roadmapInputForm.period}
+                  onChange={(event) =>
+                    handleRoadmapInputChange('period', event.target.value)
+                  }
+                  placeholder="예: 6개월"
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm md:text-base shadow-sm focus:border-primary-80 focus:outline-none focus:ring-2 focus:ring-primary-80/30 transition"
+                  disabled={loading}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  보유 경험/자격증
+                </label>
+                <textarea
+                  value={roadmapInputForm.experience}
+                  onChange={(event) =>
+                    handleRoadmapInputChange('experience', event.target.value)
+                  }
+                  placeholder={
+                    '보유 경험 또는 자격증을 줄바꿈으로 구분해 입력해 주세요.\n예: 정보처리기사\n예: 사이드 프로젝트 경험'
+                  }
+                  rows={5}
+                  className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm md:text-base shadow-sm focus:border-primary-80 focus:outline-none focus:ring-2 focus:ring-primary-80/30 transition resize-none"
+                  disabled={loading}
+                />
+                <p className="mt-2 text-xs text-gray-400">
+                  줄바꿈으로 구분한 항목은 목록 형태로 표시됩니다.
+                </p>
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeEditRoadmapModal}
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm md:text-base text-gray-600 hover:bg-gray-100 transition"
+                  disabled={loading}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary-90 px-5 py-2 text-sm md:text-base text-white shadow hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={loading}
+                >
+                  수정하기
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {/* 전체 완료 애니메이션 (큰 크기) */}
       <CompletionAnimation
         isVisible={showFullCompletionAnimation}
@@ -535,13 +825,9 @@ export default function UserCheckList({
                 />
               </button>
               <button
-                onClick={() => {
-                  // TODO: 로드맵 삭제 기능 구현
-                  if (confirm('로드맵을 삭제하시겠습니까?')) {
-                    // 삭제 로직 추가
-                  }
-                }}
-                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                onClick={handleDeleteRoadmap}
+                disabled={loading}
+                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="로드맵 삭제"
               >
                 <Image
@@ -683,53 +969,28 @@ export default function UserCheckList({
               {/* 왼쪽 섹션 */}
               <div className="flex-[2] flex flex-col justify-between mb-4 md:mb-0">
                 <div>
-                  {roadmapData &&
-                    roadmapData.roadmapInputResponse.dday !== undefined && (
-                      <div className="flex items-center gap-2 mb-2 justify-between">
-                        <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight">
-                          D+{roadmapData.roadmapInputResponse.dday}
-                        </div>
-                        {/* 취업 정보 수정/삭제 버튼 */}
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              // TODO: 취업 정보 수정 기능 구현
-                              router.push('/ai-chat/roadmap');
-                            }}
-                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
-                            aria-label="취업 정보 수정"
-                          >
-                            <Image
-                              src="/assets/Icons/drop-edit.svg"
-                              alt="수정"
-                              width={24}
-                              height={24}
-                            />
-                          </button>
-                          {/* <button
-                            onClick={() => {
-                              // TODO: 취업 정보 삭제 기능 구현
-                              if (confirm('취업 정보를 삭제하시겠습니까?')) {
-                                // 삭제 로직 추가
-                              }
-                            }}
-                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
-                            aria-label="취업 정보 삭제"
-                          >
-                            <Image
-                              src="/assets/Icons/drop-delete.svg"
-                              alt="삭제"
-                              width={24}
-                              height={24}
-                            />
-                          </button> */}
-                        </div>
-                      </div>
-                    )}
+                  <div className="flex items-center gap-2 mb-2 justify-between">
+                    <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight">
+                      D+{displayDday}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={openEditRoadmapModal}
+                        disabled={loading}
+                        className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="취업 정보 수정"
+                      >
+                        <Image
+                          src="/assets/Icons/drop-edit.svg"
+                          alt="수정"
+                          width={24}
+                          height={24}
+                        />
+                      </button>
+                    </div>
+                  </div>
                   <div className="text-gray-800 text-sm md:text-xl lg:text-3xl xl:text-title-xlarge">
-                    {roadmapData
-                      ? roadmapData.roadmapInputResponse.career
-                      : defaultCareerInfo.jobTitle}
+                    {displayCareer}
                   </div>
                 </div>
 
@@ -738,9 +999,7 @@ export default function UserCheckList({
                     목표 취업 기간
                   </div>
                   <div className="text-gray-800 text-sm md:text-base lg:text-body-large">
-                    {roadmapData
-                      ? roadmapData.roadmapInputResponse.period
-                      : defaultCareerInfo.targetPeriod}
+                    {displayPeriod}
                   </div>
                 </div>
               </div>
@@ -755,17 +1014,13 @@ export default function UserCheckList({
                   보유 경험/자격증
                 </div>
                 <div className="text-gray-800 text-sm md:text-base lg:text-body-large space-y-1 md:space-y-2">
-                  {roadmapData
-                    ? roadmapData.roadmapInputResponse.experience
-                        ?.split(',')
-                        .map((item, index) => (
-                          <div key={index}>{item.trim()}</div>
-                        ))
-                    : defaultCareerInfo.experience
-                        ?.split(',')
-                        .map((item, index) => (
-                          <div key={index}>{item.trim()}</div>
-                        ))}
+                  {displayExperience
+                    ?.split(',')
+                    .map((item) => item.trim())
+                    .filter((item) => item.length > 0)
+                    .map((item, index) => (
+                      <div key={index}>{item}</div>
+                    ))}
                 </div>
               </div>
             </div>
