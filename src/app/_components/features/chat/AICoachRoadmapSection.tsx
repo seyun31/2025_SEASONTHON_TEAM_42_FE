@@ -78,7 +78,7 @@ export default function AICoachRoadmapSection() {
         </h2>
 
         {/* 메인 콘텐츠 영역 - 2:1 비율 */}
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 lg:items-start">
           {/* 좌측 AI 코치 카드들 */}
           <div className="flex flex-col gap-6 lg:w-2/3">
             {aiCoachCards.map((card, index) => (
@@ -123,9 +123,9 @@ export default function AICoachRoadmapSection() {
           </div>
 
           {/* 우측 로드맵 카드 */}
-          <div className="lg:w-1/3">
+          <div className="lg:w-1/3 lg:self-start">
             <RoadmapBackground
-              className="h-full w-full flex-shrink-0"
+              className="w-full flex-shrink-0"
               overlayBlur={!userName}
             >
               <RoadmapHeader
@@ -142,16 +142,24 @@ export default function AICoachRoadmapSection() {
                 <div className="absolute inset-0 flex items-center justify-center">
                   {!userName ? (
                     <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3 ">
-                      <p className="text-black text-title-xlarge opacity-90">
+                      <p className="text-black text-xl opacity-90">
                         로그인 하시고
                         <br />
                         취업 로드맵 받아보세요!
                       </p>
                     </div>
                   ) : loading ? (
-                    <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3">
-                      <p className="text-black text-title-xlarge opacity-90">
-                        로드맵을 불러오는 중...
+                    <div className="flex flex-col items-center justify-center gap-4 text-center bg-white/40 rounded-2xl px-6 py-8">
+                      <Image
+                        src="/assets/Icons/loading-star-2.png"
+                        alt="로드맵 불러오는 중"
+                        width={160}
+                        height={160}
+                        className="w-28 h-28 md:w-32 md:h-32 object-contain"
+                        priority
+                      />
+                      <p className="text-black text-xl opacity-90">
+                        로드맵을 불러오고 있어요
                       </p>
                     </div>
                   ) : error ? (

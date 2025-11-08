@@ -877,8 +877,8 @@ export const getAllEducationsAnonymous = async (filters?: {
   keyword?: string;
   pageNo?: number;
   pageSize?: number;
-  startYmd?: string;
-  endYmd?: string;
+  region?: string;
+  type?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
     // 쿼리 파라미터 생성
@@ -896,12 +896,12 @@ export const getAllEducationsAnonymous = async (filters?: {
       queryParams.append('size', filters.pageSize.toString());
     }
 
-    if (filters?.startYmd) {
-      queryParams.append('startYmd', filters.startYmd);
+    if (filters?.region) {
+      queryParams.append('region', filters.region);
     }
 
-    if (filters?.endYmd) {
-      queryParams.append('endYmd', filters.endYmd);
+    if (filters?.type) {
+      queryParams.append('type', filters.type);
     }
 
     const queryString = queryParams.toString();
@@ -941,8 +941,8 @@ export const getHrdEducations = async (filters?: {
   keyword?: string;
   pageNo?: number;
   pageSize?: number;
-  startYmd?: string;
-  endYmd?: string;
+  region?: string;
+  type?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
     // 쿼리 파라미터 생성
@@ -960,12 +960,12 @@ export const getHrdEducations = async (filters?: {
       queryParams.append('size', filters.pageSize.toString());
     }
 
-    if (filters?.startYmd) {
-      queryParams.append('startYmd', filters.startYmd);
+    if (filters?.region) {
+      queryParams.append('region', filters.region);
     }
 
-    if (filters?.endYmd) {
-      queryParams.append('endYmd', filters.endYmd);
+    if (filters?.type) {
+      queryParams.append('type', filters.type);
     }
 
     const queryString = queryParams.toString();

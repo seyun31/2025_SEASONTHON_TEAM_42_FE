@@ -12,18 +12,18 @@ export async function GET(request: Request): Promise<Response> {
     const keyword = searchParams.get('keyword') || '';
     const page = searchParams.get('page') || '';
     const size = searchParams.get('size') || '';
-    const startYmd = searchParams.get('startYmd') || '';
-    const endYmd = searchParams.get('endYmd') || '';
+    const region = searchParams.get('region') || '';
+    const type = searchParams.get('type') || '';
 
     console.log('[Education Anonymous API] Request params:', {
       keyword,
       page,
       size,
-      startYmd,
-      endYmd,
+      region,
+      type,
     });
 
-    const url = new URL(`${backendUrl}/education/anonymous`);
+    const url = new URL(`${backendUrl}/education`);
     if (keyword) url.searchParams.append('keyword', keyword);
     if (page) {
       url.searchParams.append('page', page);
@@ -31,8 +31,8 @@ export async function GET(request: Request): Promise<Response> {
     if (size) {
       url.searchParams.append('size', size);
     }
-    if (startYmd) url.searchParams.append('startYmd', startYmd);
-    if (endYmd) url.searchParams.append('endYmd', endYmd);
+    if (region) url.searchParams.append('region', region);
+    if (type) url.searchParams.append('type', type);
 
     console.log('[Education Anonymous API] Backend URL:', url.toString());
 
