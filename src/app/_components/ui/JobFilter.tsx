@@ -27,22 +27,29 @@ const regionOptions: FilterOption[] = REGIONS.map((region, index) => ({
   value: region,
 }));
 
+//상용직(시간제) / 계약직(시간제) / 상용직 / 계약직
 const employmentTypeOptions: FilterOption[] = [
-  { id: 'fulltime', label: '정규직', value: 'fulltime' },
-  { id: 'contract', label: '계약직', value: 'contract' },
-  { id: 'freelance', label: '프리랜서', value: 'freelance' },
-  { id: 'dispatch', label: '파견직', value: 'dispatch' },
-  { id: 'parttime', label: '아르바이트/파트', value: 'parttime' },
-  { id: 'intern', label: '인턴', value: 'intern' },
-];
+  {
+    id: 'permanent',
+    label: '정규직',
+    value: '상용직',
+  },
+  {
+    id: 'contract',
+    label: '인턴',
+    value: '계약직',
+  },
+  {
+    id: 'contract-parttime',
+    label: '계약직(시간제)',
+    value: '계약직(시간제)',
+  },
 
-const jobCategoryOptions: FilterOption[] = [
-  { id: 'production', label: '생산', value: 'production' },
-  { id: 'service', label: '서비스', value: 'service' },
-  { id: 'cook', label: '조리사', value: 'cook' },
-  { id: 'social_worker', label: '사회복지사', value: 'social_worker' },
-  { id: 'childcare', label: '보육교사', value: 'childcare' },
-  { id: 'other', label: '기타', value: 'other' },
+  {
+    id: 'permanent-parttime',
+    label: '아르바이트/파트',
+    value: '상용직(시간제)',
+  },
 ];
 
 interface FilterDropdownProps {
@@ -109,7 +116,7 @@ function FilterDropdown({
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-[320px] md:w-[380px] bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-2 md:p-4">
+        <div className="absolute top-full left-0 mt-2 w-[360px] md:w-[440px] bg-white border border-gray-20 rounded-lg shadow-lg z-10 p-2 md:p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             {options.map((option) => {
               const isChecked = values.includes(option.value);
@@ -407,16 +414,6 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
           />
         </div>
 
-        {/* 직무 필터 */}
-        <FilterDropdown
-          label="직무"
-          options={jobCategoryOptions}
-          values={filters.jobCategory}
-          isOpen={isDropdownOpen.jobCategory}
-          onToggle={() => toggleDropdown('jobCategory')}
-          onChange={(values) => handleFilterChange('jobCategory', values)}
-        />
-
         {/* 필터 적용하기 버튼 */}
         <div className="order-4 md:order-3">
           <button
@@ -480,33 +477,6 @@ export default function JobFilter({ onFilterChange }: JobFilterProps) {
                       (t: string) => t !== type
                     );
                     handleFilterChange('employmentType', newTypes);
-                  }}
-                  className="hover:text-primary-70"
-                >
-                  ×
-                </button>
-              </div>
-            );
-          })}
-
-          {/* 직무 필터 표시 */}
-          {filters.jobCategory.map((category) => {
-            const option = jobCategoryOptions.find(
-              (opt) => opt.value === category
-            );
-            if (!option) return null;
-            return (
-              <div
-                key={`category-${category}`}
-                className="flex items-center gap-2 w-[10px] px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
-              >
-                <span>{option.label}</span>
-                <button
-                  onClick={() => {
-                    const newCategories = filters.jobCategory.filter(
-                      (c: string) => c !== category
-                    );
-                    handleFilterChange('jobCategory', newCategories);
                   }}
                   className="hover:text-primary-70"
                 >
