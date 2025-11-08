@@ -4,7 +4,9 @@ import EducationCard from '@/components/features/job/EducationCard';
 import EmptyEducations from '@/components/features/job/EmptyEducations';
 import SearchBar from '@/components/ui/SearchBar';
 import EducationTab from '@/components/ui/EducationTab';
-import EducationFilter from '@/components/ui/EducationFilter';
+import EducationFilter, {
+  educationTypeOptions,
+} from '@/components/ui/EducationFilter';
 import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
 import Footer from '@/components/layout/Footer';
 import { useEffect, useState } from 'react';
@@ -145,6 +147,11 @@ export default function EducationProgramsClient({
       setIsLoading(true);
       let data: EducationSummary[] = [];
       let newTotalElements = 0;
+      const regionParam = filters.selectedRegion || undefined;
+      const typeParam =
+        filters.educationType.length > 0
+          ? filters.educationType.join(',')
+          : undefined;
 
       if (isLoggedIn) {
         if (activeTab === 'custom') {
@@ -155,8 +162,8 @@ export default function EducationProgramsClient({
             keyword: debouncedSearchKeyword || undefined,
             pageNo: page - 1,
             pageSize: 20,
-            startYmd: '20250101',
-            endYmd: '20251231',
+            region: regionParam,
+            type: typeParam,
           });
           data = (result.educationDtoList || []).map((edu) => {
             return {
@@ -206,8 +213,8 @@ export default function EducationProgramsClient({
           keyword: debouncedSearchKeyword || undefined,
           pageNo: page - 1,
           pageSize: 20,
-          startYmd: '',
-          endYmd: '',
+          region: regionParam,
+          type: typeParam,
         });
         data = (result.educationDtoList || []).map((edu) => {
           return {
@@ -294,6 +301,27 @@ export default function EducationProgramsClient({
     );
   };
 
+  const handleFilterApply = (appliedFilters: typeof filters) => {
+    setFilters(appliedFilters);
+    setOpenCardId(null);
+
+    if (activeTab !== 'all') {
+      setIsLoading(true);
+      setEducations([]);
+      setActiveTab('all');
+      setCurrentPage(1);
+      updateURL('all', 1, null);
+      return;
+    }
+
+    setIsLoading(true);
+    setEducations([]);
+    updateURL('all', 1, null);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
+  };
+
   if (isLoading) {
     return (
       <div>
@@ -304,7 +332,49 @@ export default function EducationProgramsClient({
                 <>
                   <SearchBar borderColor="#9FC2FF" />
                   {isLoggedIn && (
-                    <EducationFilter onFilterChange={setFilters} />
+                    <EducationFilter onFilterChange={handleFilterApply} />
+                  )}
+                  {(debouncedSearchKeyword.trim().length > 0 ||
+                    filters.selectedRegion ||
+                    filters.selectedDistricts.length > 0 ||
+                    filters.educationType.length > 0) && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {debouncedSearchKeyword.trim().length > 0 && (
+                        <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-gray-10 text-gray-80 rounded-full text-sm md:text-base">
+                          <span className="font-medium text-gray-90">
+                            검색어
+                          </span>
+                          <span>{debouncedSearchKeyword}</span>
+                        </div>
+                      )}
+                      {filters.selectedRegion && (
+                        <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base">
+                          <span>{filters.selectedRegion}</span>
+                        </div>
+                      )}
+                      {filters.selectedDistricts.map((district) => (
+                        <div
+                          key={`loading-summary-district-${district}`}
+                          className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                        >
+                          <span>{district}</span>
+                        </div>
+                      ))}
+                      {filters.educationType.map((type) => {
+                        const option = educationTypeOptions.find(
+                          (opt) => opt.value === type
+                        );
+                        if (!option) return null;
+                        return (
+                          <div
+                            key={`loading-summary-education-type-${type}`}
+                            className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                          >
+                            <span>{option.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   )}
                 </>
               )}
@@ -348,7 +418,49 @@ export default function EducationProgramsClient({
                   onSearchChange={setSearchKeyword}
                   borderColor="#9FC2FF"
                 />
-                {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
+                {isLoggedIn && (
+                  <EducationFilter onFilterChange={handleFilterApply} />
+                )}
+                {(debouncedSearchKeyword.trim().length > 0 ||
+                  filters.selectedRegion ||
+                  filters.selectedDistricts.length > 0 ||
+                  filters.educationType.length > 0) && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {debouncedSearchKeyword.trim().length > 0 && (
+                      <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-gray-10 text-gray-80 rounded-full text-sm md:text-base">
+                        <span className="font-medium text-gray-90">검색어</span>
+                        <span>{debouncedSearchKeyword}</span>
+                      </div>
+                    )}
+                    {filters.selectedRegion && (
+                      <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base">
+                        <span>{filters.selectedRegion}</span>
+                      </div>
+                    )}
+                    {filters.selectedDistricts.map((district) => (
+                      <div
+                        key={`summary-district-${district}`}
+                        className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                      >
+                        <span>{district}</span>
+                      </div>
+                    ))}
+                    {filters.educationType.map((type) => {
+                      const option = educationTypeOptions.find(
+                        (opt) => opt.value === type
+                      );
+                      if (!option) return null;
+                      return (
+                        <div
+                          key={`summary-education-type-${type}`}
+                          className="flex items-center gap-2 px-2 md:px-3 py-1 bg-primary-10 text-primary-90 rounded-full text-sm md:text-base"
+                        >
+                          <span>{option.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </>
             )}
             {isLoggedIn && (

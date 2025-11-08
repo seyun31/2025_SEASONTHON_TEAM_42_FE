@@ -39,16 +39,16 @@ export async function GET(request: NextRequest) {
     const keyword = searchParams.get('keyword');
     const page = searchParams.get('page');
     const size = searchParams.get('size');
-    const startYmd = searchParams.get('startYmd');
-    const endYmd = searchParams.get('endYmd');
+    const region = searchParams.get('region');
+    const type = searchParams.get('type');
 
     // 백엔드 URL 생성
-    const backendApiUrl = new URL(`${backendUrl}/education/hrd-course`);
+    const backendApiUrl = new URL(`${backendUrl}/education`);
     if (keyword) backendApiUrl.searchParams.append('keyword', keyword);
     if (page) backendApiUrl.searchParams.append('page', page);
     if (size) backendApiUrl.searchParams.append('size', size);
-    if (startYmd) backendApiUrl.searchParams.append('startYmd', startYmd);
-    if (endYmd) backendApiUrl.searchParams.append('endYmd', endYmd);
+    if (region) backendApiUrl.searchParams.append('region', region);
+    if (type) backendApiUrl.searchParams.append('type', type);
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃

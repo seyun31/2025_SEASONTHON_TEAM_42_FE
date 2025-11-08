@@ -99,15 +99,13 @@ async function fetchInitialEducations(
         return { educations, totalElements: educations.length };
       }
 
-      // 전체 교육 탭인 경우 백엔드 API 직접 호출 (/education/hrd-course)
+      // 전체 교육 탭인 경우 백엔드 API 직접 호출 (/education)
       const queryParams = new URLSearchParams();
       queryParams.append('page', pageNo.toString());
       queryParams.append('size', '20');
-      queryParams.append('startYmd', '20250101');
-      queryParams.append('endYmd', '20251231');
 
       const response = await fetch(
-        `${backendUrl}/education/hrd-course?${queryParams.toString()}`,
+        `${backendUrl}/education?${queryParams.toString()}`,
         {
           method: 'GET',
           headers: {
@@ -198,8 +196,15 @@ async function fetchInitialEducations(
       };
     } else {
       // 비로그인 시: 내부 API 라우트를 통해 익명 전체 조회
+      const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(
+        /\/$/,
+        ''
+      );
+      const queryParams = new URLSearchParams();
+      queryParams.append('page', pageNo.toString());
+      queryParams.append('size', '20');
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api/education/anonymous?page=${pageNo}&size=20`,
+        `${basePath}/api/education/anonymous?${queryParams.toString()}`,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },

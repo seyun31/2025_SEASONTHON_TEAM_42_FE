@@ -27,19 +27,9 @@ const regionOptions: FilterOption[] = REGIONS.map((region, index) => ({
   value: region,
 }));
 
-const educationTypeOptions: FilterOption[] = [
+export const educationTypeOptions: FilterOption[] = [
   { id: 'online', label: '온라인', value: 'online' },
   { id: 'offline', label: '오프라인', value: 'offline' },
-  { id: 'hybrid', label: '혼합형', value: 'hybrid' },
-];
-
-const educationCategoryOptions: FilterOption[] = [
-  { id: 'programming', label: '프로그래밍', value: 'programming' },
-  { id: 'design', label: '디자인', value: 'design' },
-  { id: 'marketing', label: '마케팅', value: 'marketing' },
-  { id: 'language', label: '언어', value: 'language' },
-  { id: 'certification', label: '자격증', value: 'certification' },
-  { id: 'other', label: '기타', value: 'other' },
 ];
 
 interface FilterDropdownProps {
@@ -492,12 +482,14 @@ export default function EducationFilter({
 }: EducationFilterProps) {
   const filterRef = useRef<HTMLDivElement>(null);
 
-  const [filters, setFilters] = useState<FilterState>({
+  const initialFilterState: FilterState = {
     selectedRegion: '',
     selectedDistricts: [],
     educationType: [],
     educationCategory: [],
-  });
+  };
+
+  const [filters, setFilters] = useState<FilterState>(initialFilterState);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState<{
     region: boolean;
@@ -509,21 +501,28 @@ export default function EducationFilter({
     educationCategory: false,
   });
 
-  const handleFilterChange = (
-    key: keyof FilterState,
-    values: string[] | string
-  ) => {
-    const newFilters = { ...filters, [key]: values };
-    setFilters(newFilters);
-    onFilterChange?.(newFilters);
+  const handleFilterChange = (key: keyof FilterState, values: string[]) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: values,
+    }));
   };
 
   const handleRegionChange = (region: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      selectedRegion: region,
-      selectedDistricts: [], // 지역이 바뀌면 선택된 구/시 초기화
-    }));
+    setFilters((prev) => {
+      if (prev.selectedRegion === region) {
+        return {
+          ...prev,
+          selectedRegion: '',
+          selectedDistricts: [],
+        };
+      }
+      return {
+        ...prev,
+        selectedRegion: region,
+        selectedDistricts: [], // 지역이 바뀌면 선택된 구/시 초기화
+      };
+    });
   };
 
   const handleDistrictsChange = (districts: string[]) => {
@@ -583,7 +582,7 @@ export default function EducationFilter({
 
         {/* 교육형태 필터 */}
         <FilterDropdown
-          label="교육형태"
+          label="교육 형태"
           options={educationTypeOptions}
           values={filters.educationType}
           isOpen={isDropdownOpen.educationType}
@@ -591,19 +590,12 @@ export default function EducationFilter({
           onChange={(values) => handleFilterChange('educationType', values)}
         />
 
-        {/* 교육분야 필터 */}
-        <FilterDropdown
-          label="교육분야"
-          options={educationCategoryOptions}
-          values={filters.educationCategory}
-          isOpen={isDropdownOpen.educationCategory}
-          onToggle={() => toggleDropdown('educationCategory')}
-          onChange={(values) => handleFilterChange('educationCategory', values)}
-        />
-
         {/* 필터 적용하기 버튼 */}
         <button
-          onClick={() => onFilterChange?.(filters)}
+          onClick={() => {
+            onFilterChange?.(filters);
+            setFilters(initialFilterState);
+          }}
           className="
               px-4 md:px-6 py-2 md:py-3
               bg-primary-90 text-white
