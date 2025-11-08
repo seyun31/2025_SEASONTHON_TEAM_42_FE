@@ -15,15 +15,39 @@ import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import MessageItem from '@/components/ui/MessageItem';
 import { UserResponse } from '@/types/user';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { api } from '@/lib/api/axios';
+
+interface RoadmapStep {
+  period: string;
+  category: string;
+  isCompleted: boolean;
+  actions: Array<{
+    action: string;
+    isCompleted: boolean;
+  }>;
+}
+
+interface RoadmapResponse {
+  result: string;
+  data: {
+    steps: RoadmapStep[];
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
 
 function AIChatRoadmapContent() {
   const router = useRouter();
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
-    queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
+    queryFn: async () => {
+      const { data } = await api.get<UserResponse>('/api/auth/user');
+      return data;
+    },
     retry: 1,
     staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
@@ -113,31 +137,15 @@ function AIChatRoadmapContent() {
 
       const answers = JSON.parse(storedAnswers);
 
-      // 액세스 토큰 가져오기
-      const getCookie = (name: string) => {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-      };
-
-      const accessToken = getCookie('accessToken');
-
-      // 로드맵 추천 API 호출
-      const response = await fetch(`${backendUrl}/roadmap/recommend`, {
-        method: 'POST',
-        headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
+      // 로드맵 생성 API 호출
+      const { data } = await api.post<RoadmapResponse>(
+        '/api/roadmap/recommend',
+        {
           career: answers.career || '',
           experience: answers.experience || '',
           period: answers.period || '',
-        }),
-      });
-
-      const data = await response.json();
+        }
+      );
 
       if (data.result === 'SUCCESS') {
         setRoadmapData(data.data);
@@ -149,7 +157,7 @@ function AIChatRoadmapContent() {
     } finally {
       setIsLoadingRecommendations(false);
     }
-  }, [backendUrl]);
+  }, []);
 
   // 채팅 완료 시 결과 데이터 가져오기
   useEffect(() => {
@@ -336,7 +344,7 @@ function AIChatRoadmapContent() {
                 />
               </div>
             ) : (
-              <div className="ml-[0.5vw]">
+              <div>
                 {roadmapData && roadmapData.steps && (
                   <MessageItem
                     message={`${userName}의 맞춤 커리어 로드맵이 완성되었습니다!\n\n${roadmapData.steps
