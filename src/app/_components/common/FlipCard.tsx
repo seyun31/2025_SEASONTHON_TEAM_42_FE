@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 
@@ -24,13 +23,11 @@ export default function FlipCard({
   jobTitle,
   jobDescription,
   recommendationScore,
-  onJobPostingClick,
   jobImage,
   strengths,
   memberOccupationId,
   isBookmark = false,
 }: FlipCardProps) {
-  const router = useRouter();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isScrap, setIsScrap] = useState(isBookmark);
 
@@ -110,7 +107,7 @@ export default function FlipCard({
           <div className="absolute bottom-0 left-0 right-0 p-6 w-full h-[218px] bg-gradient-to-b from-transparent to-black">
             <div className="flex flex-col">
               <div className="flex justify-between items-center mb-2">
-                <h3 className="text-white self-stretch text-[32px] font-semibold leading-[140%] tracking-[-0.8px]">
+                <h3 className="top-5 text-white self-stretch text-[32px] font-semibold leading-[140%] tracking-[-0.8px]">
                   {jobTitle}
                 </h3>
                 <button
@@ -134,7 +131,7 @@ export default function FlipCard({
           className="absolute inset-0 w-full h-full backface-hidden rounded-[24px] bg-white rotate-y-180 overflow-hidden"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="w-full h-full p-6 flex flex-col justify-between">
+          <div className="w-full h-full p-6 flex flex-col relative">
             {/* 상단: 제목 */}
             <div className="flex justify-center items-center">
               <h4 className="text-2xl font-semibold text-gray-800 mt-2">
@@ -142,11 +139,10 @@ export default function FlipCard({
               </h4>
             </div>
 
-            {/* 중간: 추천 점수와 설명 */}
-            <div className="flex-1 flex flex-col items-center justify-center px-4">
-              {/* 추천 점수 */}
-              <div className="text-center mb-4">
-                <div className="text-[100px] font-bold mb-2">
+            {/* 추천 점수 */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="text-center">
+                <div className="text-[100px] font-bold">
                   <span
                     className="bg-clip-text text-transparent"
                     style={{
@@ -160,29 +156,15 @@ export default function FlipCard({
                   </span>
                 </div>
               </div>
-
-              {/* 설명 텍스트 */}
-              <div className="text-center mb-4 max-w-full overflow-hidden">
-                {strengths && (
-                  <p className="text-sm leading-relaxed text-gray-700 break-words px-2">
-                    {strengths.description}
-                  </p>
-                )}
-              </div>
             </div>
 
-            {/* 하단: 채용공고 확인 버튼 */}
-            <div className="mt-auto">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onJobPostingClick();
-                  router.push('/job-postings');
-                }}
-                className="w-full bg-primary-90 hover:bg-green-600 text-xl text-white font-medium py-3 px-4 rounded-2xl transition-colors duration-200"
-              >
-                채용공고 확인하기
-              </button>
+            {/* 하단: 설명 텍스트 */}
+            <div className="absolute top-5/6 left-6 right-6 text-center">
+              {strengths && (
+                <p className="text-lg font-normal leading-[150%] tracking-[-0.025em] text-black text-center break-words px-2">
+                  {strengths.description}
+                </p>
+              )}
             </div>
           </div>
         </div>

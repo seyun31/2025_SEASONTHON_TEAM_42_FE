@@ -23,7 +23,7 @@ import {
   RoadmapActionRecommendResponse,
   ApiResponse as RoadmapApiResponse,
 } from '@/types/roadmap';
-import { getAccessToken } from '@/lib/auth';
+import { api, backendApi } from '@/lib/api/axios';
 
 // 전체 채용공고 목록 조회
 export const getJobList = async (): Promise<JobSummary[]> => {
@@ -73,36 +73,14 @@ export const toggleJobScrap = async (jobId: string): Promise<boolean> => {
 // 맞춤형 일자리 추천 (로그인 시)
 export const getRecommendedJobs = async (): Promise<AllResponse[]> => {
   try {
-    console.log('Making API request to /api/job/recommend');
+    const response =
+      await api.get<ApiResponse<SearchAllResponse>>('/api/job/recommend');
 
-    const response = await fetch('/api/job/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
-
-    console.log('getRecommendedJobs - API Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getRecommendedJobs - API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch recommended jobs: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: ApiResponse<SearchAllResponse> = await response.json();
-    console.log('getRecommendedJobs - API Response data:', result);
-
-    if (result.result !== 'SUCCESS') {
-      console.error('getRecommendedJobs - API returned error:', result.error);
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    console.log('getRecommendedJobs - jobDtoList:', result.data.jobDtoList);
-    return result.data.jobDtoList || [];
+    return response.data.data.jobDtoList || [];
   } catch (error) {
     console.error('Error fetching recommended jobs:', error);
     throw error;
@@ -119,8 +97,6 @@ export const getAllJobs = async (filters?: {
   jobCategory?: string[];
 }): Promise<SearchAllResponse> => {
   try {
-    console.log('Making API request to /job/all/anonymous');
-
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
     if (!backendUrl) {
@@ -205,8 +181,6 @@ export const getAllJobsForLoggedIn = async (filters?: {
   jobCategory?: string[];
 }): Promise<SearchAllResponse> => {
   try {
-    console.log('Making API request to /api/job/all');
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -275,36 +249,15 @@ export const getAllJobsForLoggedIn = async (filters?: {
 // 로드맵 조회
 export const getRoadMap = async (): Promise<RoadMapResponse> => {
   try {
-    console.log('Making API request to /api/roadmap/recommend (GET)');
+    const response = await api.get<RoadmapApiResponse<RoadMapResponse>>(
+      '/api/roadmap/recommend'
+    );
 
-    const response = await fetch('/api/roadmap/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        accept: 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
-
-    console.log('getRoadMap - API Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getRoadMap - API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch roadmap: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-    console.log('getRoadMap - API Response data:', result);
-
-    if (result.result !== 'SUCCESS') {
-      console.error('getRoadMap - API returned error:', result.error);
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    return result.data;
+    return response.data.data;
   } catch (error) {
     console.error('Error fetching roadmap:', error);
     throw error;
@@ -316,37 +269,16 @@ export const recommendRoadMap = async (
   request: RoadMapRequest
 ): Promise<RoadMapResponse> => {
   try {
-    console.log('Making API request to /api/roadmap/recommend (POST)');
-    console.log('Request body:', request);
+    const response = await api.post<RoadmapApiResponse<RoadMapResponse>>(
+      '/api/roadmap/recommend',
+      request
+    );
 
-    const response = await fetch('/api/roadmap/recommend', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-      body: JSON.stringify(request),
-    });
-
-    console.log('recommendRoadMap - API Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('recommendRoadMap - API Error Response:', errorText);
-      throw new Error(
-        `Failed to recommend roadmap: ${response.status} ${response.statusText}`
-      );
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
-    const result: RoadmapApiResponse<RoadMapResponse> = await response.json();
-    console.log('recommendRoadMap - API Response data:', result);
-
-    if (result.result !== 'SUCCESS') {
-      console.error('recommendRoadMap - API returned error:', result.error);
-      throw new Error(result.error?.message || 'API request failed');
-    }
-
-    return result.data;
+    return response.data.data;
   } catch (error) {
     console.error('Error recommending roadmap:', error);
     throw error;
@@ -358,8 +290,6 @@ export const toggleRoadMapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    console.log(`Making API request to /api/roadmap/${roadMapActionId} (POST)`);
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'POST',
       headers: {
@@ -368,21 +298,15 @@ export const toggleRoadMapAction = async (
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('toggleRoadMapAction - API Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('toggleRoadMapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to toggle roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('toggleRoadMapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('toggleRoadMapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -434,35 +358,9 @@ export const getJobDetailById = async (
 // 맞춤형 직업 추천
 export const getRecommendedOccupations = async (): Promise<RecommendJob> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/recommend/occupation`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch recommended occupations: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<RecommendJob> = await response.json();
+    const { data: result } = await backendApi.get<ApiResponse<RecommendJob>>(
+      '/job/recommend/occupation'
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -549,59 +447,11 @@ export const getBookmarkedJobs = async (filters?: {
   jobCategory?: string;
 }): Promise<AllResponse[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    // 쿼리 파라미터 생성
-    const queryParams = new URLSearchParams();
-
-    if (filters?.keyword) {
-      queryParams.append('keyword', filters.keyword);
-    }
-
-    if (filters?.workLocation) {
-      queryParams.append('workLocation', filters.workLocation);
-    }
-
-    if (filters?.employmentType) {
-      queryParams.append('employmentType', filters.employmentType);
-    }
-
-    if (filters?.jobCategory) {
-      queryParams.append('jobCategory', filters.jobCategory);
-    }
-
-    const queryString = queryParams.toString();
-    const url = queryString
-      ? `${backendUrl}/job/bookmarks?${queryString}`
-      : `${backendUrl}/job/bookmarks`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
+    const { data: result } = await backendApi.get<
+      ApiResponse<SearchAllResponse>
+    >('/job/bookmarks', {
+      params: filters,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch bookmarked jobs: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<SearchAllResponse> = await response.json();
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -694,9 +544,6 @@ export const updateRoadmapAction = async (
   try {
     const requestBody: ActionUpdateRequest = { action };
 
-    console.log(`Making API request to /api/roadmap/${roadMapActionId} (PUT)`);
-    console.log('Request body:', requestBody);
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'PUT',
       headers: {
@@ -706,21 +553,15 @@ export const updateRoadmapAction = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log('updateRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('updateRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to update roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('updateRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('updateRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -734,10 +575,6 @@ export const deleteRoadmapAction = async (
   roadMapActionId: number
 ): Promise<void> => {
   try {
-    console.log(
-      `Making API request to /api/roadmap/${roadMapActionId} (DELETE)`
-    );
-
     const response = await fetch(`/api/roadmap/${roadMapActionId}`, {
       method: 'DELETE',
       headers: {
@@ -746,21 +583,15 @@ export const deleteRoadmapAction = async (
       credentials: 'include', // HttpOnly 쿠키 포함
     });
 
-    console.log('deleteRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('deleteRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to delete roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('deleteRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('deleteRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -777,11 +608,6 @@ export const addRoadmapAction = async (
   try {
     const requestBody = { action };
 
-    console.log(
-      `Making API request to /api/roadmap/${roadmapId}/action (POST)`
-    );
-    console.log('Request body:', requestBody);
-
     const response = await fetch(`/api/roadmap/${roadmapId}/action`, {
       method: 'POST',
       headers: {
@@ -791,21 +617,15 @@ export const addRoadmapAction = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log('addRoadmapAction - API Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('addRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to add roadmap action: ${response.status} ${response.statusText}`
       );
     }
 
     const result: RoadmapApiResponse<object> = await response.json();
-    console.log('addRoadmapAction - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error('addRoadmapAction - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
   } catch (error) {
@@ -819,10 +639,6 @@ export const recommendRoadmapAction = async (
   category: string
 ): Promise<string[]> => {
   try {
-    console.log(
-      `Making API request to /api/roadmap/action/recommend?category=${category}`
-    );
-
     const response = await fetch(
       `/api/roadmap/action/recommend?category=${encodeURIComponent(category)}`,
       {
@@ -834,14 +650,7 @@ export const recommendRoadmapAction = async (
       }
     );
 
-    console.log(
-      'recommendRoadmapAction - API Response status:',
-      response.status
-    );
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('recommendRoadmapAction - API Error Response:', errorText);
       throw new Error(
         `Failed to recommend roadmap action: ${response.status} ${response.statusText}`
       );
@@ -850,13 +659,7 @@ export const recommendRoadmapAction = async (
     const result: ApiResponse<RoadmapActionRecommendResponse> =
       await response.json();
 
-    console.log('recommendRoadmapAction - API Response data:', result);
-
     if (result.result !== 'SUCCESS') {
-      console.error(
-        'recommendRoadmapAction - API returned error:',
-        result.error
-      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -872,35 +675,9 @@ export const getAIChatOptions = async (
   sequence: number
 ): Promise<OptionResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/chat/${sequence}`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch AI chat options: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<OptionResponse> = await response.json();
+    const { data: result } = await backendApi.get<ApiResponse<OptionResponse>>(
+      `/job/chat/${sequence}`
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -919,38 +696,13 @@ export const saveAIChatAnswer = async (
   answer: string
 ): Promise<void> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(
-      `${backendUrl}/job/chat/${sequence}?answer=${encodeURIComponent(answer)}`,
+    const { data: result } = await backendApi.post<ApiResponse<object>>(
+      `/job/chat/${sequence}`,
+      null,
       {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+        params: { answer },
       }
     );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to save AI chat answer: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<object> = await response.json();
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -964,35 +716,8 @@ export const saveAIChatAnswer = async (
 // AI 채팅 히스토리 조회
 export const getAIChatHistory = async (): Promise<HistoryResponse> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    const response = await fetch(`${backendUrl}/job/chat/history`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch AI chat history: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: ApiResponse<HistoryResponse> = await response.json();
+    const { data: result } =
+      await backendApi.get<ApiResponse<HistoryResponse>>('/job/chat/history');
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -1014,63 +739,30 @@ export const getEducationCourses = async (filters?: {
   endYmd?: string;
 }): Promise<EducationSummary[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendUrl) {
-      throw new Error(
-        'NEXT_PUBLIC_BACKEND_URL 환경변수가 설정되지 않았습니다.'
-      );
-    }
-
-    // 쿼리 파라미터 생성
-    const queryParams = new URLSearchParams();
+    const params: Record<string, string> = {};
 
     if (filters?.keyword) {
-      queryParams.append('keyword', filters.keyword);
+      params.keyword = filters.keyword;
     }
-
     if (filters?.pageNo !== undefined) {
-      queryParams.append('page', filters.pageNo.toString());
+      params.page = filters.pageNo.toString();
     }
-
     if (filters?.pageSize !== undefined) {
-      queryParams.append('size', filters.pageSize.toString());
+      params.size = filters.pageSize.toString();
     }
-
     if (filters?.startYmd) {
-      queryParams.append('startYmd', filters.startYmd);
+      params.startYmd = filters.startYmd;
     }
-
     if (filters?.endYmd) {
-      queryParams.append('endYmd', filters.endYmd);
+      params.endYmd = filters.endYmd;
     }
 
-    const queryString = queryParams.toString();
-    const url = queryString
-      ? `${backendUrl}/job/hrd-course?${queryString}`
-      : `${backendUrl}/job/hrd-course`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API Error Response:', errorText);
-      throw new Error(
-        `Failed to fetch education courses: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: EducationApiResponse = await response.json();
+    const { data: result } = await backendApi.get<EducationApiResponse>(
+      '/job/hrd-course',
+      {
+        params,
+      }
+    );
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -1126,43 +818,16 @@ export const getRecommendedEducations = async (): Promise<
   try {
     console.log('Making API request to /api/education/recommend');
 
-    const response = await fetch('/api/education/recommend', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include', // HttpOnly 쿠키 포함
-    });
-
-    console.log(
-      'getRecommendedEducations - API Response status:',
-      response.status
+    const response = await api.get<EducationDataResponse>(
+      '/api/education/recommend'
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        'getRecommendedEducations - API Error Response:',
-        errorText
-      );
-      throw new Error(
-        `Failed to fetch recommended educations: ${response.status} ${response.statusText}`
-      );
-    }
-
-    const result: EducationDataResponse = await response.json();
-    console.log('getRecommendedEducations - API Response data:', result);
-
-    if (result.result !== 'SUCCESS') {
-      console.error(
-        'getRecommendedEducations - API returned error:',
-        result.error
-      );
-      throw new Error(result.error?.message || 'API request failed');
+    if (response.data.result !== 'SUCCESS') {
+      throw new Error(response.data.error?.message || 'API request failed');
     }
 
     // EducationDto를 EducationSummary로 변환
-    return (result.data.educationDtoList || []).map((edu) => ({
+    return (response.data.data.educationDtoList || []).map((edu) => ({
       id: edu.educationId.toString(),
       educationId: edu.educationId,
       trprId: edu.educationId.toString(),
@@ -1216,11 +881,6 @@ export const getAllEducationsAnonymous = async (filters?: {
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log(
-      'Making API request to /api/education/anonymous with filters:',
-      filters
-    );
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -1256,30 +916,15 @@ export const getAllEducationsAnonymous = async (filters?: {
       },
     });
 
-    console.log(
-      'getAllEducationsAnonymous - API Response status:',
-      response.status
-    );
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        'getAllEducationsAnonymous - API Error Response:',
-        errorText
-      );
       throw new Error(
         `Failed to fetch all educations: ${response.status} ${response.statusText}`
       );
     }
 
     const result = await response.json();
-    console.log('getAllEducationsAnonymous - API Response data:', result);
 
     if (result.result !== 'SUCCESS') {
-      console.error(
-        'getAllEducationsAnonymous - API returned error:',
-        result.error
-      );
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1300,11 +945,6 @@ export const getHrdEducations = async (filters?: {
   endYmd?: string;
 }): Promise<EducationDataResponse['data']> => {
   try {
-    console.log(
-      'Making API request to /api/education/all with filters:',
-      filters
-    );
-
     // 쿼리 파라미터 생성
     const queryParams = new URLSearchParams();
 
@@ -1333,9 +973,6 @@ export const getHrdEducations = async (filters?: {
       ? `/api/education/all?${queryString}`
       : `/api/education/all`;
 
-    console.log('getHrdEducations - Fetching URL:', url);
-    console.log('getHrdEducations - Query params:', queryString);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -1345,11 +982,7 @@ export const getHrdEducations = async (filters?: {
       cache: 'no-store',
     });
 
-    console.log('getHrdEducations - API Response status:', response.status);
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('getHrdEducations - API Error Response:', errorText);
       throw new Error(
         `Failed to fetch HRD educations: ${response.status} ${response.statusText}`
       );
@@ -1358,12 +991,8 @@ export const getHrdEducations = async (filters?: {
     const result = (await response.json()) as
       | EducationDataResponse
       | EducationApiResponse;
-    console.log('getHrdEducations - API Response data:', result);
-    console.log('getHrdEducations - result.result:', result.result);
-    console.log('getHrdEducations - result.data:', result.data);
 
     if (result.result !== 'SUCCESS') {
-      console.error('getHrdEducations - API returned error:', result.error);
       throw new Error(result.error?.message || 'API request failed');
     }
 
@@ -1372,25 +1001,13 @@ export const getHrdEducations = async (filters?: {
 
     // educationDtoList가 있는 경우 (EducationDataResponse)
     if ('educationDtoList' in result.data && result.data.educationDtoList) {
-      console.log(
-        'getHrdEducations - Found educationDtoList, length:',
-        result.data.educationDtoList.length
-      );
       mappedData = result.data.educationDtoList;
       totalElements = result.data.totalElements || mappedData.length;
     }
     // srchList가 있는 경우 (EducationApiResponse) - CardCourseItem을 EducationSummary로 변환
     else if ('srchList' in result.data && result.data.srchList) {
-      console.log(
-        'getHrdEducations - Found srchList, length:',
-        result.data.srchList.length
-      );
       mappedData = result.data.srchList.map(
         (item: CardCourseItem, index: number) => {
-          console.log(
-            `getHrdEducations - Mapping CardCourseItem ${index}:`,
-            item
-          );
           return {
             trprId: parseInt(item.trprId || index.toString()),
             educationId: parseInt(item.trprId || index.toString()),
@@ -1412,23 +1029,12 @@ export const getHrdEducations = async (filters?: {
       );
       totalElements = result.data.scn_cnt || mappedData.length;
     } else {
-      console.log(
-        'getHrdEducations - No educationDtoList or srchList found in result.data:',
-        result.data
-      );
       return {
         totalElements: 0,
         numberOfElements: 0,
         educationDtoList: [],
       };
     }
-
-    console.log('getHrdEducations - Final mapped data:', mappedData);
-    console.log(
-      'getHrdEducations - Final mapped data length:',
-      mappedData.length
-    );
-    console.log('getHrdEducations - Total elements:', totalElements);
 
     return {
       totalElements,
@@ -1444,23 +1050,11 @@ export const getHrdEducations = async (filters?: {
 // 교육 프로그램 찜 목록 조회
 export const getEducationBookmarks = async (): Promise<string[]> => {
   try {
-    const token = getAccessToken();
-    if (!token) {
-      throw new Error('Access token not found');
-    }
-
-    const response = await fetch('/api/heart-lists/edu/history', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch education bookmarks');
-    }
-
-    const result = await response.json();
+    const { data: result } = await api.get<{
+      result: string;
+      data: Array<{ trprId?: string; id?: string }>;
+      error?: { code: string; message: string };
+    }>('/api/heart-lists/edu/history');
 
     if (result.result !== 'SUCCESS') {
       throw new Error(result.error?.message || 'API request failed');
@@ -1468,9 +1062,11 @@ export const getEducationBookmarks = async (): Promise<string[]> => {
 
     // API 응답에서 교육 프로그램 ID 목록 추출
     return (
-      result.data?.map(
-        (item: { trprId?: string; id?: string }) => item.trprId || item.id
-      ) || []
+      result.data
+        ?.map(
+          (item: { trprId?: string; id?: string }) => item.trprId || item.id
+        )
+        .filter((id): id is string => !!id) || []
     );
   } catch (error) {
     console.error('Error fetching education bookmarks:', error);

@@ -8,8 +8,6 @@ export async function POST(request: Request): Promise<Response> {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    console.log('API 호출 시작 - accessToken 존재:', !!accessToken);
-
     if (!accessToken) {
       return Response.json(
         {
@@ -39,7 +37,10 @@ export async function POST(request: Request): Promise<Response> {
     }
 
     const url = new URL(`${backendUrl}/v1/bookmark/edu`);
-    url.searchParams.append('educationId', educationId.toString());
+    url.searchParams.append('jobId', educationId.toString()); // 백엔드는 jobId로 받음!
+
+    console.log('백엔드 호출 URL:', url.toString());
+    console.log('educationId (jobId로 전송):', educationId);
 
     const response = await fetch(url.toString(), {
       method: 'POST',
@@ -54,6 +55,7 @@ export async function POST(request: Request): Promise<Response> {
     if (!response.ok) {
       try {
         const errorData = await response.json();
+        console.error('백엔드 에러 응답:', JSON.stringify(errorData, null, 2));
         return Response.json(errorData, { status: response.status });
       } catch {
         return Response.json(

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
 import EmptyRecommendations from '@/components/features/job/EmptyRecommendations';
-import { getUserData, getAccessToken } from '@/lib/auth';
+import { getUserData } from '@/lib/auth';
 import { getRecommendedJobs, getAllJobs } from '@/lib/api/jobApi';
 import { AllResponse } from '@/types/job';
 
@@ -18,8 +18,7 @@ export default function JobRecommendationsSection() {
 
   useEffect(() => {
     const userData = getUserData();
-    const token = getAccessToken();
-    const loggedIn = !!(userData?.name && token);
+    const loggedIn = !!userData?.name;
 
     if (loggedIn) {
       setUserName(userData.name);
@@ -36,34 +35,15 @@ export default function JobRecommendationsSection() {
 
         if (loggedIn) {
           // 로그인 시: 맞춤형 일자리 추천
-          console.log(
-            'JobRecommendationsSection - Fetching recommended jobs for logged in user'
-          );
           jobData = await getRecommendedJobs();
-          console.log(
-            'JobRecommendationsSection - Recommended jobs fetched:',
-            jobData.length,
-            jobData
-          );
         } else {
           // 비로그인 시: 전체 채용 조회
-          console.log(
-            'JobRecommendationsSection - Fetching all jobs for anonymous user'
-          );
           const result = await getAllJobs();
           jobData = (result.jobDtoList || []) as AllResponse[];
-          console.log(
-            'JobRecommendationsSection - All jobs fetched:',
-            jobData.length,
-            jobData
-          );
         }
 
         // null이나 빈 배열인 경우 처리
         if (!jobData || jobData.length === 0) {
-          console.log(
-            'JobRecommendationsSection - No jobs found, setting empty array'
-          );
           setJobs([]);
           return;
         }

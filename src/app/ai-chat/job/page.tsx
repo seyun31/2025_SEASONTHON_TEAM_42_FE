@@ -18,6 +18,9 @@ import {
   checkChatHistory as checkChatHistoryUtil,
 } from '@/utils/chatHistory';
 import ReJobCardModal from '@/components/features/chat/ReJobCardModal';
+import RestartConfirmModal from '@/components/features/chat/RestartConfirmModal';
+import { useRouter } from 'next/navigation';
+import { api } from '@/lib/api/axios';
 
 interface Occupation {
   imageUrl: string;
@@ -49,11 +52,33 @@ interface ApiStrengthReport {
   job: string[];
 }
 
+interface ApiResponse<T> {
+  result: string;
+  data: T;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+interface OptionsData {
+  optionList: string[];
+}
+
+interface StrengthReportData {
+  reportList: ApiStrengthReport[];
+}
+
 function AIChatJobContent() {
+  const router = useRouter();
+
   // 사용자 정보 가져오기
   const { data: userData, isLoading: userLoading } = useQuery<UserResponse>({
     queryKey: ['user', 'profile'],
-    queryFn: () => fetch('/api/auth/user').then((res) => res.json()),
+    queryFn: async () => {
+      const { data } = await api.get<UserResponse>('/api/auth/user');
+      return data;
+    },
     retry: 1,
     staleTime: 30 * 60 * 1000, // 데이터가 30분동안 fresh상태로 유지
   });
@@ -89,12 +114,14 @@ function AIChatJobContent() {
   const [completionFlowStarted, setCompletionFlowStarted] = useState(false);
   const [jobMessageAdded, setJobMessageAdded] = useState(false);
   const [strengthReports, setStrengthReports] = useState<StrengthReport[]>([]);
-  const [strengthReportAdded, setStrengthReportAdded] = useState(false);
   const [historyChecked, setHistoryChecked] = useState(false);
   const [hasExistingConversation, setHasExistingConversation] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [showMoreJobCardsButton, setShowMoreJobCardsButton] = useState(false);
   const [showReJobCardModal, setShowReJobCardModal] = useState(false);
+  const [showRestartModal, setShowRestartModal] = useState(false);
+  const [isWaitingForJobInput, setIsWaitingForJobInput] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>('');
 
   // 이전 대화 기록 불러오기 함수
   const loadPreviousConversationHandler = useCallback(async () => {
@@ -113,7 +140,6 @@ function AIChatJobContent() {
         setStrengthReports,
         setJobRecommendations,
         setJobMessageAdded,
-        setStrengthReportAdded,
         setShowJobCards,
       });
     } finally {
@@ -136,9 +162,12 @@ function AIChatJobContent() {
       const hasHistory = await checkChatHistoryUtil();
 
       if (hasHistory) {
-        // 이전 대화가 있는 경우 - 기존 대화 데이터 모두 불러와서 표시
+        // 이전 대화가 있는 경우 - 환영 메시지와 옵션 버튼 표시
         setHasExistingConversation(true);
-        loadPreviousConversationHandler();
+        addBotMessage(
+          `안녕하세요 ${userName} 반가워요 🙌\n다시 오셨네요! 무엇을 도와드릴까요?`
+        );
+        addComponentMessage('historyOptions', {});
       } else {
         // job이 null이거나 빈 문자열이면 처음부터 시작 (기존 로직)
         setHasExistingConversation(false);
@@ -150,7 +179,7 @@ function AIChatJobContent() {
     } finally {
       setHistoryChecked(true);
     }
-  }, [loadPreviousConversationHandler]);
+  }, [userName, addBotMessage, addComponentMessage]);
 
   // 페이지 로드 시 채팅 히스토리 확인
   useEffect(() => {
@@ -221,10 +250,9 @@ function AIChatJobContent() {
         setIsLoadingOptions(true);
 
         try {
-          const response = await fetch(
+          const { data } = await api.get<ApiResponse<OptionsData>>(
             `/api/chat/jobs/options/${currentQuestion.step}`
           );
-          const data = await response.json();
 
           if (data.result === 'SUCCESS' && data.data?.optionList) {
             setDynamicOptions(data.data.optionList);
@@ -244,16 +272,54 @@ function AIChatJobContent() {
     }
   }, [currentStep, aiChatFlow.questions, optionsFetched, isLoadingOptions]);
 
-  // AI 채팅 완료 후 결과 데이터 가져오기
+  // AI 채팅 완료 후 직업 추천 가져오기
   const fetchJobRecommendations = useCallback(async () => {
     setIsLoadingRecommendations(true);
+    setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
     try {
-      // 1. 강점 리포트 조회
-      const strengthResponse = await fetch('/api/chat/strength/result', {
-        method: 'POST',
-      });
-      const strengthData = await strengthResponse.json();
+      // 맞춤형 직업 추천 조회
+      const { data: recommendData } = await api.post<
+        ApiResponse<JobRecommendations>
+      >('api//chat/jobs/recommend/post-occupation');
+
+      if (recommendData.result === 'SUCCESS') {
+        setJobRecommendations(recommendData.data);
+      } else {
+        console.error('직업 추천 실패:', recommendData.error);
+      }
+    } catch (error) {
+      console.error('직업 추천 가져오기 실패:', error);
+    } finally {
+      setIsLoadingRecommendations(false);
+      setLoadingMessage('');
+    }
+  }, [userName]);
+
+  // 강점 리포트 플로우 시작 (직업 입력 요청)
+  const startStrengthReportFlow = useCallback(() => {
+    // 강점 리포트 버튼 제거
+    removeMessagesByType('strengthReportButton');
+
+    // AI 메시지 추가
+    addBotMessage(
+      `이제 ${userName}만의 강점 리포트를 만들어볼게요! 📝\n이 리포트는 ${userName}이 가진 경험 속 강점을 한눈에 보여주고,\n나중에 기업에 제출할 때 '나를 소개하는 문서'로도 활용할 수 있어요 💪\n\n제2의 직업을 정하셨다면 '준비하는 직업'을 입력,\n아직 고민 중이라면 '없음'이라고 입력해주세요!`
+    );
+
+    // 직업 입력 대기 상태로 설정
+    setIsWaitingForJobInput(true);
+  }, [userName, addBotMessage, removeMessagesByType]);
+
+  // 강점 리포트 생성 (API 호출)
+  const generateStrengthReport = useCallback(async () => {
+    try {
+      // 로딩 메시지 설정
+      setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
+
+      // 강점 리포트 조회
+      const { data: strengthData } = await api.post<
+        ApiResponse<StrengthReportData>
+      >('/api/chat/strength/result');
 
       if (
         strengthData.result === 'SUCCESS' &&
@@ -271,74 +337,60 @@ function AIChatJobContent() {
         setStrengthReports(reports);
 
         // 로딩 메시지 제거
-        removeMessagesByType('loading');
+        setLoadingMessage('');
 
         // 강점 리포트 표시
         const expertType = generateExpertType(reports[0].strength);
         addBotMessage(
           `수고 많으셨어요 ${userName}! 🙏\n${userName}은 **${expertType}**입니다.`
         );
+
+        // 강점 리포트 카드들 표시
+        setTimeout(() => {
+          reports.forEach((report: StrengthReport, index: number) => {
+            setTimeout(() => {
+              addComponentMessage('strengthReport', report);
+            }, index * 100);
+          });
+
+          // 모든 리포트 카드가 표시된 후 페이지 이동 버튼 표시
+          setTimeout(
+            () => {
+              addComponentMessage('strengthReportPageButton', {});
+            },
+            reports.length * 100 + 500
+          );
+        }, 500);
       } else {
         console.error('강점 리포트 조회 실패:', strengthData.error);
-        removeMessagesByType('loading');
-      }
-
-      // 3. 직업 추천 로딩 메시지 표시
-      addComponentMessage('loading', {
-        loadingType: 'jobRecommendation',
-      });
-
-      // 잠시 대기 후 맞춤형 직업 추천 조회
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const recommendResponse = await fetch(
-        '/api/chat/jobs/recommend/post-occupation',
-        {
-          method: 'POST',
-        }
-      );
-      const recommendData = await recommendResponse.json();
-
-      if (recommendData.result === 'SUCCESS') {
-        setJobRecommendations(recommendData.data);
-      } else {
-        console.error('직업 추천 실패:', recommendData.error);
+        setLoadingMessage('');
       }
     } catch (error) {
-      console.error('결과 데이터 가져오기 실패:', error);
-    } finally {
-      setIsLoadingRecommendations(false);
+      console.error('강점 리포트 생성 실패:', error);
+      setLoadingMessage('');
     }
-  }, [userName, addBotMessage, removeMessagesByType, addComponentMessage]);
+  }, [userName, addBotMessage, addComponentMessage]);
 
-  // 채팅 완료 시 결과 데이터 가져오기
+  // 채팅 완료 시 직업 추천 가져오기
   useEffect(() => {
     if (isCompleted && !completionFlowStarted) {
       setCompletionFlowStarted(true);
 
-      // 1단계: 강점 리포트 생성 중 로딩
+      // 직업 추천 데이터 가져오기
       setTimeout(() => {
-        addComponentMessage('loading', { loadingType: 'strengthReport' });
-
-        // 2단계: 강점 리포트 데이터 가져오기
-        setTimeout(() => {
-          fetchJobRecommendations();
-        }, 1000);
+        fetchJobRecommendations();
       }, 1000);
     }
-  }, [isCompleted, completionFlowStarted]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isCompleted, completionFlowStarted, fetchJobRecommendations]);
 
   // 직업 추천 데이터가 로드되면 메시지와 카드 표시
   useEffect(() => {
     if (jobRecommendations && !jobMessageAdded) {
       setJobMessageAdded(true);
 
-      // 로딩 메시지 제거
-      removeMessagesByType('loading');
-
       setTimeout(() => {
         addBotMessage(
-          '이 강점을 살려 추천드리는 직업 TOP 3입니다.\n"⭐"아이콘을 눌러 관심목록에 저장하고, 뒷면도 확인해보세요!'
+          `${userName}님께 잘 어울리는 직업 3가지를 추천드릴게요!\n 마음에 드는 직업이 있다면 ⭐️ 아이콘을 눌러 관심목록에 저장해두세요.\n 나중에 다시 확인하실 때 훨씬 편해요 😀!`
         );
 
         setTimeout(() => {
@@ -352,36 +404,11 @@ function AIChatJobContent() {
   }, [
     jobRecommendations,
     jobMessageAdded,
-    removeMessagesByType,
     addBotMessage,
     addComponentMessage,
     setShowJobCards,
-  ]);
-
-  useEffect(() => {
-    if (
-      strengthReports.length > 0 &&
-      !strengthReportAdded &&
-      !hasExistingConversation
-    ) {
-      setStrengthReportAdded(true);
-
-      removeMessagesByType('loading');
-
-      setTimeout(() => {
-        strengthReports.forEach((report, index) => {
-          setTimeout(() => {
-            addComponentMessage('strengthReport', report);
-          }, index);
-        });
-      }, 500);
-    }
-  }, [
-    strengthReports,
-    strengthReportAdded,
-    hasExistingConversation,
-    removeMessagesByType,
-    addComponentMessage,
+    strengthReports.length,
+    userName,
   ]);
 
   const getCurrentQuestion = () => {
@@ -398,6 +425,15 @@ function AIChatJobContent() {
   };
 
   const handleCompleteClick = async () => {
+    // 직업 입력 대기 중인 경우
+    if (isWaitingForJobInput && textInput.trim()) {
+      addUserMessage(textInput.trim());
+      setTextInput('');
+      setIsWaitingForJobInput(false);
+      setTimeout(() => generateStrengthReport(), 500);
+      return;
+    }
+
     const currentQuestion = getCurrentQuestion();
     let userResponse = '';
 
@@ -412,18 +448,11 @@ function AIChatJobContent() {
     if (userResponse || selectedOptions.length > 0) {
       addUserMessage(userResponse, currentQuestion?.id, selectedOptions);
 
-      // API로 답변 저장
       if (currentQuestion?.id) {
         try {
-          await fetch('/api/chat/jobs/save/answer', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              sequence: currentQuestion.id,
-              answer: userResponse,
-            }),
+          await api.post('/api/chat/jobs/save/answer', {
+            sequence: currentQuestion.id,
+            answer: userResponse,
           });
         } catch (error) {
           console.error('답변 저장 실패:', error);
@@ -431,15 +460,13 @@ function AIChatJobContent() {
       }
     }
 
-    // 다음 단계로 이동 (10개 질문 모두 처리)
     if (currentStep < 10) {
       nextStep();
       setShowCurrentQuestion(true);
     } else {
-      nextStep(); // 결과 페이지로 이동
+      nextStep();
     }
 
-    // 상태 초기화
     setSelectedOptions([]);
     setTextInput('');
   };
@@ -451,15 +478,9 @@ function AIChatJobContent() {
     // API로 빈 답변 저장
     if (currentQuestion?.id) {
       try {
-        await fetch('/api/chat/jobs/save/answer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            sequence: currentQuestion.id,
-            answer: '',
-          }),
+        await api.post('/api/chat/jobs/save/answer', {
+          sequence: currentQuestion.id,
+          answer: '',
         });
       } catch (error) {
         console.error('건너뛰기 답변 저장 실패:', error);
@@ -480,27 +501,86 @@ function AIChatJobContent() {
   };
 
   const handleStartClick = () => {
-    // 새로운 대화 시작을 위해 기존 메시지 초기화
-    resetChat();
+    // 사용자 메시지 추가
+    addUserMessage('시작하기');
 
-    // 상태 초기화
+    // step 1로 이동
+    nextStep();
+    setShowCurrentQuestion(true);
+  };
+
+  // 처음부터 다시 시작하기 버튼 클릭
+  const handleRestartFromBeginning = () => {
+    setShowRestartModal(true);
+  };
+
+  // 다시 시작 확인
+  const handleRestartConfirm = () => {
+    setShowRestartModal(false);
+
+    // 모든 상태 초기화
+    resetChat();
     setSelectedOptions([]);
     setTextInput('');
     setJobRecommendations(null);
     setStrengthReports([]);
     setJobMessageAdded(false);
-    setStrengthReportAdded(false);
     setCompletionFlowStarted(false);
-    setHasExistingConversation(false); // 새로운 대화로 간주
-    setShowMoreJobCardsButton(false); // 버튼 상태 초기화
+    setHasExistingConversation(false);
+    setShowMoreJobCardsButton(false);
 
-    // intro 메시지부터 시작
+    // intro 메시지만 표시하고 대기
     setTimeout(() => {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
-      addUserMessage('시작하기');
-      nextStep(); // step 1로 이동
       setShowCurrentQuestion(true);
     }, 100);
+  };
+
+  // 다시 시작 취소
+  const handleRestartCancel = () => {
+    setShowRestartModal(false);
+  };
+
+  // 지난 대화 내용 보기
+  const handleViewHistory = () => {
+    // historyOptions 컴포넌트 제거
+    removeMessagesByType('historyOptions');
+
+    // 이전 대화 내용 불러오기
+    loadPreviousConversationHandler();
+  };
+
+  // 맞춤형 강점리포트 다시 받기 (historyOptions에서 호출)
+  const handleGetStrengthReport = () => {
+    // historyOptions 제거
+    removeMessagesByType('historyOptions');
+
+    // 직업 입력 버튼만 표시 (user 쪽)
+    addComponentMessage('jobInputButton', {});
+  };
+
+  // 강점 리포트 페이지로 이동
+  const handleNavigateToStrengthReport = () => {
+    router.push('/strength-dashboard');
+  };
+
+  // 직업 입력 버튼 클릭 시
+  const handleJobInputClick = () => {
+    // jobInputButton 제거
+    removeMessagesByType('jobInputButton');
+
+    // 사용자 메시지 추가
+    addUserMessage('준비 중인 직업 입력하고 강점리포트 받기');
+
+    // AI 메시지 추가
+    setTimeout(() => {
+      addBotMessage(
+        `이제 ${userName}만의 강점 리포트를 만들어볼게요! 📝\n이 리포트는 ${userName}이 가진 경험 속 강점을 한눈에 보여주고,\n나중에 기업에 제출할 때 '나를 소개하는 문서'로도 활용할 수 있어요 💪\n\n제2의 직업을 정하셨다면 '준비하는 직업'을 입력,\n아직 고민 중이라면 '없음'이라고 입력해주세요!`
+      );
+
+      // 직업 입력 대기 상태로 설정
+      setIsWaitingForJobInput(true);
+    }, 500);
   };
 
   const handleGetMoreJobCards = () => {
@@ -511,20 +591,17 @@ function AIChatJobContent() {
     setShowReJobCardModal(false);
 
     try {
-      // 로딩 메시지 표시
-      addComponentMessage('loading', {
-        loadingType: 'jobRecommendation',
-      });
+      // 로딩 메시지 설정
+      setLoadingMessage(`${userName}을 위한 맞춤형 직업카드 생성중입니다!`);
 
       // 추가 직업 추천 API 호출
-      const response = await fetch('/api/chat/jobs/recommend/post-occupation', {
-        method: 'POST',
-      });
-      const data = await response.json();
+      const { data } = await api.post<ApiResponse<JobRecommendations>>(
+        '/api/chat/jobs/recommend/post-occupation'
+      );
 
       if (data.result === 'SUCCESS') {
         // 로딩 메시지 제거
-        removeMessagesByType('loading');
+        setLoadingMessage('');
 
         // 기존 직업 카드를 제거하고 새로운 카드로 교체
         removeMessagesByType('jobCards');
@@ -541,14 +618,14 @@ function AIChatJobContent() {
           }, 300);
         }, 500);
       } else {
-        removeMessagesByType('loading');
+        setLoadingMessage('');
         addBotMessage(
           '죄송합니다. 추가 직업 추천을 가져오는데 실패했습니다. 다시 시도해주세요.'
         );
       }
     } catch (error) {
       console.error('추가 직업 카드 요청 실패:', error);
-      removeMessagesByType('loading');
+      setLoadingMessage('');
       addBotMessage(
         '죄송합니다. 네트워크 오류가 발생했습니다. 다시 시도해주세요.'
       );
@@ -560,7 +637,8 @@ function AIChatJobContent() {
   };
 
   const currentQuestion = getCurrentQuestion();
-  const showStartButton = currentStep === 0 && messages.length > 0;
+  const showStartButton =
+    currentStep === 0 && messages.length > 0 && !hasExistingConversation;
 
   // 동적 옵션이 있는 경우 사용, 없으면 기본 옵션 사용
   const currentOptions = (() => {
@@ -590,29 +668,36 @@ function AIChatJobContent() {
   const showQuestionOptions =
     currentQuestion && currentOptions && currentOptions.length > 0;
 
-  // 로딩 상태 처리
-  if (userLoading) {
-    return (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="text-center">
-          <p className="text-chat-message">사용자 정보를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
   // 로그아웃 상태 확인
   const isLoggedOut = !userData?.data;
 
   return (
     <>
+      {/* 사용자 정보 로딩 오버레이 */}
+      {userLoading && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/Icons/character_running.webp"
+              alt="loading"
+              width={328}
+              height={293}
+              className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+            />
+            <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+              채팅방으로 이동중
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 로그아웃 상태일 때 표시할 에러 컴포넌트 */}
-      {isLoggedOut && (
+      {isLoggedOut && !userLoading && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
           <div className="flex flex-col items-center gap-4">
             <Image
               src="/assets/logos/bad-gate-star.svg"
-              alt="꿈별이 error페이지 이미지"
+              alt="꿈별이 error 페이지 이미지"
               width={375}
               height={316}
               className="max-w-full h-auto"
@@ -626,48 +711,88 @@ function AIChatJobContent() {
         </div>
       )}
 
-      <div
-        className={`absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0 ${isLoggedOut ? 'blur-sm pointer-events-none' : ''}`}
-      >
-        <MessageSection
-          messages={messages}
-          showStartButton={showStartButton}
-          showQuestionOptions={showQuestionOptions || false}
-          currentQuestionOptions={currentOptions}
-          selectedOptions={selectedOptions}
-          canSkip={currentQuestion?.canSkip || false}
-          onStartClick={handleStartClick}
-          onOptionClick={handleOptionClick}
-          onCompleteClick={handleCompleteClick}
-          onSkipClick={handleSkipClick}
-          onGetMoreJobCards={handleGetMoreJobCards}
-          showMoreJobCardsButton={showMoreJobCardsButton}
-        />
+      <div className="absolute top-[10vh] xs:top-[10vh] md:top-[10vh] lg:top-[10vh] left-1/2 transform -translate-x-1/2 max-w-[95vw] xs:max-w-[90vw] md:max-w-[800px] lg:max-w-[1200px] w-full px-2 xs:px-4 md:px-6 lg:px-0">
+        <div className={isLoggedOut ? 'blur-sm pointer-events-none' : ''}>
+          <MessageSection
+            messages={messages}
+            showStartButton={showStartButton}
+            showQuestionOptions={showQuestionOptions || false}
+            currentQuestionOptions={currentOptions}
+            selectedOptions={selectedOptions}
+            canSkip={currentQuestion?.canSkip || false}
+            onStartClick={handleStartClick}
+            onOptionClick={handleOptionClick}
+            onCompleteClick={handleCompleteClick}
+            onSkipClick={handleSkipClick}
+            onGetMoreJobCards={handleGetMoreJobCards}
+            showMoreJobCardsButton={showMoreJobCardsButton}
+            onRestartFromBeginning={handleRestartFromBeginning}
+            onViewHistory={handleViewHistory}
+            onGetStrengthReport={handleGetStrengthReport}
+            onGenerateStrengthReport={startStrengthReportFlow}
+            onJobInputClick={handleJobInputClick}
+            onNavigateToStrengthReport={handleNavigateToStrengthReport}
+            hasStrengthReports={strengthReports.length > 0}
+          />
 
-        {/* 진행바 및 입력창 컨테이너
-      <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
-        {/* 진행바 */}
-        {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
-          <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
-            <ProgressBar currentStep={currentStep} totalSteps={10} />
+          {/* 진행바 및 입력창 컨테이너
+        <div className="w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] flex justify-center"> */}
+          {/* 진행바 */}
+          {currentStep > 0 && !isLoadingRecommendations && !isCompleted && (
+            <div className="absolute bottom-[10vh] xs:bottom-[10vh] md:bottom-[13vh] lg:bottom-[14vh] left-1/2 transform -translate-x-1/2 w-full flex justify-center items-center animate-slide-up-fade">
+              <ProgressBar currentStep={currentStep} totalSteps={10} />
+            </div>
+          )}
+        </div>
+
+        {/* 입력창 - 로그아웃 상태에서는 숨김 */}
+        {!isLoggedOut && (
+          <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
+            <ChatInput
+              value={textInput}
+              onChange={setTextInput}
+              onSend={handleCompleteClick}
+              placeholder={
+                currentStep === 0
+                  ? 'AI와 채팅을 통해 맞춤형 커리어 로드맵을 받아보세요!'
+                  : '채팅을 입력해주세요!'
+              }
+            />
           </div>
         )}
-
-        {/* 입력창 */}
-        <div className="absolute bottom-[3vh] md:bottom-[2vh] lg:bottom-[2.8vh] left-1/2 transform -translate-x-1/2 w-full max-w-[400px] xs:max-w-[1000px] md:max-w-[1000px] lg:max-w-[1200px] max-h-[15.5vh] xs:max-h-[15.5vh] md:max-h-[15vh] lg:max-h-[15.96vh] flex justify-center animate-slide-up-bounce">
-          <ChatInput
-            value={textInput}
-            onChange={setTextInput}
-            onSend={handleCompleteClick}
-          />
-        </div>
       </div>
+
+      {/* 로딩 오버레이 */}
+      {loadingMessage && (
+        <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <Image
+              src="/assets/Icons/character_cheer.png"
+              alt="loading"
+              width={235}
+              height={304}
+              className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+            />
+            <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+              {loadingMessage}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ReJobCardModal */}
       {showReJobCardModal && (
         <ReJobCardModal
           onConfirm={handleReJobCardConfirm}
           onCancel={handleReJobCardCancel}
+        />
+      )}
+
+      {/* RestartConfirmModal */}
+      {showRestartModal && (
+        <RestartConfirmModal
+          onConfirm={handleRestartConfirm}
+          onCancel={handleRestartCancel}
         />
       )}
     </>

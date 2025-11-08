@@ -23,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
       endYmd,
     });
 
-    const url = new URL(`${backendUrl}/education/all/anonymous`);
+    const url = new URL(`${backendUrl}/education/anonymous`);
     if (keyword) url.searchParams.append('keyword', keyword);
     if (page) {
       url.searchParams.append('page', page);
@@ -40,7 +40,6 @@ export async function GET(request: Request): Promise<Response> {
       method: 'GET',
       headers: {
         accept: 'application/json',
-        ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
       },
     });
 

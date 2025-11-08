@@ -7,6 +7,8 @@ import { HiStar } from 'react-icons/hi';
 import { PiStarThin } from 'react-icons/pi';
 import { getUserData } from '@/lib/auth';
 import { getJobDetailById } from '@/lib/api/jobApi';
+import { api } from '@/lib/api/axios';
+import { showError, showSuccess } from '@/utils/alert';
 
 const formatSalary = (salary: string | null | undefined): string => {
   if (!salary) return '급여 미정';
@@ -116,14 +118,14 @@ const calculateDaysLeft = (closingDate: string | null | undefined): string => {
 
 const styles = {
   card: (isExpanded: boolean, isAnimating: boolean) =>
-    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full max-w-[588px] mx-auto transition-all duration-700 ease-in-out ${
+    `relative rounded-2xl md:rounded-3xl border-2 md:border-4 border-[#E1F5EC] overflow-hidden cursor-pointer shadow-[0_4px_12px_0_rgba(17,17,17,0.1)] md:shadow-[0_10px_20px_0_rgba(17,17,17,0.15)] p-3 md:p-5 w-full mx-auto transition-all duration-700 ease-in-out ${
       isExpanded
         ? 'max-h-[2000px] opacity-100 bg-white'
-        : 'max-h-[320px] md:max-h-[460px] opacity-100 hover:bg-[#E1F5EC]'
+        : 'max-w-[588px] md:h-[450px] h-[320px] opacity-100 hover:bg-[#E1F5EC]'
     } ${isAnimating ? 'pointer-events-none' : ''}`,
-  tag: (_isHovered: boolean, isExpanded: boolean, isVisible: boolean = true) =>
+  tag: (isExpanded: boolean, isVisible: boolean = true) =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-500 ease-out ${isExpanded ? 'opacity-100 translate-y-0 scale-100' : isVisible ? 'opacity-0 translate-y-2 scale-95' : 'opacity-0 translate-y-2 scale-95'}`,
-  compactTag: (_isHovered: boolean, _isExpanded: boolean) =>
+  compactTag: () =>
     `flex px-2 py-1 rounded-full text-sm md:text-base text-gray-50 bg-primary-20 transition-all duration-400 ease-in-out`,
   recommendationScore: (isLoggedIn: boolean) => ({
     color: 'var(--color-style-900-black, #111)',
@@ -168,9 +170,7 @@ const Tag = ({
 }) => (
   <span
     className={
-      isCompact
-        ? styles.compactTag(isHovered, isExpanded)
-        : styles.tag(isHovered, isExpanded, isVisible)
+      isCompact ? styles.compactTag() : styles.tag(isExpanded, isVisible)
     }
     style={{ transitionDelay: `${delay}ms` }}
   >
@@ -270,24 +270,21 @@ export default function JobCardClient({
   }, [isOpen, onToggle]);
 
   const handleToggleScrap = async (jobId: string) => {
+    // 비로그인 사용자 체크
+    if (!isLoggedIn) {
+      showError('로그인 후 이용가능해요');
+      return;
+    }
+
     try {
       if (isScrap) {
-        const response = await fetch(
-          `/api/heart-lists/job/delete?jobId=${jobId}`,
-          { method: 'DELETE' }
-        );
-        if (response.ok) {
-          setIsScrap(false);
-        }
+        await api.delete(`/api/heart-lists/job/delete?jobId=${jobId}`);
+        setIsScrap(false);
+        showError('북마크 삭제 완료!');
       } else {
-        const response = await fetch('/api/heart-lists/job/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jobId }),
-        });
-        if (response.ok) {
-          setIsScrap(true);
-        }
+        await api.post('/api/heart-lists/job/save', { jobId });
+        setIsScrap(true);
+        showSuccess('북마크 저장 완료!');
       }
       onToggleScrap(jobId);
     } catch (error) {
@@ -361,29 +358,25 @@ export default function JobCardClient({
       job.requiredSkills
         ?.split(/,(?![^(]*\))/)
         .filter((skill) => skill.trim() !== '' && skill.trim() !== '.') || [];
+
+    // 전체 태그 배열 생성 (categories + skills)
+    const allTags = [...categories, ...skills];
+
+    // 최대 3개로 제한
+    const limitedTags = allTags.slice(0, 3);
+
     return (
       <div className="flex flex-wrap gap-1 md:gap-2 md:text-3xl">
-        {categories.map((category, i) => (
+        {limitedTags.map((tag, i) => (
           <Tag
-            key={`category-${i}`}
+            key={`tag-${i}`}
             isHovered={isHovered}
             isExpanded={isExpanded}
             isCompact={isCompact}
+            isVisible={i < categories.length || !isCompact}
             delay={i * (isCompact ? 50 : 100)}
           >
-            {category.trim()}
-          </Tag>
-        ))}
-        {skills.map((skill, i) => (
-          <Tag
-            key={`skill-${i}`}
-            isHovered={isHovered}
-            isExpanded={isExpanded}
-            isVisible={!isCompact}
-            isCompact={isCompact}
-            delay={(i + categories.length) * (isCompact ? 50 : 100)}
-          >
-            {skill.trim()}
+            {tag.trim()}
           </Tag>
         ))}
       </div>
@@ -509,7 +502,7 @@ export default function JobCardClient({
                     e.stopPropagation();
                     handleToggleScrap(job.jobId);
                   }}
-                  className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 ${
+                  className={`text-3xl md:text-5xl transition-all duration-300 hover:scale-110 cursor-pointer ${
                     isScrap ? 'text-yellow-400' : 'text-gray-300'
                   }`}
                 >
@@ -548,15 +541,17 @@ export default function JobCardClient({
         ) : (
           // Compact 상태
           <div className="space-y-2 md:space-y-3 transition-all duration-500 ease-in-out">
-            <p className="text-gray-800 text-xl md:text-3xl leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-semibold">
+            <p className="text-[#111111] text-xl md:text-3xl leading-relaxed pt-2 md:pt-3 transition-all duration-400 ease-in-out font-semibold">
               {(job.jobTitle || '직무명 미정').length > 52
                 ? `${(job.jobTitle || '직무명 미정').substring(0, 52)}···`
                 : job.jobTitle || '직무명 미정'}
             </p>
 
-            {renderTags(true)}
+            <div className="absolute bottom-14 left-3 md:left-5">
+              {renderTags(true)}
+            </div>
 
-            <div className="flex justify-between items-center transition-all duration-400 ease-in-out">
+            <div className="absolute bottom-5 justify-between items-center transition-all duration-400 ease-in-out">
               <div className="flex items-center gap-2 pt-1 md:pt-[10px]">
                 <span className="text-base md:text-body-medium-medium text-gray-500 font-medium">
                   급여

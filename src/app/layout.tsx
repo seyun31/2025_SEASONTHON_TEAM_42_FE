@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import ConditionalHeaderClient from '@/components/layout/ConditionalHeaderClient';
 import QueryProvider from '@/components/providers/QueryProvider';
+import ToastProvider from '@/components/providers/ToastProvider';
 
 export const metadata: Metadata = {
   title: 'NextCareer',
@@ -41,6 +42,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning={true}>
         <QueryProvider>
+          <ToastProvider />
           <div className="text-black bg-white flex flex-col items-start justify-start pt-24">
             <div className="w-full mx-auto px-4 md:px-8 text-lg font-medium">
               <ConditionalHeaderClient />

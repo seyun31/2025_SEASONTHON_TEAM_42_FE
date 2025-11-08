@@ -7,7 +7,6 @@ import StrengthReportCard from '@/components/features/job/StrengthReportCard';
 import FlipCard from '@/components/common/FlipCard';
 import { LuRefreshCcw } from 'react-icons/lu';
 import { ChatMessage } from '@/contexts/ChatHistoryContext';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface StrengthReportData {
   strength: string;
@@ -39,6 +38,13 @@ interface MessageSectionProps {
   onSkipClick?: () => void;
   onGetMoreJobCards?: () => void;
   showMoreJobCardsButton?: boolean;
+  onRestartFromBeginning?: () => void;
+  onViewHistory?: () => void;
+  onGetStrengthReport?: () => void;
+  onGenerateStrengthReport?: () => void;
+  onJobInputClick?: () => void;
+  onNavigateToStrengthReport?: () => void;
+  hasStrengthReports?: boolean;
   children?: React.ReactNode;
 }
 
@@ -55,6 +61,13 @@ export default function MessageSection({
   onSkipClick,
   onGetMoreJobCards,
   showMoreJobCardsButton = false,
+  onRestartFromBeginning,
+  onViewHistory,
+  onGetStrengthReport,
+  onGenerateStrengthReport,
+  onJobInputClick,
+  onNavigateToStrengthReport,
+  hasStrengthReports = false,
   children,
 }: MessageSectionProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -142,7 +155,7 @@ export default function MessageSection({
 
     return (
       <div className="w-full mt-4">
-        {/* 헤더: 추천 직업 카드 더 받기 버튼 */}
+        {/* 헤더: 다시 결과 받기 버튼 */}
         <div className="flex justify-end cursor-pointer mb-3 lg:mr-10">
           {onGetMoreJobCards && showMoreJobCardsButton && (
             <button
@@ -150,7 +163,7 @@ export default function MessageSection({
               className="text-gray-50 flex items-center gap-3 cursor-pointer"
             >
               <span className="font-pretendard font-medium text-[20px] leading-[150%] tracking-[-0.025em]">
-                추천 직업 카드 더 받기
+                다시 결과 받기
               </span>
               <LuRefreshCcw className="w-6 h-6 text-gray-50" />
             </button>
@@ -177,6 +190,21 @@ export default function MessageSection({
             />
           ))}
         </div>
+
+        {/* 강점 리포트 안내 섹션 - 강점 리포트가 없는 경우에만 표시 */}
+        {!hasStrengthReports && (
+          <div className="text-center mt-40 mb-8">
+            <div className="font-[600] text-[24px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+              추천 직업을 위한 나만의 강점 리포트도 받아보세요!
+            </div>
+            <button
+              onClick={onGenerateStrengthReport}
+              className="px-12 py-4 bg-primary-90 text-white rounded-[16px] text-[32px] font-semibold cursor-pointer hover:bg-primary-80 transition-colors"
+            >
+              강점 리포트 받아보기
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -253,26 +281,37 @@ export default function MessageSection({
                   </div>
                 )}
 
-              {message.componentType === 'loading' && (
-                <div className="text-center p-4 flex flex-col items-center gap-4">
-                  <DotLottieReact
-                    src="https://lottie.host/b520eba8-53ae-4860-9a96-79419625c186/zQolKAd3tn.lottie"
-                    loop
-                    autoplay
-                    style={{
-                      width: '300px',
-                      height: '300px',
-                    }}
-                  />
-                </div>
-              )}
-
               {message.componentType === 'jobCards' &&
                 message.componentData && (
                   <div className="mt-4">
                     {renderJobCards(message.componentData)}
                   </div>
                 )}
+
+              {message.componentType === 'historyOptions' && (
+                <div className="flex justify-start ml-12 xs:ml-11 md:ml-10 lg:ml-[52px]">
+                  <div className="flex flex-col gap-3 max-w-[60vw] xs:max-w-[75vw] md:max-w-[50vw] lg:max-w-[40.21vw]">
+                    <button
+                      onClick={onRestartFromBeginning}
+                      className="flex items-center justify-center rounded-[100px] w-full px-4 xs:px-5 md:px-6 lg:px-6 py-3 xs:py-3 md:py-3 lg:py-3 cursor-pointer transition-colors bg-primary-90 text-white text-sm xs:text-base md:text-base lg:text-base font-medium hover:bg-primary-80"
+                    >
+                      🆕 처음부터 다시 시작하기
+                    </button>
+                    <button
+                      onClick={onViewHistory}
+                      className="flex items-center justify-center rounded-[100px] w-full px-4 xs:px-5 md:px-6 lg:px-6 py-3 xs:py-3 md:py-3 lg:py-3 cursor-pointer transition-colors bg-primary-90 text-white text-sm xs:text-base md:text-base lg:text-base font-medium hover:bg-primary-80"
+                    >
+                      🔁 지난 대화 내용 보기
+                    </button>
+                    <button
+                      onClick={onGetStrengthReport}
+                      className="flex items-center justify-center rounded-[100px] w-full px-4 xs:px-5 md:px-6 lg:px-6 py-3 xs:py-3 md:py-3 lg:py-3 cursor-pointer transition-colors bg-primary-90 text-white text-sm xs:text-base md:text-base lg:text-base font-medium hover:bg-primary-80"
+                    >
+                      ✍🏻 맞춤형 강점리포트 다시 받기
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           );
         }
@@ -294,6 +333,59 @@ export default function MessageSection({
           </div>
         );
       })}
+
+      {/* 강점 리포트 생성하기 버튼 섹션 */}
+      {groupedMessages.some(
+        (msg) => msg.componentType === 'strengthReportButton'
+      ) && (
+        <div className="text-center md:mt-40 mt-30 mb-8">
+          <div className="font-[600] md:text-[24px] text-[20px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+            추천 직업을 위한 <br /> 나만의 강점 리포트도 받아보세요!
+          </div>
+          <button
+            onClick={onGenerateStrengthReport}
+            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] md:rounded-[24px] md:text-[32px] text-[24px] font-semibold cursor-pointer"
+          >
+            강점 리포트 생성하기
+          </button>
+        </div>
+      )}
+
+      {/* 강점 리포트 페이지 이동 버튼 섹션 */}
+      {groupedMessages.some(
+        (msg) => msg.componentType === 'strengthReportPageButton'
+      ) && (
+        <div className="text-center md:mt-30 mt-20 mb-8">
+          <div className="font-[600] md:text-[24px] text-[20px] leading-[140%] tracking-[-0.025em] font-pretendard mb-6">
+            더 자세한 내용을 보시려면 <br /> 페이지로 이동해보세요!
+          </div>
+          <button
+            onClick={onNavigateToStrengthReport}
+            className="px-12 py-4 bg-primary-90 text-white rounded-[16px] md:rounded-[24px] md:text-[32px] text-[24px] font-semibold cursor-pointer"
+          >
+            강점 리포트 페이지로
+          </button>
+        </div>
+      )}
+
+      {/* 직업 입력 버튼 섹션 */}
+      {groupedMessages.some(
+        (msg) => msg.componentType === 'jobInputButton'
+      ) && (
+        <div className="flex justify-end">
+          <div
+            className={`max-w-[80vw] xs:max-w-[70vw] md:max-w-[40vw] lg:max-w-[30.21vw] rounded-[16px] xs:rounded-[20px] md:rounded-[24px] lg:rounded-[24px] pt-4 xs:pt-5 md:pt-6 lg:pt-6 pb-4 xs:pb-5 md:pb-6 lg:pb-6 pl-3 xs:pl-4 md:pl-5 lg:pl-5 pr-3 xs:pr-4 md:pr-5 lg:pr-5`}
+            style={{ backgroundColor: '#9FC2FF66' }}
+          >
+            <button
+              onClick={onJobInputClick}
+              className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] w-full max-w-[70vw] xs:max-w-[60vw] md:max-w-[35vw] lg:max-w-[30vw] px-3 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white text-sm xs:text-base md:text-base lg:text-base"
+            >
+              ✍🏻 준비 중인 직업 입력하고 강점리포트 받기
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 시작하기 버튼 */}
       {showStartButton && (

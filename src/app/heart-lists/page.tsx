@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from 'react';
 import JobCard from '@/components/features/job/JobCard';
 import EducationCard from '@/components/features/job/EducationCard';
 import { JobSummary, EducationSummary } from '@/types/job';
+import { showError, showSuccess } from '@/utils/alert';
 
 // API 응답 타입 정의
 interface JobHistoryItem {
@@ -300,9 +301,11 @@ function HeartListsContent() {
               : edu
           )
         );
-        console.log(
-          isCurrentlyBookmarked ? '북마크 해제 성공' : '북마크 추가 성공'
-        );
+        if (isCurrentlyBookmarked) {
+          showError('북마크 삭제 완료!');
+        } else {
+          showSuccess('북마크 저장 완료!');
+        }
       } else {
         console.error('북마크 토글 실패:', data.error);
       }
@@ -312,132 +315,139 @@ function HeartListsContent() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col">
-      <div className="flex-1">
-        <div className="max-w-[1200px] mx-auto px-4 md:px-0">
-          {/* 타이틀 */}
-          <h2 className="hidden md:block text-title-xlarge text-black text-left mb-18">
-            관심 목록
-          </h2>
+    <div className="w-full px-4 py-8">
+      <div className="max-w-[1200px] mx-auto">
+        {/* 타이틀 */}
+        <h2 className="hidden md:block text-[36px] text-black text-left mb-13.5 font-semibold leading-[140%] tracking-[-2.5%]">
+          관심 목록
+        </h2>
 
-          {/* 데스크탑 탭 영역 */}
-          <div className="hidden lg:flex gap-6 mb-6">
-            <div
-              className={`px-4 py-2 ${tab === 'jobs' ? 'border-b-3 border-primary-90' : ''}`}
+        {/* 데스크탑 탭 영역 */}
+        <div className="hidden lg:flex gap-6 mb-6">
+          <div
+            className={`px-4 py-2 ${tab === 'jobs' ? 'border-b-3 border-primary-90' : ''}`}
+          >
+            <button
+              className={`pb-2 text-[36px] text-left cursor-pointer font-semibold leading-[140%] tracking-[-2.5%] ${tab === 'jobs' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
+              onClick={() => handleTabClick('jobs')}
             >
-              <button
-                className={`pb-2 text-title-xlarge text-left cursor-pointer ${tab === 'jobs' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
-                onClick={() => handleTabClick('jobs')}
-              >
-                채용 공고
-              </button>
-            </div>
-            <div
-              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
-            >
-              <button
-                className={`pb-2 text-title-xlarge text-left cursor-pointer ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
-                onClick={() => handleTabClick('education')}
-              >
-                교육 공고
-              </button>
-            </div>
+              채용 공고
+            </button>
           </div>
-
-          {/* 모바일 탭 영역 */}
-          <div className="flex gap-6 mb-6 mt-6 lg:hidden">
-            <div
-              className={`px-4 py-2 ${tab === 'jobs' ? 'border-b-3 border-primary-90' : ''}`}
+          <div
+            className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
+          >
+            <button
+              className={`pb-2 text-[36px] text-left cursor-pointer font-semibold leading-[140%] tracking-[-2.5%] ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
+              onClick={() => handleTabClick('education')}
             >
-              <button
-                className={`pb-2 text-xl text-left cursor-pointer ${tab === 'jobs' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
-                onClick={() => handleTabClick('jobs')}
-              >
-                채용 공고
-              </button>
-            </div>
-            <div
-              className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
-            >
-              <button
-                className={`pb-2 text-xl text-left cursor-pointer ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
-                onClick={() => handleTabClick('education')}
-              >
-                교육 공고
-              </button>
-            </div>
+              교육 공고
+            </button>
           </div>
+        </div>
 
-          {/* 관심 목록 콘텐츠 영역 */}
-          {tab && (
-            <div className="flex gap-4 justify-center flex-wrap">
-              {tab === 'jobs' ? (
-                isLoading ? (
-                  <div className="text-center py-16 w-full">
-                    <p className="text-gray-50 text-lg">로딩 중...</p>
-                  </div>
-                ) : jobHistory.length > 0 ? (
-                  jobHistory.map((job) => {
-                    const cardId = job.jobId;
-                    const isOpen = openCardId === cardId;
-                    return (
+        {/* 모바일 탭 영역 */}
+        <div className="flex gap-6 mb-6 mt-6 lg:hidden">
+          <div
+            className={`px-4 py-2 ${tab === 'jobs' ? 'border-b-3 border-primary-90' : ''}`}
+          >
+            <button
+              className={`pb-2 text-xl text-left cursor-pointer ${tab === 'jobs' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
+              onClick={() => handleTabClick('jobs')}
+            >
+              채용 공고
+            </button>
+          </div>
+          <div
+            className={`px-4 py-2 ${tab === 'education' ? 'border-b-3 border-[#9FC2FF]' : ''}`}
+          >
+            <button
+              className={`pb-2 text-xl text-left cursor-pointer ${tab === 'education' ? 'text-black' : 'text-gray-50 hover:text-black'}`}
+              onClick={() => handleTabClick('education')}
+            >
+              교육 공고
+            </button>
+          </div>
+        </div>
+
+        {/* 관심 목록 콘텐츠 영역 */}
+        {tab ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {tab === 'jobs' ? (
+              isLoading ? (
+                <div className="text-center py-16 w-full md:col-span-2">
+                  <p className="text-gray-50 text-lg">로딩 중...</p>
+                </div>
+              ) : jobHistory.length > 0 ? (
+                jobHistory.map((job) => {
+                  const cardId = job.jobId;
+                  const isOpen = openCardId === cardId;
+                  return (
+                    <div key={job.jobId}>
                       <JobCard
-                        key={job.jobId}
                         job={job}
                         onToggleScrap={handleToggleScrap}
                         isOpen={isOpen}
                         onToggle={handleCardToggle}
                       />
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-16 w-full">
-                    <p className="text-gray-60 text-lg">
-                      스크랩한 채용 공고가 없습니다.
-                    </p>
-                    <p className="text-gray-50 text-sm mt-2">
-                      채용 공고에서 원하는 공고를 스크랩하세요!
-                    </p>
-                  </div>
-                )
-              ) : tab === 'education' ? (
-                isLoading ? (
-                  <div className="text-center py-16 w-full">
-                    <p className="text-gray-50 text-lg">로딩 중...</p>
-                  </div>
-                ) : educationHistory.length > 0 ? (
-                  educationHistory.map((education) => {
-                    const cardId =
-                      education.educationId?.toString() || education.trprId;
-                    const isOpen = openCardId === cardId;
-                    return (
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="text-center py-16 w-full md:col-span-2">
+                  <p className="text-gray-60 text-lg">
+                    스크랩한 채용 공고가 없습니다.
+                  </p>
+                  <p className="text-gray-50 text-sm mt-2">
+                    채용 공고에서 원하는 공고를 스크랩하세요!
+                  </p>
+                </div>
+              )
+            ) : tab === 'education' ? (
+              isLoading ? (
+                <div className="text-center py-16 w-full md:col-span-2">
+                  <p className="text-gray-50 text-lg">로딩 중...</p>
+                </div>
+              ) : educationHistory.length > 0 ? (
+                educationHistory.map((education) => {
+                  const cardId =
+                    education.educationId?.toString() || education.trprId;
+                  const isOpen = openCardId === cardId;
+                  return (
+                    <div key={education.id}>
                       <EducationCard
-                        key={education.id}
                         education={education}
                         onToggleBookmark={handleToggleBookmark}
                         isOpen={isOpen}
                         onToggle={handleCardToggle}
                       />
-                    );
-                  })
-                ) : (
-                  <div className="text-center py-16 w-full">
-                    <p className="text-gray-60 text-lg">
-                      스크랩한 교육 공고가 없습니다.
-                    </p>
-                    <p className="text-gray-50 text-sm mt-2">
-                      교육 공고에서 원하는 공고를 스크랩하세요!
-                    </p>
-                  </div>
-                )
+                    </div>
+                  );
+                })
               ) : (
-                <div className="text-center py-16 w-full">
-                  <p className="text-gray-60 text-lg">탭을 선택해주세요.</p>
+                <div className="text-center py-16 w-full md:col-span-2">
+                  <p className="text-gray-60 text-lg">
+                    스크랩한 교육 공고가 없습니다.
+                  </p>
+                  <p className="text-gray-50 text-sm mt-2">
+                    교육 공고에서 원하는 공고를 스크랩하세요!
+                  </p>
                 </div>
-              )}
+              )
+            ) : null}
+          </div>
+        ) : (
+          <div className="flex justify-center items-center h-[538px]">
+            <div className="text-center px-4 md:px-10">
+              <p className="text-gray-60 mb-2 text-base md:text-lg">
+                채용 공고 또는 교육 공고 탭을 선택해주세요
+              </p>
+              <p className="text-gray-50 text-sm">
+                별표를 눌러 관심있는 공고를 저장할 수 있어요!
+              </p>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       <Footer />
     </div>

@@ -127,7 +127,7 @@ export default function StrengthReportCard({
 
       {/* 모바일 레이아웃 */}
       <div
-        className="block md:hidden w-full h-[380px] rounded-[16px] border-2 border-primary-20 bg-white px-3 py-4 flex flex-col"
+        className="block md:hidden w-full h-full rounded-[16px] border-2 border-primary-20 bg-white px-3 py-4 flex flex-col"
         style={{ boxShadow: '0px 4px 8px 0px #11111120' }}
       >
         {/* 상단 타이틀 */}

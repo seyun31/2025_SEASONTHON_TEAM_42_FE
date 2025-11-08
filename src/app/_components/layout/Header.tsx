@@ -37,18 +37,11 @@ export default function Header() {
 
   // 이미지 로딩 에러 핸들러
   const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>,
-    imageUrl: string
+    e: React.SyntheticEvent<HTMLImageElement, Event>
   ) => {
-    console.log('이미지 로딩 실패:', imageUrl);
     const target = e.target as HTMLImageElement;
     target.src = '/default-profile.png';
     target.onerror = null; // 무한 루프 방지
-  };
-
-  // 이미지 로딩 성공 핸들러
-  const handleImageLoad = (imageUrl: string) => {
-    console.log('이미지 로딩 성공:', imageUrl);
   };
 
   useEffect(() => {
@@ -62,7 +55,6 @@ export default function Header() {
 
       // 로딩 타임아웃 설정 (5초)
       const loadingTimeout = setTimeout(() => {
-        console.log('프로필 로딩 타임아웃');
         setIsLoadingProfile(false);
       }, 5000);
 
@@ -122,17 +114,17 @@ export default function Header() {
     return pathname === path;
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // 즉시 UI 상태 업데이트
     setUserData(null);
     setIsLoggedIn(false);
     setIsLoadingProfile(false);
 
-    // 로컬 스토리지 및 쿠키 삭제 (백그라운드)
-    clearAuthData();
+    // 로컬 스토리지 및 쿠키 삭제
+    await clearAuthData();
 
-    // 메인 페이지로 즉시 이동
-    router.push('/');
+    // 메인 페이지로 완전히 새로고침하며 이동
+    window.location.href = '/';
   };
 
   return (
@@ -186,7 +178,17 @@ export default function Header() {
                 : 'text-gray-700 hover:!text-green-600'
             }`}
           >
-            AI 직업 추천
+            AI 커리어 진단
+          </div>
+          <div
+            onClick={() => router.push('/strength-dashboard')}
+            className={`cursor-pointer transition-colors duration-200 px-4 py-2 text-center text-title-small font-medium ${
+              isActive('/strength-dashboard')
+                ? 'text-green-600'
+                : 'text-gray-700 hover:!text-green-600'
+            }`}
+          >
+            강점 리포트
           </div>
           <div
             onClick={() => router.push('/career-roadmap')}
@@ -225,10 +227,7 @@ export default function Header() {
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
-                      onError={(e) =>
-                        handleImageError(e, userData.profileImage)
-                      }
-                      onLoad={() => handleImageLoad(userData.profileImage)}
+                      onError={handleImageError}
                     />
                   ) : (
                     <svg
@@ -371,8 +370,7 @@ export default function Header() {
                     width={32}
                     height={32}
                     className="w-full h-full object-cover"
-                    onError={(e) => handleImageError(e, userData.profileImage)}
-                    onLoad={() => handleImageLoad(userData.profileImage)}
+                    onError={handleImageError}
                   />
                 ) : (
                   <svg
@@ -476,8 +474,12 @@ export default function Header() {
                 path: '/education-programs',
               },
               {
-                label: 'AI 직업 추천',
+                label: 'AI 커리어 진단',
                 path: '/ai-chat/job',
+              },
+              {
+                label: '강점 리포트',
+                path: '/strength-dashboard',
               },
               {
                 label: '커리어 로드맵',

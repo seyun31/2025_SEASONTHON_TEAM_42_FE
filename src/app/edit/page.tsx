@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserData } from '@/types/user';
+import { showError, showSuccess } from '@/utils/alert';
 
 export default function EditPage() {
   const router = useRouter();
@@ -61,15 +62,15 @@ export default function EditPage() {
           }
         } else if (result.error?.code === 'UNAUTHORIZED') {
           // 인증되지 않은 경우 로그인 페이지로 리다이렉트
-          alert('로그인이 필요합니다.');
+          showError('로그인 후 이용가능해요');
           router.push('/member/login');
         } else {
           console.error('API Error:', result.error);
-          alert('사용자 정보를 불러오는데 실패했습니다.');
+          showError('사용자 정보를 불러오는데 실패했어요');
         }
       } catch (error) {
+        // 서버 오류 연결
         console.error('Failed to fetch user data:', error);
-        alert('서버 연결 오류가 발생했습니다.');
       } finally {
         setIsLoading(false);
       }
@@ -180,8 +181,7 @@ export default function EditPage() {
 
       // 빈 응답 처리
       if (!responseText.trim()) {
-        console.log('서버에서 빈 응답을 받았습니다.');
-        alert('프로필이 성공적으로 수정되었습니다.');
+        showSuccess('프로필이 수정이 완료되었어요');
         router.push('/');
         return;
       }
@@ -199,15 +199,15 @@ export default function EditPage() {
       if (result.result === 'SUCCESS') {
         // 성공 시 로컬스토리지에 저장된 주소 정보 삭제
         localStorage.removeItem('editPageAddress');
-        alert('프로필이 성공적으로 수정되었습니다.');
+        showSuccess('프로필 수정이 완료되었어요');
         router.push('/');
       } else {
         console.error('Profile update failed:', result.error);
-        alert('프로필 수정에 실패했습니다.');
+        showError('프로필 수정에 실패했어요');
       }
     } catch (error) {
+      // 서버 오류
       console.error('Failed to update profile:', error);
-      alert('서버 연결 오류가 발생했습니다.');
     }
   };
 

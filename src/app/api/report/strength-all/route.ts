@@ -1,5 +1,4 @@
 import { cookies } from 'next/headers';
-import { UserResponse } from '@/types/user';
 import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -10,18 +9,19 @@ export async function GET(): Promise<Response> {
     const accessToken = cookieStore.get('accessToken')?.value;
 
     if (!accessToken) {
-      // console.log('[User API] accessToken 없음 - 401 반환');
       return Response.json(
         {
           result: 'ERROR',
           data: null,
           error: { code: 'UNAUTHORIZED', message: '인증 토큰이 필요합니다.' },
         },
-        { status: 401 } // 인증 토큰이 없거나 만료
+        { status: 401 }
       );
     }
 
-    const response = await fetch(`${backendUrl}/v1/user`, {
+    const url = new URL(`${backendUrl}/reports/strength`);
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         accept: 'application/json',
@@ -29,19 +29,9 @@ export async function GET(): Promise<Response> {
       },
     });
 
-    console.log('[User API] 백엔드 응답 상태:', response.status);
-
     if (!response.ok) {
-      console.log(
-        '[User API] 백엔드 응답 실패 - status 그대로 전달:',
-        response.status
-      );
       try {
         const errorData = await response.json();
-        console.error(
-          '[User API] 백엔드 에러 상세:',
-          JSON.stringify(errorData, null, 2)
-        );
         return Response.json(errorData, { status: response.status });
       } catch {
         return Response.json(
@@ -50,7 +40,7 @@ export async function GET(): Promise<Response> {
             data: null,
             error: {
               code: 'FETCH_ERROR',
-              message: '사용자 정보를 가져올 수 없습니다.',
+              message: '강점 분석 히스토리를 불러올 수 없습니다.',
             },
           },
           { status: response.status }
@@ -58,17 +48,18 @@ export async function GET(): Promise<Response> {
       }
     }
 
-    const userData: UserResponse = await response.json();
-    console.log('[User API] 사용자 정보 조회 성공');
-    return Response.json(userData);
+    const historyData = await response.json();
+    return Response.json(historyData);
   } catch (error) {
+    console.error('Strength history fetch error:', error);
+
     // Sentry에 에러 전송
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
     Sentry.captureException(error, {
       tags: {
-        api: 'auth/user',
+        api: 'chat/strength/history',
         method: 'GET',
       },
       extra: {
