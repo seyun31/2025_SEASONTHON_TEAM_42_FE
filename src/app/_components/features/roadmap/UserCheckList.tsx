@@ -706,7 +706,7 @@ export default function UserCheckList({
                               height={24}
                             />
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => {
                               // TODO: 취업 정보 삭제 기능 구현
                               if (confirm('취업 정보를 삭제하시겠습니까?')) {
@@ -722,7 +722,7 @@ export default function UserCheckList({
                               width={24}
                               height={24}
                             />
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     )}

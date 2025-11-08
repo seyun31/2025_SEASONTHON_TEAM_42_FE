@@ -214,6 +214,26 @@ export default function JobPostingsClient({
     setFavorites(newFavorites);
   };
 
+  const normalizeClosingDate = (
+    closingDate: string | null | undefined
+  ): string => {
+    const raw = (closingDate || '').trim();
+    if (!raw) return '';
+
+    const cleaned = raw.replace(/[\[\]\(\)]/g, '').trim();
+    const compact = cleaned.replace(/\s+/g, '');
+    const hasDigits = /\d/.test(cleaned);
+
+    if (
+      cleaned.includes('상시') ||
+      (!hasDigits && compact.includes('마감일'))
+    ) {
+      return '상시모집';
+    }
+
+    return cleaned || raw;
+  };
+
   const convertToJobCardFormat = (job: AllResponse | JobResponse) => {
     if ('jobTitle' in job) {
       return {
@@ -231,7 +251,7 @@ export default function JobPostingsClient({
         requiredSkills: '',
         preferredSkills: '',
         postingDate: job.postingDate,
-        closingDate: job.closingDate,
+        closingDate: normalizeClosingDate(job.closingDate),
         applyLink: '#',
         requiredDocuments: job.requiredDocuments,
         jobRecommendScore: job.score || null,
@@ -254,7 +274,7 @@ export default function JobPostingsClient({
         requiredSkills: '',
         preferredSkills: '',
         postingDate: '',
-        closingDate: job.closingDate,
+        closingDate: normalizeClosingDate(job.closingDate),
         applyLink: '',
         requiredDocuments: undefined,
         jobRecommendScore: job.jobRecommendScore
