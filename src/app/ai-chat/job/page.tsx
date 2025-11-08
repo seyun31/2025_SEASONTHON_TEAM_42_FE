@@ -752,6 +752,11 @@ function AIChatJobContent() {
               value={textInput}
               onChange={setTextInput}
               onSend={handleCompleteClick}
+              placeholder={
+                currentStep === 0
+                  ? 'AI와 채팅을 통해 맞춤형 커리어 로드맵을 받아보세요!'
+                  : '채팅을 입력해주세요!'
+              }
             />
           </div>
         )}
