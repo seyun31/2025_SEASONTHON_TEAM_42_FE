@@ -19,6 +19,7 @@ import {
 import {
   RoadMapResponse,
   RoadMapRequest,
+  RoadMapUpdateRequest,
   ActionUpdateRequest,
   RoadmapActionRecommendResponse,
   ApiResponse as RoadmapApiResponse,
@@ -281,6 +282,65 @@ export const recommendRoadMap = async (
     return response.data.data;
   } catch (error) {
     console.error('Error recommending roadmap:', error);
+    throw error;
+  }
+};
+
+// 로드맵 전체 삭제
+export const deleteRoadmap = async (): Promise<void> => {
+  try {
+    const response = await fetch('/api/roadmap', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to delete roadmap: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<object> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+  } catch (error) {
+    console.error('Error deleting roadmap:', error);
+    throw error;
+  }
+};
+
+// 로드맵 입력 정보 수정
+export const updateRoadmapInput = async (
+  payload: RoadMapUpdateRequest
+): Promise<void> => {
+  try {
+    const response = await fetch('/api/roadmap/input', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update roadmap input: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<object> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+  } catch (error) {
+    console.error('Error updating roadmap input:', error);
     throw error;
   }
 };

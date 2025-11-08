@@ -31,6 +31,12 @@ export interface RoadMapRequest {
   period: string;
 }
 
+export interface RoadMapUpdateRequest {
+  career?: string;
+  experience?: string;
+  period?: string;
+}
+
 // 로드맵 액션 수정 요청
 export interface ActionUpdateRequest {
   action: string;
