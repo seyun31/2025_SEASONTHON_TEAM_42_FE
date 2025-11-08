@@ -74,22 +74,18 @@ export default function JobRecommendationsSection() {
 
   // 카드 토글 핸들러
   const handleCardToggle = (jobId: string) => {
+    // jobId를 문자열로 통일
+    const jobIdStr = String(jobId);
+    const currentOpenId = openCardId ? String(openCardId) : null;
+
     // 같은 카드를 클릭하면 닫기
-    if (openCardId === jobId) {
+    if (currentOpenId === jobIdStr) {
       setOpenCardId(null);
       return;
     }
 
-    // 다른 카드가 열려있으면 먼저 닫고, 애니메이션 후에 새 카드 열기
-    if (openCardId !== null) {
-      setOpenCardId(null);
-      setTimeout(() => {
-        setOpenCardId(jobId);
-      }, 300); // 닫는 애니메이션 시간
-    } else {
-      // 열려있는 카드가 없으면 바로 열기
-      setOpenCardId(jobId);
-    }
+    // 새로운 카드를 먼저 열고, 다른 카드는 동시에 닫힘 (상태 업데이트는 동시에 가능)
+    setOpenCardId(jobIdStr);
   };
 
   // API 데이터를 JobCard 컴포넌트에 맞는 형태로 변환
@@ -136,10 +132,19 @@ export default function JobRecommendationsSection() {
             </a>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <JobCardSkeleton key={index} />
-            ))}
+          <div className="flex flex-col md:flex-row gap-6">
+            {/* 왼쪽 컬럼 */}
+            <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <JobCardSkeleton key={index * 2} />
+              ))}
+            </div>
+            {/* 오른쪽 컬럼 */}
+            <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <JobCardSkeleton key={index * 2 + 1} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -173,20 +178,51 @@ export default function JobRecommendationsSection() {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {jobs.slice(0, 8).map((job, index) => {
-            const cardId = job.jobId.toString();
-            const isOpen = openCardId === cardId;
-            return (
-              <JobCard
-                key={job.jobId || index}
-                job={convertToJobCardFormat(job)}
-                onToggleScrap={toggleFavorite}
-                isOpen={isOpen}
-                onToggle={handleCardToggle}
-              />
-            );
-          })}
+        <div className="flex flex-col md:flex-row gap-6">
+          {/* 왼쪽 컬럼 */}
+          <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+            {jobs
+              .slice(0, 8)
+              .filter((_, index) => index % 2 === 0)
+              .map((job, filteredIndex) => {
+                const originalIndex = filteredIndex * 2;
+                const cardId = job.jobId.toString();
+                const isOpen = openCardId
+                  ? String(openCardId) === String(cardId)
+                  : false;
+                return (
+                  <JobCard
+                    key={job.jobId || originalIndex}
+                    job={convertToJobCardFormat(job)}
+                    onToggleScrap={toggleFavorite}
+                    isOpen={isOpen}
+                    onToggle={handleCardToggle}
+                  />
+                );
+              })}
+          </div>
+          {/* 오른쪽 컬럼 */}
+          <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
+            {jobs
+              .slice(0, 8)
+              .filter((_, index) => index % 2 === 1)
+              .map((job, filteredIndex) => {
+                const originalIndex = filteredIndex * 2 + 1;
+                const cardId = job.jobId.toString();
+                const isOpen = openCardId
+                  ? String(openCardId) === String(cardId)
+                  : false;
+                return (
+                  <JobCard
+                    key={job.jobId || originalIndex}
+                    job={convertToJobCardFormat(job)}
+                    onToggleScrap={toggleFavorite}
+                    isOpen={isOpen}
+                    onToggle={handleCardToggle}
+                  />
+                );
+              })}
+          </div>
         </div>
       </div>
     </section>

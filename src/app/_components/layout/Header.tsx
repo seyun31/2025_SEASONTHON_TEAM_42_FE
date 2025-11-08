@@ -46,6 +46,11 @@ export default function Header() {
 
   useEffect(() => {
     const loadUserProfile = async () => {
+      // OAuth2 성공 페이지에서는 프로필 로딩 스킵 (이미 처리됨)
+      if (pathname === '/oauth2/success') {
+        return;
+      }
+
       setIsLoadingProfile(true);
 
       // 로딩 타임아웃 설정 (5초)

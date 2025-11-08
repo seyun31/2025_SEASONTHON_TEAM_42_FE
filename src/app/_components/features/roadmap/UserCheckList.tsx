@@ -23,6 +23,7 @@ import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
 import CompletionAnimation from '@/components/ui/CompletionAnimation';
 import RoadmapHeader from '@/components/ui/RoadmapHeader';
+import DeleteConfirmModal from '@/components/ui/DeleteConfirmModal';
 import {
   convertApiDataToRoadmapSteps,
   USER_MAP_POSITIONS,
@@ -471,9 +472,9 @@ export default function UserCheckList({
     );
   }
 
-  // 로드맵이 없거나 API 데이터가 없는 경우
-  if (!hasRoadmap || !roadmapData) {
-    // 로드맵이 없는 경우 - 단순한 중앙 정렬 레이아웃
+  // 로드맵이 없거나 API 데이터가 없거나 로그인하지 않은 경우
+  if (!userName || !hasRoadmap || !roadmapData) {
+    // 로드맵이 없는 경우 또는 로그인하지 않은 경우 - 단순한 중앙 정렬 레이아웃
     return (
       <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
         {/* 캐릭터 이미지 */}
@@ -512,8 +513,46 @@ export default function UserCheckList({
       />
       <div className="flex flex-col xl:flex-row xl:items-stretch gap-4">
         {/* 왼쪽 - 로드맵 시각화 */}
-        <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0">
-          <RoadmapHeader userName={userName} multiLine={true} />
+        <RoadmapBackground className="w-full aspect-[588/860] xl:w-[588px] xl:aspect-auto xl:h-[860px] flex-shrink-0 relative">
+          {/* 로드맵 헤더와 수정/삭제 버튼 */}
+          <div className="flex justify-between mb-4 sm:mb-8">
+            <RoadmapHeader userName={userName} multiLine={true} />
+            {/* 로드맵 수정/삭제 버튼 */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  // TODO: 로드맵 수정 기능 구현
+                  router.push('/ai-chat/roadmap');
+                }}
+                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex justify-center transition-colors"
+                aria-label="로드맵 수정"
+              >
+                <Image
+                  src="/assets/Icons/drop-edit.svg"
+                  alt="수정"
+                  width={24}
+                  height={24}
+                />
+              </button>
+              <button
+                onClick={() => {
+                  // TODO: 로드맵 삭제 기능 구현
+                  if (confirm('로드맵을 삭제하시겠습니까?')) {
+                    // 삭제 로직 추가
+                  }
+                }}
+                className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                aria-label="로드맵 삭제"
+              >
+                <Image
+                  src="/assets/Icons/drop-delete.svg"
+                  alt="삭제"
+                  width={24}
+                  height={24}
+                />
+              </button>
+            </div>
+          </div>
 
           {/* 로드맵 차트 */}
           <div className="flex-1 relative flex items-center justify-center">
@@ -635,7 +674,7 @@ export default function UserCheckList({
         <div className="flex flex-col gap-4 w-full xl:h-full">
           {/* 상단 카드 - 취업 정보 */}
           <div
-            className="bg-white rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 md:px-8 h-auto min-h-[200px] md:h-60 w-full bg-white flex-shrink-0"
+            className="bg-white rounded-2xl md:rounded-3xl py-4 px-4 md:py-6 md:px-8 h-auto min-h-[200px] md:h-60 w-full bg-white flex-shrink-0 relative"
             style={{
               boxShadow: '0 4px 10px 0 rgba(17, 17, 17, 0.20)',
             }}
@@ -646,11 +685,48 @@ export default function UserCheckList({
                 <div>
                   {roadmapData &&
                     roadmapData.roadmapInputResponse.dday !== undefined && (
-                      <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight mb-2">
-                        D+{roadmapData.roadmapInputResponse.dday}
+                      <div className="flex items-center gap-2 mb-2 justify-between">
+                        <div className="text-primary-90 font-semibold text-base md:text-2xl lg:text-3xl xl:text-4xl leading-tight">
+                          D+{roadmapData.roadmapInputResponse.dday}
+                        </div>
+                        {/* 취업 정보 수정/삭제 버튼 */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              // TODO: 취업 정보 수정 기능 구현
+                              router.push('/ai-chat/roadmap');
+                            }}
+                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                            aria-label="취업 정보 수정"
+                          >
+                            <Image
+                              src="/assets/Icons/drop-edit.svg"
+                              alt="수정"
+                              width={24}
+                              height={24}
+                            />
+                          </button>
+                          <button
+                            onClick={() => {
+                              // TODO: 취업 정보 삭제 기능 구현
+                              if (confirm('취업 정보를 삭제하시겠습니까?')) {
+                                // 삭제 로직 추가
+                              }
+                            }}
+                            className="w-12 h-12 rounded-full border border-gray-200 bg-white/40 hover:bg-[#E1F5EC]/40 flex items-center justify-center transition-colors"
+                            aria-label="취업 정보 삭제"
+                          >
+                            <Image
+                              src="/assets/Icons/drop-delete.svg"
+                              alt="삭제"
+                              width={24}
+                              height={24}
+                            />
+                          </button>
+                        </div>
                       </div>
                     )}
-                  <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge">
+                  <div className="text-gray-800 text-sm md:text-xl lg:text-3xl xl:text-title-xlarge">
                     {roadmapData
                       ? roadmapData.roadmapInputResponse.career
                       : defaultCareerInfo.jobTitle}
@@ -721,7 +797,7 @@ export default function UserCheckList({
             {selectedStepId ? (
               // 체크리스트 표시
               <div className="h-full flex flex-col">
-                <div className="flex flex-col md:flex-row items-start md:items-end gap-2 mb-2 md:mb-0">
+                <div className="flex flex-col md:flex-row items-start md:items-end gap-2 mb-2 md:mb-0 flex-shrink-0">
                   <div className="text-primary-90 text-base md:text-xl lg:text-2xl xl:text-header-medium">
                     {apiRoadmapSteps.length > 0
                       ? `${apiRoadmapSteps[selectedStepId - 1]?.category || '단계'}`
@@ -746,10 +822,10 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="flex-1 flex flex-col justify-center">
+                <div className="flex-1 flex flex-col overflow-y-auto min-h-0">
                   {/* 에러 메시지 */}
                   {error && (
-                    <div className="mb-4 p-2 md:p-3 bg-red-100 border border-red-300 rounded-lg">
+                    <div className="mb-4 p-2 md:p-3 bg-red-100 border border-red-300 rounded-lg flex-shrink-0">
                       <p className="text-red-700 text-xs md:text-sm lg:text-body-medium">
                         {error}
                       </p>
@@ -773,14 +849,11 @@ export default function UserCheckList({
                       />
                     </div>
                   )} */}
-                  <div className="space-y-2 md:space-y-3 lg:space-y-4">
+                  <div className="space-y-2 md:space-y-3 lg:space-y-4 pr-2">
                     {checklistItems[selectedStepId]?.map((item) => {
                       const isEditing =
                         editingItem?.stepId === selectedStepId &&
                         editingItem?.itemId === item.id;
-                      const isDeleting =
-                        deletingItem?.stepId === selectedStepId &&
-                        deletingItem?.itemId === item.id;
 
                       return (
                         <div
@@ -835,28 +908,6 @@ export default function UserCheckList({
                                   </button>
                                   <button
                                     onClick={cancelEditing}
-                                    disabled={loading}
-                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    취소
-                                  </button>
-                                </div>
-                              </div>
-                            ) : isDeleting ? (
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm md:text-sm lg:text-body-large text-gray-800 flex-1">
-                                  정말 삭제하시겠습니까?
-                                </span>
-                                <div className="flex gap-1 md:gap-2">
-                                  <button
-                                    onClick={confirmDelete}
-                                    disabled={loading}
-                                    className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-red-100 text-red-700 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                  >
-                                    삭제
-                                  </button>
-                                  <button
-                                    onClick={cancelDeleting}
                                     disabled={loading}
                                     className="px-1.5 py-0.5 md:px-3 md:py-1 text-[9px] md:text-xs bg-gray-100 text-gray-700 rounded-full hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                   >
@@ -986,7 +1037,7 @@ export default function UserCheckList({
                   </div>
                 </div>
 
-                <div className="absolute top-2 right-2 md:top-4 md:right-4">
+                {/* <div className="absolute top-2 right-2 md:ftop-4 md:right-4">
                   <Image
                     src="/assets/Icons/character_cheer.png"
                     alt="응원하는 별 캐릭터"
@@ -994,13 +1045,13 @@ export default function UserCheckList({
                     height={134}
                     className="w-auto h-12 md:h-24 lg:h-32 xl:h-[134px]"
                   />
-                </div>
+                </div> */}
               </div>
             ) : (
               // 기본 안내 메시지
               <div className="h-full flex flex-col justify-center items-center">
-                <div className="text-gray-800 text-sm md:text-lg lg:text-xl xl:text-title-xlarge mb-4 px-4 text-center">
-                  로드맵의 별을 눌러서
+                <div className="text-gray-800 text-sm md:text-lg lg:text-4xl lg:font-semibold xl:text-title-xlarge mb-4 px-4 text-center">
+                  로드맵의 동그라미를 눌러서
                   <br />
                   진행도를 확인하세요!
                 </div>
@@ -1018,6 +1069,12 @@ export default function UserCheckList({
           </div>
         </div>
       </div>
+      {/* 삭제 확인 모달 */}
+      <DeleteConfirmModal
+        isOpen={deletingItem !== null}
+        onClose={cancelDeleting}
+        onConfirm={confirmDelete}
+      />
     </>
   );
 }
