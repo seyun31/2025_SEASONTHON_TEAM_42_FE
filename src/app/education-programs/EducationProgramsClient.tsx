@@ -300,8 +300,14 @@ export default function EducationProgramsClient({
         <main className="min-h-screen bg-white">
           <section className="w-full px-4 py-8">
             <div className="max-w-[1200px] mx-auto">
-              <SearchBar borderColor="#9FC2FF" />
-              {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
+              {activeTab === 'all' && (
+                <>
+                  <SearchBar borderColor="#9FC2FF" />
+                  {isLoggedIn && (
+                    <EducationFilter onFilterChange={setFilters} />
+                  )}
+                </>
+              )}
               {isLoggedIn && (
                 <EducationTab
                   activeTab={activeTab}
@@ -336,11 +342,15 @@ export default function EducationProgramsClient({
       <main className="min-h-screen bg-white">
         <section className="w-full px-4 py-8">
           <div className="max-w-[1200px] mx-auto">
-            <SearchBar
-              onSearchChange={setSearchKeyword}
-              borderColor="#9FC2FF"
-            />
-            {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
+            {activeTab === 'all' && (
+              <>
+                <SearchBar
+                  onSearchChange={setSearchKeyword}
+                  borderColor="#9FC2FF"
+                />
+                {isLoggedIn && <EducationFilter onFilterChange={setFilters} />}
+              </>
+            )}
             {isLoggedIn && (
               <EducationTab
                 activeTab={activeTab}
