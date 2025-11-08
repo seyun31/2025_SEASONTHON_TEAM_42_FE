@@ -122,6 +122,8 @@ function AIChatJobContent() {
   const [showRestartModal, setShowRestartModal] = useState(false);
   const [isWaitingForJobInput, setIsWaitingForJobInput] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState<string>('');
+  const [strengthReportFlowStarted, setStrengthReportFlowStarted] =
+    useState(false);
 
   // 이전 대화 기록 불러오기 함수
   const loadPreviousConversationHandler = useCallback(async () => {
@@ -179,14 +181,16 @@ function AIChatJobContent() {
     } finally {
       setHistoryChecked(true);
     }
-  }, [userName, addBotMessage, addComponentMessage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userName]);
 
   // 페이지 로드 시 채팅 히스토리 확인
   useEffect(() => {
     if (!userLoading && userData && !historyChecked) {
       checkChatHistoryHandler();
     }
-  }, [userLoading, userData, historyChecked, checkChatHistoryHandler]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLoading, userData, historyChecked]);
 
   // 초기 intro 메시지 표시 (이전 대화가 없는 경우에만)
   useEffect(() => {
@@ -281,7 +285,7 @@ function AIChatJobContent() {
       // 맞춤형 직업 추천 조회
       const { data: recommendData } = await api.post<
         ApiResponse<JobRecommendations>
-      >('api//chat/jobs/recommend/post-occupation');
+      >('/api/chat/jobs/recommend/post-occupation');
 
       if (recommendData.result === 'SUCCESS') {
         setJobRecommendations(recommendData.data);
@@ -311,65 +315,74 @@ function AIChatJobContent() {
   }, [userName, addBotMessage, removeMessagesByType]);
 
   // 강점 리포트 생성 (API 호출)
-  const generateStrengthReport = useCallback(async () => {
-    try {
-      // 로딩 메시지 설정
-      setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
+  const generateStrengthReport = useCallback(
+    async (occupation: string) => {
+      try {
+        // 로딩 메시지 설정
+        setLoadingMessage(`${userName}을 위한 강점리포트를 생성중입니다!`);
 
-      // 강점 리포트 조회
-      const { data: strengthData } = await api.post<
-        ApiResponse<StrengthReportData>
-      >('/api/chat/strength/result');
+        console.log('[Job] 강점 리포트 생성 시작 - occupation:', occupation);
 
-      if (
-        strengthData.result === 'SUCCESS' &&
-        strengthData.data?.reportList?.length > 0
-      ) {
-        const reports = strengthData.data.reportList.map(
-          (report: ApiStrengthReport) => ({
-            strength: report.strength.replace(/입니다\.$/, ''),
-            experience: report.experience,
-            keyword: report.keyword,
-            job: report.job,
-          })
-        );
+        // 강점 리포트 조회
+        const { data: strengthData } = await api.post<
+          ApiResponse<StrengthReportData>
+        >('/api/chat/strength/result', {
+          occupation,
+        });
 
-        setStrengthReports(reports);
+        // console.log('[Job] 강점 리포트 API 응답:', strengthData);
 
-        // 로딩 메시지 제거
-        setLoadingMessage('');
-
-        // 강점 리포트 표시
-        const expertType = generateExpertType(reports[0].strength);
-        addBotMessage(
-          `수고 많으셨어요 ${userName}! 🙏\n${userName}은 **${expertType}**입니다.`
-        );
-
-        // 강점 리포트 카드들 표시
-        setTimeout(() => {
-          reports.forEach((report: StrengthReport, index: number) => {
-            setTimeout(() => {
-              addComponentMessage('strengthReport', report);
-            }, index * 100);
-          });
-
-          // 모든 리포트 카드가 표시된 후 페이지 이동 버튼 표시
-          setTimeout(
-            () => {
-              addComponentMessage('strengthReportPageButton', {});
-            },
-            reports.length * 100 + 500
+        if (
+          strengthData.result === 'SUCCESS' &&
+          strengthData.data?.reportList?.length > 0
+        ) {
+          const reports = strengthData.data.reportList.map(
+            (report: ApiStrengthReport) => ({
+              strength: report.strength.replace(/입니다\.$/, ''),
+              experience: report.experience,
+              keyword: report.keyword,
+              job: report.job,
+            })
           );
-        }, 500);
-      } else {
-        console.error('강점 리포트 조회 실패:', strengthData.error);
+
+          setStrengthReports(reports);
+
+          // 로딩 메시지 제거
+          setLoadingMessage('');
+
+          // 강점 리포트 표시
+          const expertType = generateExpertType(reports[0].strength);
+          addBotMessage(
+            `수고 많으셨어요 ${userName}! 🙏\n${userName}은 **${expertType}**입니다.`
+          );
+
+          // 강점 리포트 카드들 표시
+          setTimeout(() => {
+            reports.forEach((report: StrengthReport, index: number) => {
+              setTimeout(() => {
+                addComponentMessage('strengthReport', report);
+              }, index * 100);
+            });
+
+            // 모든 리포트 카드가 표시된 후 페이지 이동 버튼 표시
+            setTimeout(
+              () => {
+                addComponentMessage('strengthReportPageButton', {});
+              },
+              reports.length * 100 + 500
+            );
+          }, 500);
+        } else {
+          console.error('강점 리포트 조회 실패:', strengthData.error);
+          setLoadingMessage('');
+        }
+      } catch (error) {
+        console.error('강점 리포트 생성 실패:', error);
         setLoadingMessage('');
       }
-    } catch (error) {
-      console.error('강점 리포트 생성 실패:', error);
-      setLoadingMessage('');
-    }
-  }, [userName, addBotMessage, addComponentMessage]);
+    },
+    [userName, addBotMessage, addComponentMessage]
+  );
 
   // 채팅 완료 시 직업 추천 가져오기
   useEffect(() => {
@@ -398,6 +411,17 @@ function AIChatJobContent() {
           setShowJobCards(true);
           // 새로 생성된 직업 카드에만 버튼 표시
           setShowMoreJobCardsButton(true);
+
+          // 직업 카드 표시 후 강점 리포트 플로우 시작
+          if (!strengthReportFlowStarted) {
+            setTimeout(() => {
+              setStrengthReportFlowStarted(true);
+              addBotMessage(
+                `이제 ${userName}만의 강점 리포트를 만들어볼게요! 📝\n이 리포트는 ${userName}이 가진 경험 속 강점을 한눈에 보여주고,\n나중에 기업에 제출할 때 '나를 소개하는 문서'로도 활용할 수 있어요 💪\n\n제2의 직업을 정하셨다면 '준비하는 직업'을 입력,\n아직 고민 중이라면 '없음'이라고 입력해주세요!`
+              );
+              setIsWaitingForJobInput(true);
+            }, 2000);
+          }
         }, 1500);
       }, 500);
     }
@@ -409,6 +433,7 @@ function AIChatJobContent() {
     setShowJobCards,
     strengthReports.length,
     userName,
+    strengthReportFlowStarted,
   ]);
 
   const getCurrentQuestion = () => {
@@ -427,10 +452,11 @@ function AIChatJobContent() {
   const handleCompleteClick = async () => {
     // 직업 입력 대기 중인 경우
     if (isWaitingForJobInput && textInput.trim()) {
-      addUserMessage(textInput.trim());
+      const occupation = textInput.trim();
+      addUserMessage(occupation);
       setTextInput('');
       setIsWaitingForJobInput(false);
-      setTimeout(() => generateStrengthReport(), 500);
+      setTimeout(() => generateStrengthReport(occupation), 500);
       return;
     }
 
@@ -526,6 +552,8 @@ function AIChatJobContent() {
     setStrengthReports([]);
     setJobMessageAdded(false);
     setCompletionFlowStarted(false);
+    setStrengthReportFlowStarted(false);
+    setIsWaitingForJobInput(false);
     setHasExistingConversation(false);
     setShowMoreJobCardsButton(false);
 

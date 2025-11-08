@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/nextjs';
 
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export async function POST(): Promise<Response> {
+export async function POST(request: Request): Promise<Response> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
@@ -21,15 +21,34 @@ export async function POST(): Promise<Response> {
       );
     }
 
+    // 클라이언트에서 보낸 occupation 파싱
+    const body = await request.json().catch(() => null);
+
+    if (!body || !body.occupation) {
+      return Response.json(
+        {
+          result: 'ERROR',
+          data: null,
+          error: { code: 'BAD_REQUEST', message: 'occupation은 필수입니다.' },
+        },
+        { status: 400 }
+      );
+    }
+
+    const { occupation } = body;
+
+    // 백엔드로 request body 전달
     const response = await fetch(`${backendUrl}/reports/strength`, {
       method: 'POST',
       headers: {
         accept: 'application/json',
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
       },
+      body: JSON.stringify({
+        occupation,
+      }),
     });
-
-    // console.log('백엔드 응답 상태:', response.status);
 
     if (!response.ok) {
       try {

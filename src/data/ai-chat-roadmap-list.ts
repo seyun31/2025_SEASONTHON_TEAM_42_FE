@@ -62,14 +62,7 @@ export const createAiChatRoadmapFlow = (userName: string = '님'): ChatFlow => (
         '회사 경험은 물론, 주부·봉사·동호회 같은 것도 다 자산이 돼요.',
         '예: 컴퓨터활용 자격증, 간호보조사 자격증, 15년간 공장 생산 관리 / 10년 주부 + 요리 자격증 / 동네 모임 총무 등',
       ],
-      options: [
-        '조리사',
-        '지게차 운전 자격증',
-        '전기기사',
-        '간호조무사',
-        '사회복지사',
-        '운전면허',
-      ],
+      options: [],
       canSkip: false,
     },
 
