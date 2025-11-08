@@ -25,37 +25,92 @@ const formatWorkPeriod = (workPeriod: string | null | undefined): string => {
 const calculateDaysLeft = (closingDate: string | null | undefined): string => {
   if (!closingDate) return 'D-?';
   try {
-    let dateString = closingDate;
-    const dateInParentheses = closingDate.match(/\((\d{4}-\d{2}-\d{2})\)/);
-    if (dateInParentheses) {
-      dateString = dateInParentheses[1];
+    const trimmedClosingDate = closingDate.trim();
+    const compactClosingDate = trimmedClosingDate.replace(/\s+/g, '');
+
+    if (
+      /\b상시/.test(trimmedClosingDate) ||
+      compactClosingDate.includes('상시모집')
+    ) {
+      return '상시모집';
     }
-    const dateFormats = [
-      /^\d{4}-\d{2}-\d{2}$/,
-      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/,
-      /^\d{4}\/\d{2}\/\d{2}$/,
-      /^\d{2}\/\d{2}\/\d{4}$/,
-      /^\d{4}\.\d{2}\.\d{2}$/,
-    ];
-    const isValidDate = dateFormats.some((format) => format.test(dateString));
-    if (!isValidDate) {
+
+    if (
+      !/\d/.test(trimmedClosingDate) &&
+      compactClosingDate.includes('마감일')
+    ) {
+      return '상시모집';
+    }
+
+    const extractDateInParentheses = closingDate.match(
+      /\((\d{4}-\d{2}-\d{2})\)/
+    );
+    const baseDateString = extractDateInParentheses
+      ? extractDateInParentheses[1]
+      : closingDate.trim();
+
+    const candidates = new Set<string>();
+    candidates.add(baseDateString);
+
+    const normalized = baseDateString
+      .replace(/[년월]/g, '-')
+      .replace(/[일]/g, '')
+      .replace(/\./g, '-')
+      .replace(/\//g, '-')
+      .replace(/~.*/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    candidates.add(normalized);
+    candidates.add(normalized.replace(' ', 'T'));
+
+    const dateMatch = normalized.match(/\d{4}-\d{2}-\d{2}/);
+    if (dateMatch) {
+      candidates.add(dateMatch[0]);
+      candidates.add(dateMatch[0] + 'T00:00:00');
+    } else {
+      const compactMatch = normalized.match(/\b\d{8}\b/);
+      if (compactMatch) {
+        const compact = compactMatch[0];
+        const formatted = `${compact.slice(0, 4)}-${compact.slice(
+          4,
+          6
+        )}-${compact.slice(6)}`;
+        candidates.add(formatted);
+        candidates.add(formatted + 'T00:00:00');
+      }
+    }
+
+    let targetDate: Date | null = null;
+    for (const candidate of candidates) {
+      const parsedDate = new Date(candidate);
+      if (!isNaN(parsedDate.getTime())) {
+        targetDate = parsedDate;
+        break;
+      }
+    }
+
+    if (!targetDate) {
       return 'D-?';
     }
-    const targetDate = new Date(dateString);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     targetDate.setHours(0, 0, 0, 0);
+
     const timeDiff = targetDate.getTime() - today.getTime();
     const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+
     if (daysLeft < 0) {
       return '마감';
-    } else if (daysLeft === 0) {
-      return 'D-Day';
-    } else if (daysLeft === 1) {
-      return '내일 마감';
-    } else {
-      return `D-${daysLeft}`;
     }
+    if (daysLeft === 0) {
+      return 'D-Day';
+    }
+    if (daysLeft === 1) {
+      return '내일 마감';
+    }
+    return `D-${daysLeft}`;
   } catch {
     return 'D-?';
   }
@@ -326,33 +381,48 @@ export default function JobCardClient({
     );
   };
 
-  const renderDetails = () => (
-    <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
-      <DetailItem
-        label="마감일"
-        value={
-          <>
-            {job.closingDate || '마감일 미정'}{' '}
-            <span style={{ color: '#00AD38' }}>
-              ({calculateDaysLeft(job.closingDate)})
-            </span>
-          </>
-        }
-      />
-      <DetailItem
-        label="경력"
-        value={job.experience || '경력 미정'}
-        isPrimary
-      />
-      <DetailItem label="급여" value={formatSalary(job.salary)} isPrimary />
-      <DetailItem label="고용형태" value={job.employmentType} />
-      <DetailItem label="근무시간" value={formatWorkPeriod(job.workPeriod)} />
-      <DetailItem
-        label="연락처"
-        value={job.managerPhone || '전화번호 미공개'}
-      />
-    </div>
-  );
+  const renderDetails = () => {
+    const closingLabel = job.closingDate || '마감일 미정';
+    const daysLeftLabel = calculateDaysLeft(job.closingDate);
+    const isAlwaysRecruiting =
+      closingLabel.includes('상시') || daysLeftLabel === '상시모집';
+    const shouldShowBadge =
+      !isAlwaysRecruiting &&
+      daysLeftLabel &&
+      daysLeftLabel !== 'D-?' &&
+      daysLeftLabel.trim() !== '';
+
+    return (
+      <div className="space-y-2 md:space-y-3 md:text-xl transition-all duration-500 ease-out">
+        <DetailItem
+          label="마감일"
+          value={
+            <>
+              {closingLabel}
+              {shouldShowBadge && (
+                <>
+                  {' '}
+                  <span style={{ color: '#00AD38' }}>({daysLeftLabel})</span>
+                </>
+              )}
+            </>
+          }
+        />
+        <DetailItem
+          label="경력"
+          value={job.experience || '경력 미정'}
+          isPrimary
+        />
+        <DetailItem label="급여" value={formatSalary(job.salary)} isPrimary />
+        <DetailItem label="고용형태" value={job.employmentType} />
+        <DetailItem label="근무시간" value={formatWorkPeriod(job.workPeriod)} />
+        <DetailItem
+          label="연락처"
+          value={job.managerPhone || '전화번호 미공개'}
+        />
+      </div>
+    );
+  };
 
   return (
     <div
