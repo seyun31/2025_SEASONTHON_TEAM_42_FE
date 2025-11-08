@@ -281,7 +281,7 @@ function AIChatJobContent() {
       // 맞춤형 직업 추천 조회
       const { data: recommendData } = await api.post<
         ApiResponse<JobRecommendations>
-      >('/chat/jobs/recommend/post-occupation');
+      >('api//chat/jobs/recommend/post-occupation');
 
       if (recommendData.result === 'SUCCESS') {
         setJobRecommendations(recommendData.data);

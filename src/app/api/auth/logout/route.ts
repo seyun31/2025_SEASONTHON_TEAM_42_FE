@@ -13,19 +13,19 @@ export async function POST() {
     // accessToken 삭제
     response.cookies.set('accessToken', '', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
-      maxAge: 0, // 삭제
+      maxAge: 0,
     });
 
-    // efreshToken 삭제
+    // refreshToken 삭제
     response.cookies.set('refreshToken', '', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
       path: '/',
-      maxAge: 0, // ← 삭제 핵심
+      maxAge: 0,
     });
 
     // console.log("[Logout API] 쿠키 삭제 완료");

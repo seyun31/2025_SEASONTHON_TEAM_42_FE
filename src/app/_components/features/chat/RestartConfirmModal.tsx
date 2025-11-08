@@ -20,7 +20,7 @@ export default function RestartConfirmModal({
           처음부터 다시 시작하시면
           <br />
           <span className="text-primary-90 font-semibold">
-            이전 대화 내용을 모두 지워져요.
+            이전 대화 내용을 모두 사라져요.
           </span>
           <br />
           다시 시작할까요?
