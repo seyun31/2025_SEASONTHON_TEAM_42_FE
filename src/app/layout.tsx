@@ -39,6 +39,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="NextCareer service" />
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        {/* 중요 이미지 preload */}
+        <link
+          rel="preload"
+          href="/assets/Icons/character_hi.webp"
+          as="image"
+          type="image/webp"
+        />
       </head>
       <body suppressHydrationWarning={true}>
         <QueryProvider>

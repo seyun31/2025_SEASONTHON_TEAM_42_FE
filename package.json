@@ -29,6 +29,7 @@
     "react-hook-form": "^7.62.0",
     "react-icons": "^5.5.0",
     "react-toastify": "^11.0.5",
+    "web-vitals": "^5.1.0",
     "zustand": "^5.0.8"
   },
   "lint-staged": {

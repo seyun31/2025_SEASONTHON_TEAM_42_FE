@@ -235,6 +235,7 @@ interface JobCardClientProps {
   onToggleScrap: (jobId: string) => void;
   isOpen?: boolean;
   onToggle?: (jobId: string) => void;
+  priority?: boolean;
 }
 
 export default function JobCardClient({
@@ -242,6 +243,7 @@ export default function JobCardClient({
   onToggleScrap,
   isOpen = false,
   onToggle,
+  priority = false,
 }: JobCardClientProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isScrap, setIsScrap] = useState(false);

@@ -35,14 +35,8 @@ export default function Header() {
     }
   };
 
-  // 이미지 로딩 에러 핸들러
-  const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
-  ) => {
-    const target = e.target as HTMLImageElement;
-    target.src = '/default-profile.png';
-    target.onerror = null; // 무한 루프 방지
-  };
+  // 이미지 로딩 에러 상태
+  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -52,6 +46,7 @@ export default function Header() {
       }
 
       setIsLoadingProfile(true);
+      setImageError(false); // 프로필 새로고침 시 이미지 에러 상태 초기화
 
       // 로딩 타임아웃 설정 (5초)
       const loadingTimeout = setTimeout(() => {
@@ -64,11 +59,9 @@ export default function Header() {
         if (localUserData) {
           setUserData(localUserData);
           setIsLoggedIn(true);
-          clearTimeout(loadingTimeout);
-          setIsLoadingProfile(false);
         }
 
-        // 서버에서 최신 사용자 정보 가져오기
+        // 서버에서 최신 사용자 정보 가져오기 (한 번만)
         const freshUserData = await fetchUserData();
         if (freshUserData) {
           setUserData(freshUserData);
@@ -96,7 +89,8 @@ export default function Header() {
     };
 
     loadUserProfile();
-  }, [pathname]); // pathname이 변경될 때마다 사용자 상태 확인
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // 컴포넌트 마운트 시 한 번만 실행 - pathname 의존성 제거
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -220,14 +214,17 @@ export default function Header() {
                   {isLoadingProfile ? (
                     <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
                   ) : userData?.profileImage &&
-                    isValidImageUrl(userData.profileImage) ? (
+                    isValidImageUrl(userData.profileImage) &&
+                    !imageError ? (
                     <Image
                       src={userData.profileImage}
                       alt="프로필 이미지"
                       width={32}
                       height={32}
                       className="w-full h-full object-cover"
-                      onError={handleImageError}
+                      onError={() => setImageError(true)}
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <svg
@@ -363,14 +360,17 @@ export default function Header() {
                 {isLoadingProfile ? (
                   <div className="w-5 h-5 border-2 border-gray-300 border-t-green-600 rounded-full animate-spin"></div>
                 ) : userData?.profileImage &&
-                  isValidImageUrl(userData.profileImage) ? (
+                  isValidImageUrl(userData.profileImage) &&
+                  !imageError ? (
                   <Image
                     src={userData.profileImage}
                     alt="프로필 이미지"
                     width={32}
                     height={32}
                     className="w-full h-full object-cover"
-                    onError={handleImageError}
+                    onError={() => setImageError(true)}
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <svg

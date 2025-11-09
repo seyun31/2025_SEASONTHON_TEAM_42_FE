@@ -116,6 +116,8 @@ export default function AICoachRoadmapSection() {
                     width={160}
                     height={160}
                     className="w-auto h-20 md:h-50 object-contain"
+                    priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 </div>
               </div>

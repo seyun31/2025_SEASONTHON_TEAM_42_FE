@@ -1,19 +1,37 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import JobCard from '@/components/features/job/JobCard';
-import SearchBar from '@/components/ui/SearchBar';
-import JobTab from '@/components/ui/JobTab';
 import JobCardSkeleton from '@/components/ui/JobCardSkeleton';
-import JobFilter, { employmentTypeOptions } from '@/components/ui/JobFilter';
-import Footer from '@/components/layout/Footer';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+
+// Lazy load 컴포넌트들
+const SearchBar = dynamic(() => import('@/components/ui/SearchBar'), {
+  ssr: false,
+  loading: () => <div className="h-12 bg-gray-100 rounded-lg animate-pulse" />,
+});
+const JobFilter = dynamic(
+  () =>
+    import('@/components/ui/JobFilter').then((mod) => ({
+      default: mod.default,
+    })),
+  { ssr: false }
+);
+const JobTab = dynamic(() => import('@/components/ui/JobTab'), {
+  ssr: false,
+});
+const Footer = dynamic(() => import('@/components/layout/Footer'), {
+  ssr: false,
+});
+
 import {
   getRecommendedJobs,
   getAllJobs,
   getAllJobsForLoggedIn,
 } from '@/lib/api/jobApi';
 import { AllResponse, JobResponse, SearchAllResponse } from '@/types/job';
+import { employmentTypeOptions } from '@/components/ui/JobFilter';
 
 interface JobPostingsClientProps {
   initialJobs: (AllResponse | JobResponse)[];
@@ -55,6 +73,10 @@ export default function JobPostingsClient({
   const [jobs, setJobs] = useState<(AllResponse | JobResponse)[]>(initialJobs);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(getInitialPage());
+  // 카드 렌더링 제한 (초기에는 4개만)
+  const [visibleCardCount, setVisibleCardCount] = useState(4);
+  // 초기 마운트 추적
+  const [isInitialMount, setIsInitialMount] = useState(true);
   const [_totalElements, setTotalElements] =
     useState<number>(initialTotalElements);
   const [totalPages, setTotalPages] = useState<number>(
@@ -116,6 +138,7 @@ export default function JobPostingsClient({
   const handleTabChange = (tab: 'custom' | 'all') => {
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setJobs([]); // 이전 데이터 클리어
+    setVisibleCardCount(4); // 카드 카운트 리셋
     setActiveTab(tab);
     setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
     updateURL(tab, 1, null);
@@ -124,6 +147,7 @@ export default function JobPostingsClient({
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchJobs 호출
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setVisibleCardCount(4); // 카드 카운트 리셋
     setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
     updateURL(activeTab, page, null);
   };
@@ -216,6 +240,12 @@ export default function JobPostingsClient({
 
   // 탭 변경 시 첫 페이지로 리셋 및 데이터 로드
   useEffect(() => {
+    // 초기 마운트 시에는 SSR 데이터 사용, API 호출 스킵
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      return;
+    }
+
     if (currentPage !== 1) {
       setCurrentPage(1);
     } else {
@@ -227,6 +257,7 @@ export default function JobPostingsClient({
   // 필터나 검색어 변경 시 (전체공고 탭에서만) 첫 페이지로 리셋 후 데이터 로드
   useEffect(() => {
     if (activeTab !== 'all') return;
+    if (isInitialMount) return;
 
     if (currentPage !== 1) {
       setCurrentPage(1);
@@ -238,9 +269,22 @@ export default function JobPostingsClient({
 
   // 페이지 변경 시 데이터 로드
   useEffect(() => {
-    fetchJobs(currentPage);
+    // 초기 마운트가 아닐 때만 페이지 변경 API 호출
+    if (!isInitialMount) {
+      fetchJobs(currentPage);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
+
+  // 나머지 카드 점진적 렌더링
+  useEffect(() => {
+    if (jobs.length > visibleCardCount) {
+      const timer = setTimeout(() => {
+        setVisibleCardCount((prev) => Math.min(prev + 4, jobs.length));
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [jobs.length, visibleCardCount]);
 
   const toggleScrap = (jobId: string) => {
     const newFavorites = new Set(favorites);
@@ -258,15 +302,20 @@ export default function JobPostingsClient({
     const raw = (closingDate || '').trim();
     if (!raw) return '';
 
-    const cleaned = raw.replace(/[\[\]\(\)]/g, '').trim();
-    const compact = cleaned.replace(/\s+/g, '');
-    const hasDigits = /\d/.test(cleaned);
+    // YYYYMMDD 형식을 YYYY-MM-DD로 변환
+    if (/^\d{8}$/.test(raw)) {
+      const year = raw.slice(0, 4);
+      const month = raw.slice(4, 6);
+      const day = raw.slice(6, 8);
+      return `${year}-${month}-${day}`;
+    }
 
-    if (
-      cleaned.includes('상시') ||
-      (!hasDigits && compact.includes('마감일'))
-    ) {
-      return '상시모집';
+    // 공백이나 특수문자 제거
+    let cleaned = raw.replace(/[^\d-]/g, '');
+
+    // 유효한 날짜 형식인지 체크
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) {
+      cleaned = '';
     }
 
     return cleaned || raw;
@@ -322,6 +371,91 @@ export default function JobPostingsClient({
       };
     }
   };
+
+  // 왼쪽 컬럼 카드 렌더링 메모이제이션
+  const leftColumnCards = useMemo(
+    () =>
+      jobs
+        .slice(0, visibleCardCount)
+        .filter((_, index) => index % 2 === 0)
+        .map((job, filteredIndex) => {
+          const originalIndex = filteredIndex * 2;
+          const cardId =
+            ('jobId' in job && typeof job.jobId === 'number'
+              ? job.jobId.toString()
+              : job.jobId) || originalIndex.toString();
+          const isOpen = openCardId
+            ? String(openCardId) === String(cardId)
+            : false;
+          return (
+            <div
+              key={
+                ('jobId' in job && typeof job.jobId === 'number'
+                  ? job.jobId
+                  : job.jobId) || originalIndex
+              }
+            >
+              <JobCard
+                job={convertToJobCardFormat(job)}
+                onToggleScrap={toggleScrap}
+                isOpen={isOpen}
+                onToggle={handleCardToggle}
+                priority={originalIndex === 0}
+              />
+            </div>
+          );
+        }),
+    [
+      jobs,
+      visibleCardCount,
+      openCardId,
+      convertToJobCardFormat,
+      toggleScrap,
+      handleCardToggle,
+    ]
+  );
+
+  // 오른쪽 컬럼 카드 렌더링 메모이제이션
+  const rightColumnCards = useMemo(
+    () =>
+      jobs
+        .slice(0, visibleCardCount)
+        .filter((_, index) => index % 2 === 1)
+        .map((job, filteredIndex) => {
+          const originalIndex = filteredIndex * 2 + 1;
+          const cardId =
+            ('jobId' in job && typeof job.jobId === 'number'
+              ? job.jobId.toString()
+              : job.jobId) || originalIndex.toString();
+          const isOpen = openCardId
+            ? String(openCardId) === String(cardId)
+            : false;
+          return (
+            <div
+              key={
+                ('jobId' in job && typeof job.jobId === 'number'
+                  ? job.jobId
+                  : job.jobId) || originalIndex
+              }
+            >
+              <JobCard
+                job={convertToJobCardFormat(job)}
+                onToggleScrap={toggleScrap}
+                isOpen={isOpen}
+                onToggle={handleCardToggle}
+              />
+            </div>
+          );
+        }),
+    [
+      jobs,
+      visibleCardCount,
+      openCardId,
+      convertToJobCardFormat,
+      toggleScrap,
+      handleCardToggle,
+    ]
+  );
 
   if (isLoading) {
     return (
@@ -427,65 +561,11 @@ export default function JobPostingsClient({
             <div className="flex flex-col md:flex-row gap-6 mt-12">
               {/* 왼쪽 컬럼 */}
               <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
-                {jobs
-                  .filter((_, index) => index % 2 === 0)
-                  .map((job, filteredIndex) => {
-                    const originalIndex = filteredIndex * 2;
-                    const cardId =
-                      ('jobId' in job && typeof job.jobId === 'number'
-                        ? job.jobId.toString()
-                        : job.jobId) || originalIndex.toString();
-                    const isOpen = openCardId
-                      ? String(openCardId) === String(cardId)
-                      : false;
-                    return (
-                      <div
-                        key={
-                          ('jobId' in job && typeof job.jobId === 'number'
-                            ? job.jobId
-                            : job.jobId) || originalIndex
-                        }
-                      >
-                        <JobCard
-                          job={convertToJobCardFormat(job)}
-                          onToggleScrap={toggleScrap}
-                          isOpen={isOpen}
-                          onToggle={handleCardToggle}
-                        />
-                      </div>
-                    );
-                  })}
+                {leftColumnCards}
               </div>
               {/* 오른쪽 컬럼 */}
               <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
-                {jobs
-                  .filter((_, index) => index % 2 === 1)
-                  .map((job, filteredIndex) => {
-                    const originalIndex = filteredIndex * 2 + 1;
-                    const cardId =
-                      ('jobId' in job && typeof job.jobId === 'number'
-                        ? job.jobId.toString()
-                        : job.jobId) || originalIndex.toString();
-                    const isOpen = openCardId
-                      ? String(openCardId) === String(cardId)
-                      : false;
-                    return (
-                      <div
-                        key={
-                          ('jobId' in job && typeof job.jobId === 'number'
-                            ? job.jobId
-                            : job.jobId) || originalIndex
-                        }
-                      >
-                        <JobCard
-                          job={convertToJobCardFormat(job)}
-                          onToggleScrap={toggleScrap}
-                          isOpen={isOpen}
-                          onToggle={handleCardToggle}
-                        />
-                      </div>
-                    );
-                  })}
+                {rightColumnCards}
               </div>
             </div>
             {totalPages > 1 && (

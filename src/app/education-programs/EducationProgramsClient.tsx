@@ -1,22 +1,38 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import EducationCard from '@/components/features/job/EducationCard';
 import EmptyEducations from '@/components/features/job/EmptyEducations';
-import SearchBar from '@/components/ui/SearchBar';
-import EducationTab from '@/components/ui/EducationTab';
-import EducationFilter, {
-  educationTypeOptions,
-} from '@/components/ui/EducationFilter';
 import EducationCardSkeleton from '@/components/ui/EducationCardSkeleton';
-import Footer from '@/components/layout/Footer';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+
+// Lazy load 컴포넌트들
+const SearchBar = dynamic(() => import('@/components/ui/SearchBar'), {
+  ssr: false,
+  loading: () => <div className="h-12 bg-gray-100 rounded-lg animate-pulse" />,
+});
+const EducationFilter = dynamic(
+  () =>
+    import('@/components/ui/EducationFilter').then((mod) => ({
+      default: mod.default,
+    })),
+  { ssr: false }
+);
+const EducationTab = dynamic(() => import('@/components/ui/EducationTab'), {
+  ssr: false,
+});
+const Footer = dynamic(() => import('@/components/layout/Footer'), {
+  ssr: false,
+});
+
 import {
   getAllEducationsAnonymous,
   getHrdEducations,
   getRecommendedEducations,
 } from '@/lib/api/jobApi';
 import { EducationSummary } from '@/types/job';
+import { educationTypeOptions } from '@/components/ui/EducationFilter';
 
 interface EducationProgramsClientProps {
   initialEducations: EducationSummary[];
@@ -121,6 +137,7 @@ export default function EducationProgramsClient({
   const handleTabChange = (tab: 'custom' | 'all') => {
     setIsLoading(true); // 즉시 로딩 상태로 변경
     setEducations([]); // 이전 데이터 클리어
+    setVisibleCardCount(4); // 카드 카운트 리셋
     setActiveTab(tab);
     setOpenCardId(null); // 탭 변경 시 열린 카드 초기화
     updateURL(tab, 1, null);
@@ -129,6 +146,7 @@ export default function EducationProgramsClient({
   // 페이지 변경 핸들러 -> useEffect가 currentPage 변경을 감지하여 fetchEducations 호출
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    setVisibleCardCount(4); // 카드 카운트 리셋
     setOpenCardId(null); // 페이지 변경 시 열린 카드 초기화
     updateURL(activeTab, page, null);
   };
@@ -272,8 +290,19 @@ export default function EducationProgramsClient({
     }
   };
 
+  // 초기 마운트 추적
+  const [isInitialMount, setIsInitialMount] = useState(true);
+  // 카드 렌더링 제한 (초기에는 4개만)
+  const [visibleCardCount, setVisibleCardCount] = useState(4);
+
   // 의존성 변경 시 첫 페이지로 리셋 및 데이터 로드
   useEffect(() => {
+    // 초기 마운트 시에는 SSR 데이터 사용, API 호출 스킵
+    if (isInitialMount) {
+      setIsInitialMount(false);
+      return;
+    }
+
     // 탭이나 필터가 변경되면 페이지를 1로 리셋하고 데이터 로드
     if (currentPage !== 1) {
       setCurrentPage(1);
@@ -286,9 +315,22 @@ export default function EducationProgramsClient({
 
   // 페이지 변경 시 로드
   useEffect(() => {
-    fetchEducations(currentPage);
+    // 초기 마운트가 아닐 때만 페이지 변경 API 호출
+    if (!isInitialMount) {
+      fetchEducations(currentPage);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
+
+  // 나머지 카드 점진적 렌더링
+  useEffect(() => {
+    if (educations.length > visibleCardCount) {
+      const timer = setTimeout(() => {
+        setVisibleCardCount((prev) => Math.min(prev + 4, educations.length));
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [educations.length, visibleCardCount]);
 
   const toggleFavorite = (educationId: string) => {
     // 교육 데이터의 isBookmark 상태를 토글
@@ -300,6 +342,65 @@ export default function EducationProgramsClient({
       )
     );
   };
+
+  // 왼쪽 컬럼 카드 렌더링 메모이제이션
+  const leftColumnCards = useMemo(
+    () =>
+      educations
+        .slice(0, visibleCardCount)
+        .filter((_, index) => index % 2 === 0)
+        .map((education, filteredIndex) => {
+          const originalIndex = filteredIndex * 2;
+          const cardId =
+            education.educationId?.toString() ||
+            education.trprId ||
+            originalIndex.toString();
+          const isOpen = openCardId
+            ? String(openCardId) === String(cardId)
+            : false;
+          return (
+            <EducationCard
+              key={education.trprId || originalIndex}
+              education={education}
+              onToggleBookmark={toggleFavorite}
+              isBookmarked={education.isBookmark || false}
+              isOpen={isOpen}
+              onToggle={handleCardToggle}
+              priority={originalIndex === 0}
+            />
+          );
+        }),
+    [educations, visibleCardCount, openCardId, toggleFavorite, handleCardToggle]
+  );
+
+  // 오른쪽 컬럼 카드 렌더링 메모이제이션
+  const rightColumnCards = useMemo(
+    () =>
+      educations
+        .slice(0, visibleCardCount)
+        .filter((_, index) => index % 2 === 1)
+        .map((education, filteredIndex) => {
+          const originalIndex = filteredIndex * 2 + 1;
+          const cardId =
+            education.educationId?.toString() ||
+            education.trprId ||
+            originalIndex.toString();
+          const isOpen = openCardId
+            ? String(openCardId) === String(cardId)
+            : false;
+          return (
+            <EducationCard
+              key={education.trprId || originalIndex}
+              education={education}
+              onToggleBookmark={toggleFavorite}
+              isBookmarked={education.isBookmark || false}
+              isOpen={isOpen}
+              onToggle={handleCardToggle}
+            />
+          );
+        }),
+    [educations, visibleCardCount, openCardId, toggleFavorite, handleCardToggle]
+  );
 
   const handleFilterApply = (appliedFilters: typeof filters) => {
     setFilters(appliedFilters);
@@ -477,53 +578,11 @@ export default function EducationProgramsClient({
                 <div className="flex flex-col md:flex-row gap-6 mt-12">
                   {/* 왼쪽 컬럼 */}
                   <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
-                    {educations
-                      .filter((_, index) => index % 2 === 0)
-                      .map((education, filteredIndex) => {
-                        const originalIndex = filteredIndex * 2;
-                        const cardId =
-                          education.educationId?.toString() ||
-                          education.trprId ||
-                          originalIndex.toString();
-                        const isOpen = openCardId
-                          ? String(openCardId) === String(cardId)
-                          : false;
-                        return (
-                          <EducationCard
-                            key={education.trprId || originalIndex}
-                            education={education}
-                            onToggleBookmark={toggleFavorite}
-                            isBookmarked={education.isBookmark || false}
-                            isOpen={isOpen}
-                            onToggle={handleCardToggle}
-                          />
-                        );
-                      })}
+                    {leftColumnCards}
                   </div>
                   {/* 오른쪽 컬럼 */}
                   <div className="flex flex-col gap-6 w-full md:w-[calc(50%-12px)]">
-                    {educations
-                      .filter((_, index) => index % 2 === 1)
-                      .map((education, filteredIndex) => {
-                        const originalIndex = filteredIndex * 2 + 1;
-                        const cardId =
-                          education.educationId?.toString() ||
-                          education.trprId ||
-                          originalIndex.toString();
-                        const isOpen = openCardId
-                          ? String(openCardId) === String(cardId)
-                          : false;
-                        return (
-                          <EducationCard
-                            key={education.trprId || originalIndex}
-                            education={education}
-                            onToggleBookmark={toggleFavorite}
-                            isBookmarked={education.isBookmark || false}
-                            isOpen={isOpen}
-                            onToggle={handleCardToggle}
-                          />
-                        );
-                      })}
+                    {rightColumnCards}
                   </div>
                 </div>
                 {totalPages > 1 && (

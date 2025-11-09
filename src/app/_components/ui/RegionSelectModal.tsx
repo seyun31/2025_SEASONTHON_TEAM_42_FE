@@ -48,7 +48,7 @@ export default function RegionSelectModal({
       {/* 데스크톱 레이아웃 */}
       <div className="flex flex-col items-center justify-center gap-6">
         {/* 지역 선택 박스 */}
-        <div className="hidden lg:block relative w-[30.5vw] h-[67vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
+        <div className="hidden lg:block relative w-[26vw] h-[60vh] bg-white border-4 border-primary-90 rounded-[32px] flex flex-col items-center">
           {/* 로고 이미지 */}
           <div className="absolute top-[4%] left-1/2 transform -translate-x-1/2 z-20">
             <Image
@@ -61,7 +61,7 @@ export default function RegionSelectModal({
           </div>
 
           {/* 컨텐츠 영역 */}
-          <div className="absolute top-[90px] left-1/2 transform -translate-x-1/2 z-10 w-[calc(30.5vw-48px)] h-[calc(64vh-180px)] rounded-[16px] border-2 border-primary-30 flex flex-col overflow-hidden bg-white">
+          <div className="absolute top-[100px] left-1/2 transform -translate-x-1/2 z-10 w-[calc(26vw-48px)] h-[calc(57vh-200px)] rounded-[16px] border-2 border-primary-30 flex flex-col overflow-hidden bg-white">
             {/* 제목 바 */}
             <div className="h-[7.41vh] flex items-center justify-center px-4 border-b-2 border-primary-30 relative">
               <span className="text-body-large-medium">거주지 선택</span>
@@ -129,7 +129,7 @@ export default function RegionSelectModal({
             onClick={handleConfirm}
             disabled={!region || ((CITIES[region] || []).length > 0 && !city)}
             className={[
-              'absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[calc(15.5vw-48px)] h-[7.5vh] rounded-[12px] text-title-medium',
+              'absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10 w-[calc(13vw-48px)] h-[7vh] rounded-[12px] text-title-medium',
               region && ((CITIES[region] || []).length === 0 || city)
                 ? 'bg-primary-90 text-white'
                 : 'bg-primary-30 text-title-medium cursor-not-allowed',

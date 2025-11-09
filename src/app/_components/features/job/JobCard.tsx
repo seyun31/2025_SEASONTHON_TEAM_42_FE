@@ -6,6 +6,7 @@ interface JobCardProps {
   onToggleScrap: (jobId: string) => void;
   isOpen?: boolean;
   onToggle?: (jobId: string) => void;
+  priority?: boolean;
 }
 
 export default function JobCard({
@@ -13,6 +14,7 @@ export default function JobCard({
   onToggleScrap,
   isOpen,
   onToggle,
+  priority,
 }: JobCardProps) {
   return (
     <JobCardClient
@@ -20,6 +22,7 @@ export default function JobCard({
       onToggleScrap={onToggleScrap}
       isOpen={isOpen}
       onToggle={onToggle}
+      priority={priority}
     />
   );
 }
