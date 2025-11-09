@@ -23,7 +23,7 @@ export async function GET(request: Request): Promise<Response> {
       type,
     });
 
-    const url = new URL(`${backendUrl}/education`);
+    const url = new URL(`${backendUrl}/education/anonymous`);
     if (keyword) url.searchParams.append('keyword', keyword);
     if (page) {
       url.searchParams.append('page', page);
