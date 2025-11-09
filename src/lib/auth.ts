@@ -69,8 +69,17 @@ export async function fetchUserData(): Promise<UserData | null> {
       credentials: 'include',
     });
 
+    // 401, 500 등 에러 응답 시 null 반환 (무한 루프 방지)
     if (!response.ok) {
-      throw new Error('사용자 정보를 가져오는데 실패했습니다.');
+      console.warn(`사용자 정보 가져오기 실패 (${response.status})`);
+      // 401/500 에러 시 로컬 스토리지도 정리
+      if (
+        typeof window !== 'undefined' &&
+        (response.status === 401 || response.status === 500)
+      ) {
+        localStorage.removeItem('userData');
+      }
+      return null;
     }
 
     const result = await response.json();

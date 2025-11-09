@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { getUserData } from '@/lib/auth';
 import EditableStrengthReportCard from '@/app/_components/features/report/EditableStrengthReportCard';
+import PrintableStrengthReport from '@/app/_components/features/report/PrintableStrengthReport';
 import Image from 'next/image';
 import { api } from '@/lib/api/axios';
 import { ArrowDownToLine } from 'lucide-react';
@@ -41,6 +44,7 @@ export default function StrengthDashboardClient({
     new Set()
   );
   const [isLoading, setIsLoading] = useState(true);
+  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const user = getUserData();
@@ -109,63 +113,100 @@ export default function StrengthDashboardClient({
     }
 
     try {
-      // 선택된 리포트들의 데이터 수집
-      const selectedReportsData = strengthReports
-        .filter((report) => selectedReports.has(report.strengthReportId))
-        .map((report) => ({
-          title: report.strength,
-          experience: report.experience,
-          keywords: report.keyword,
-          jobs: [report.appeal],
-          iconType: getIconType(
-            strengthReports.findIndex(
-              (r) => r.strengthReportId === report.strengthReportId
-            )
-          ),
-        }));
-
-      // 사용자 이름 확인
-      const userName = userData?.name || initialUserName || '사용자';
-
-      // API 호출
-      const response = await fetch('/api/print', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cards: selectedReportsData,
-          userName: userName,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('PDF 생성에 실패했습니다.');
+      const element = printRef.current;
+      if (!element) {
+        throw new Error('인쇄할 요소를 찾을 수 없습니다.');
       }
 
-      // PDF 다운로드
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      // 모든 이미지가 로드될 때까지 대기
+      const images = element.getElementsByTagName('img');
+      const imagePromises = Array.from(images).map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject();
+          // 타임아웃 추가
+          setTimeout(() => resolve(), 100);
+        });
+      });
+      await Promise.all(imagePromises);
 
-      // 파일명 생성: 사용자이름_강점리포트_YYMMDD.pdf
+      // 약간의 딜레이를 주어 렌더링 완료 대기
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      // html2canvas로 HTML을 캔버스로 변환
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 0,
+      });
+
+      // 캔버스 크기 검증
+      if (canvas.width === 0 || canvas.height === 0) {
+        throw new Error('캔버스 크기가 유효하지 않습니다.');
+      }
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+      // A4 사이즈 (mm): 210 x 297
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // 여백 설정
+      const margin = 10;
+      const contentWidth = pageWidth - margin * 2;
+      const contentHeight = (canvas.height * contentWidth) / canvas.width;
+
+      let heightLeft = contentHeight;
+      let yPosition = margin;
+
+      // 첫 페이지 추가
+      pdf.addImage(
+        imgData,
+        'JPEG',
+        margin,
+        yPosition,
+        contentWidth,
+        contentHeight
+      );
+      heightLeft -= pageHeight - margin * 2;
+
+      // 페이지가 넘어가면 추가 페이지 생성
+      while (heightLeft > 0) {
+        yPosition = heightLeft - contentHeight + margin;
+        pdf.addPage();
+        pdf.addImage(
+          imgData,
+          'JPEG',
+          margin,
+          yPosition,
+          contentWidth,
+          contentHeight
+        );
+        heightLeft -= pageHeight - margin * 2;
+      }
+
+      // 파일명 생성
+      const userName = userData?.name || initialUserName || '사용자';
       const now = new Date();
-      const year = String(now.getFullYear()).slice(2); // YY
-      const month = String(now.getMonth() + 1).padStart(2, '0'); // MM
-      const day = String(now.getDate()).padStart(2, '0'); // DD
+      const year = String(now.getFullYear()).slice(2);
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
       const dateStr = `${year}${month}${day}`;
 
-      a.download = `${userName}_강점리포트_${dateStr}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      // PDF 다운로드
+      pdf.save(`${userName}_강점리포트_${dateStr}.pdf`);
 
-      // PDF 다운로드 완료 알림
       showSuccess('PDF 다운로드가 완료되었어요');
-
-      // 다운로드 모드 종료 및 선택 초기화
       setIsDownloadMode(false);
       setSelectedReports(new Set());
     } catch (error) {
@@ -302,6 +343,27 @@ export default function StrengthDashboardClient({
               </div>
             ))}
         </div>
+      </div>
+
+      {/* 숨겨진 인쇄용 컴포넌트 */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <PrintableStrengthReport
+          ref={printRef}
+          cards={strengthReports
+            .filter((report) => selectedReports.has(report.strengthReportId))
+            .map((report) => ({
+              title: report.strength,
+              experience: report.experience,
+              keywords: report.keyword,
+              jobs: [report.appeal],
+              iconType: getIconType(
+                strengthReports.findIndex(
+                  (r) => r.strengthReportId === report.strengthReportId
+                )
+              ),
+            }))}
+          userName={userData?.name || initialUserName || '사용자'}
+        />
       </div>
     </div>
   );

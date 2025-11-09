@@ -31,8 +31,8 @@ export async function GET(): Promise<Response> {
 
     console.log('[User API] 백엔드 응답 상태:', response.status);
 
-    // 401 또는 500 에러 - accessToken 만료 가능성, refresh 시도
-    if (response.status === 401 || response.status === 500) {
+    // 401 에러 - accessToken 만료 가능성, refresh 시도
+    if (response.status === 401) {
       console.log(`[User API] ${response.status} 감지 - refresh 시도`);
 
       const refreshToken = cookieStore.get('refreshToken')?.value;

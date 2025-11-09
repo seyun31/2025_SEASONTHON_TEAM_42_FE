@@ -16,6 +16,7 @@ import {
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
 import { IoMdMore } from 'react-icons/io';
+import { showSuccess, showError, showInfo } from '@/utils/alert';
 import {
   toggleRoadMapAction,
   updateRoadmapAction,
@@ -80,6 +81,7 @@ export default function UserCheckList({
     stepId: number;
     itemId: number;
   } | null>(null);
+  const [isDeletingRoadmap, setIsDeletingRoadmap] = useState<boolean>(false);
   const [isEditRoadmapModalOpen, setIsEditRoadmapModalOpen] =
     useState<boolean>(false);
   const [roadmapInputForm, setRoadmapInputForm] = useState<{
@@ -368,12 +370,11 @@ export default function UserCheckList({
     }
   };
 
-  const handleDeleteRoadmap = async () => {
-    const confirmed = confirm('로드맵을 삭제하시겠습니까?');
-    if (!confirmed) {
-      return;
-    }
+  const handleDeleteRoadmap = () => {
+    setIsDeletingRoadmap(true);
+  };
 
+  const confirmDeleteRoadmap = async () => {
     try {
       setLoading(true);
       setError(null);
@@ -390,7 +391,8 @@ export default function UserCheckList({
       }
 
       router.refresh();
-      alert('로드맵이 삭제되었습니다.');
+      showSuccess('로드맵이 삭제되었습니다.');
+      setIsDeletingRoadmap(false);
     } catch (error) {
       console.error('로드맵 삭제 실패:', error);
       const errorMessage =
@@ -398,10 +400,14 @@ export default function UserCheckList({
           ? error.message
           : '로드맵 삭제에 실패했습니다. 다시 시도해주세요.';
       setError(errorMessage);
-      alert(errorMessage);
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
+  };
+
+  const cancelDeleteRoadmap = () => {
+    setIsDeletingRoadmap(false);
   };
 
   const openEditRoadmapModal = () => {
@@ -470,7 +476,7 @@ export default function UserCheckList({
     }
 
     if (Object.keys(payload).length === 0) {
-      alert('변경된 내용이 없습니다.');
+      showError('변경된 내용이 없습니다.');
       return;
     }
 
@@ -499,7 +505,7 @@ export default function UserCheckList({
       }
 
       router.refresh();
-      alert('취업 정보가 업데이트되었습니다.');
+      showSuccess('취업 정보가 업데이트되었습니다.');
       closeEditRoadmapModal();
     } catch (error) {
       console.error('로드맵 정보 수정 실패:', error);
@@ -518,7 +524,7 @@ export default function UserCheckList({
       apiRoadmapSteps.length > 0 ? apiRoadmapSteps : (roadmapData?.steps ?? []);
 
     if (sourceSteps.length === 0) {
-      alert('수정할 로드맵 단계가 없습니다.');
+      showError('수정할 로드맵 단계가 없습니다.');
       return;
     }
 
@@ -578,7 +584,7 @@ export default function UserCheckList({
     });
 
     if (updates.length === 0) {
-      alert('변경된 카테고리가 없습니다.');
+      showError('변경된 카테고리가 없습니다.');
       return;
     }
 
@@ -609,7 +615,7 @@ export default function UserCheckList({
       }
 
       router.refresh();
-      alert('로드맵 카테고리가 업데이트되었습니다.');
+      showSuccess('로드맵 카테고리가 업데이트되었습니다.');
       closeEditCategoryModal();
     } catch (error) {
       console.error('로드맵 카테고리 수정 실패:', error);
@@ -1516,11 +1522,17 @@ export default function UserCheckList({
           </div>
         </div>
       </div>
-      {/* 삭제 확인 모달 */}
+      {/* 체크리스트 아이템 삭제 확인 모달 */}
       <DeleteConfirmModal
         isOpen={deletingItem !== null}
         onClose={cancelDeleting}
         onConfirm={confirmDelete}
+      />
+      {/* 로드맵 삭제 확인 모달 */}
+      <DeleteConfirmModal
+        isOpen={isDeletingRoadmap}
+        onClose={cancelDeleteRoadmap}
+        onConfirm={confirmDeleteRoadmap}
       />
     </>
   );
