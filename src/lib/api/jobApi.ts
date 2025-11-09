@@ -20,6 +20,7 @@ import {
   RoadMapResponse,
   RoadMapRequest,
   RoadMapUpdateRequest,
+  RoadMapCategoryUpdateRequest,
   ActionUpdateRequest,
   RoadmapActionRecommendResponse,
   ApiResponse as RoadmapApiResponse,
@@ -341,6 +342,40 @@ export const updateRoadmapInput = async (
     }
   } catch (error) {
     console.error('Error updating roadmap input:', error);
+    throw error;
+  }
+};
+
+// 로드맵 카테고리 수정
+export const updateRoadmapCategory = async (
+  payload: RoadMapCategoryUpdateRequest
+): Promise<void> => {
+  try {
+    if (process.env.NODE_ENV !== 'production') {
+      console.debug('[updateRoadmapCategory] payload', payload);
+    }
+    const response = await fetch('/api/roadmap/category', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update roadmap category: ${response.status} ${response.statusText}`
+      );
+    }
+
+    const result: RoadmapApiResponse<object> = await response.json();
+
+    if (result.result !== 'SUCCESS') {
+      throw new Error(result.error?.message || 'API request failed');
+    }
+  } catch (error) {
+    console.error('Error updating roadmap category:', error);
     throw error;
   }
 };

@@ -23,6 +23,7 @@ import {
   addRoadmapAction,
   deleteRoadmap,
   updateRoadmapInput,
+  updateRoadmapCategory,
 } from '@/lib/api/jobApi';
 import RoadmapPosition from '@/components/ui/RoadmapPosition';
 import RoadmapBackground from '@/components/ui/RoadmapBackground';
@@ -95,6 +96,16 @@ export default function UserCheckList({
   const [roadmapInputModalError, setRoadmapInputModalError] = useState<
     string | null
   >(null);
+  const [isEditCategoryModalOpen, setIsEditCategoryModalOpen] =
+    useState<boolean>(false);
+  const [categoryForm, setCategoryForm] = useState<
+    { roadMapId: number; period: string; category: string }[]
+  >([]);
+  const [categoryModalError, setCategoryModalError] = useState<string | null>(
+    null
+  );
+  const [isCategorySubmitting, setIsCategorySubmitting] =
+    useState<boolean>(false);
 
   // API 데이터를 UI용 데이터로 변환
   useEffect(() => {
@@ -197,7 +208,15 @@ export default function UserCheckList({
 
   // 로드맵 단계 데이터 변환
   const roadmapSteps = convertApiDataToRoadmapSteps(
-    roadmapData || null,
+    roadmapData
+      ? {
+          ...roadmapData,
+          steps:
+            apiRoadmapSteps.length > 0
+              ? apiRoadmapSteps
+              : roadmapData.steps || [],
+        }
+      : null,
     USER_MAP_POSITIONS
   );
 
@@ -499,6 +518,116 @@ export default function UserCheckList({
     }
   };
 
+  const openEditCategoryModal = () => {
+    const sourceSteps =
+      apiRoadmapSteps.length > 0 ? apiRoadmapSteps : (roadmapData?.steps ?? []);
+
+    if (sourceSteps.length === 0) {
+      alert('수정할 로드맵 단계가 없습니다.');
+      return;
+    }
+
+    setCategoryForm(
+      sourceSteps.map((step) => ({
+        roadMapId: step.roadMapId,
+        period: step.period ?? '',
+        category: step.category ?? '',
+      }))
+    );
+    setCategoryModalError(null);
+    setIsEditCategoryModalOpen(true);
+  };
+
+  const closeEditCategoryModal = () => {
+    setIsEditCategoryModalOpen(false);
+    setCategoryModalError(null);
+    setCategoryForm([]);
+  };
+
+  const handleCategoryFieldChange = (roadMapId: number, value: string) => {
+    setCategoryForm((prev) =>
+      prev.map((item) =>
+        item.roadMapId === roadMapId ? { ...item, category: value } : item
+      )
+    );
+  };
+
+  const handleSubmitCategoryForm = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
+    event.preventDefault();
+
+    if (categoryForm.length === 0) {
+      closeEditCategoryModal();
+      return;
+    }
+
+    const trimmedForm = categoryForm.map((item) => ({
+      ...item,
+      category: item.category.trim(),
+    }));
+
+    if (trimmedForm.some((item) => item.category.length === 0)) {
+      setCategoryModalError('카테고리는 비워둘 수 없습니다.');
+      return;
+    }
+
+    const baselineSteps =
+      apiRoadmapSteps.length > 0 ? apiRoadmapSteps : (roadmapData?.steps ?? []);
+
+    const updates = trimmedForm.filter((item) => {
+      const baseline = baselineSteps.find(
+        (step) => step.roadMapId === item.roadMapId
+      );
+      return baseline ? item.category !== (baseline.category ?? '') : false;
+    });
+
+    if (updates.length === 0) {
+      alert('변경된 카테고리가 없습니다.');
+      return;
+    }
+
+    try {
+      setIsCategorySubmitting(true);
+      setCategoryModalError(null);
+
+      const payload = {
+        roadmapList: updates.map((item) => ({
+          roadmapId: String(item.roadMapId),
+          category: item.category,
+        })),
+      };
+
+      await updateRoadmapCategory(payload);
+
+      setApiRoadmapSteps((prev) =>
+        prev.map((step) => {
+          const update = updates.find(
+            (item) => item.roadMapId === step.roadMapId
+          );
+          return update ? { ...step, category: update.category } : step;
+        })
+      );
+
+      if (onRoadmapUpdate) {
+        onRoadmapUpdate();
+      }
+
+      router.refresh();
+      alert('로드맵 카테고리가 업데이트되었습니다.');
+      closeEditCategoryModal();
+    } catch (error) {
+      console.error('로드맵 카테고리 수정 실패:', error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : '로드맵 카테고리를 수정하지 못했습니다. 다시 시도해주세요.';
+      setCategoryModalError(errorMessage);
+    } finally {
+      setIsCategorySubmitting(false);
+    }
+  };
+
   const displayCareer =
     roadmapInputData?.career ??
     roadmapData?.roadmapInputResponse.career ??
@@ -698,6 +827,70 @@ export default function UserCheckList({
   // 로드맵이 있는 경우 - 왼쪽에 로드맵, 오른쪽에 두 개의 카드
   return (
     <>
+      {isEditCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 md:p-8 relative">
+            <button
+              type="button"
+              onClick={closeEditCategoryModal}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors text-2xl"
+              aria-label="닫기"
+            >
+              ×
+            </button>
+            <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
+              로드맵 카테고리 수정
+            </h2>
+            <p className="text-gray-500 text-sm md:text-base mb-6">
+              각 단계의 카테고리 이름을 수정해 주세요.
+            </p>
+            {categoryModalError && (
+              <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {categoryModalError}
+              </div>
+            )}
+            <form onSubmit={handleSubmitCategoryForm} className="space-y-5">
+              {categoryForm.map((item, index) => (
+                <div key={item.roadMapId}>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {index + 1}단계 {item.period ? `(${item.period})` : '( )'}
+                  </label>
+                  <input
+                    type="text"
+                    value={item.category}
+                    onChange={(event) =>
+                      handleCategoryFieldChange(
+                        item.roadMapId,
+                        event.target.value
+                      )
+                    }
+                    placeholder="예: 교육"
+                    className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm md:text-base shadow-sm focus:border-primary-80 focus:outline-none focus:ring-2 focus:ring-primary-80/30 transition"
+                    disabled={isCategorySubmitting}
+                  />
+                </div>
+              ))}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={closeEditCategoryModal}
+                  className="rounded-xl border border-gray-200 px-4 py-2 text-sm md:text-base text-gray-600 hover:bg-gray-100 transition"
+                  disabled={isCategorySubmitting}
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-xl bg-primary-90 px-5 py-2 text-sm md:text-base text-white shadow hover:bg-green-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
+                  disabled={isCategorySubmitting}
+                >
+                  {isCategorySubmitting ? '수정 중...' : '수정하기'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
       {isEditRoadmapModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 md:p-8 relative">
@@ -710,16 +903,16 @@ export default function UserCheckList({
               ×
             </button>
             <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-4">
-              취업 정보 수정
+              로드맵 정보 수정
             </h2>
             <p className="text-gray-500 text-sm md:text-base mb-6">
               목표 직무, 취업 기간, 보유 경험 정보를 수정해 주세요.
             </p>
-            {roadmapInputModalError && (
+            {/* {roadmapInputModalError && (
               <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {roadmapInputModalError}
               </div>
-            )}
+            )} */}
             <form onSubmit={handleSubmitRoadmapInput} className="space-y-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -810,12 +1003,9 @@ export default function UserCheckList({
             {/* 로드맵 수정/삭제 버튼 */}
             <div className="flex gap-2">
               <button
-                onClick={() => {
-                  // TODO: 로드맵 수정 기능 구현
-                  router.push('/ai-chat/roadmap');
-                }}
+                onClick={openEditCategoryModal}
                 className="w-12 h-12 rounded-full bg-white/40 hover:bg-[#E1F5EC]/40 flex justify-center transition-colors"
-                aria-label="로드맵 수정"
+                aria-label="로드맵 카테고리 수정"
               >
                 <Image
                   src="/assets/Icons/drop-edit.svg"

@@ -70,7 +70,7 @@ export default function CareerRoadmapSection() {
                 <p className="text-black text-title-xlarge opacity-90">
                   로그인 하시고
                   <br />
-                  취업 로드맵 받아보세요!
+                  커리어 로드맵 받아보세요!
                 </p>
               </div>
             ) : loading ? (

@@ -29,13 +29,13 @@ export default function RoadmapHeader({
               <>
                 {userName}님의
                 <br />
-                취업 로드맵
+                커리어 로드맵
               </>
             ) : (
-              `${userName}님의 취업 로드맵`
+              `${userName}님의  커리어 로드맵`
             )
           ) : (
-            '취업 로드맵'
+            ' 커리어 로드맵'
           )}
         </span>
         {showDetailLink && userName && (

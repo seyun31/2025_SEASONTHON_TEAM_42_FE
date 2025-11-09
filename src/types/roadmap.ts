@@ -37,6 +37,15 @@ export interface RoadMapUpdateRequest {
   period?: string;
 }
 
+export interface RoadMapCategoryUpdateItem {
+  roadmapId: number | string;
+  category: string;
+}
+
+export interface RoadMapCategoryUpdateRequest {
+  roadmapList: RoadMapCategoryUpdateItem[];
+}
+
 // 로드맵 액션 수정 요청
 export interface ActionUpdateRequest {
   action: string;
