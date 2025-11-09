@@ -1,6 +1,6 @@
 {
   "functions": {
-    "src/app/api/print/route.ts": {
+    "api/print": {
       "memory": 3008,
       "maxDuration": 60
     }
