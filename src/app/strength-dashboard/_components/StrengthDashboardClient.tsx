@@ -212,7 +212,7 @@ export default function StrengthDashboardClient({
         />
         <button
           onClick={handleGenerateReport}
-          className="max-w-[389px] bg-primary-90 text-white rounded-[16px] md:rounded-[24px] p-4 md:p-5 font-pretendard font-semibold text-[20px] md:text-[36px] leading-[140%] tracking-[-0.025em] text-center cursor-pointer"
+          className="bg-primary-90 text-white rounded-[16px] md:rounded-[24px] p-4 md:p-5 font-pretendard font-semibold text-lg leading-[140%] tracking-[-0.025em] text-center cursor-pointer"
           style={{ letterSpacing: '-2.5%' }}
         >
           강점 리포트 생성하러가기
