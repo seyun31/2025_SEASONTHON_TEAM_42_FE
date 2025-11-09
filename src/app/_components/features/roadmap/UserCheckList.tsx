@@ -262,11 +262,6 @@ export default function UserCheckList({
       if (!wasCompleted) {
         setShowCompletionAnimation(true);
       }
-
-      // 부모 컴포넌트에 업데이트 알림
-      if (onRoadmapUpdate) {
-        onRoadmapUpdate();
-      }
     } catch (error) {
       console.error('체크리스트 토글 실패:', error);
       setError(
