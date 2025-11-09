@@ -195,22 +195,23 @@ async function fetchInitialEducations(
         totalElements: data.totalElements || educations.length,
       };
     } else {
-      // 비로그인 시: 내부 API 라우트를 통해 익명 전체 조회
-      const basePath = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(
-        /\/$/,
-        ''
-      );
+      // 비로그인 시: 백엔드 익명 전체 조회 API 호출
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (!backendUrl) {
+        return { educations: [], totalElements: 0 };
+      }
       const queryParams = new URLSearchParams();
       queryParams.append('page', pageNo.toString());
       queryParams.append('size', '20');
-      const response = await fetch(
-        `${basePath}/api/education/anonymous?${queryParams.toString()}`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store',
-        }
-      );
+      const queryString = queryParams.toString();
+      const url = queryString
+        ? `${backendUrl}/education/anonymous?${queryString}`
+        : `${backendUrl}/education/anonymous`;
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      });
       if (!response.ok) {
         return { educations: [], totalElements: 0 };
       }
