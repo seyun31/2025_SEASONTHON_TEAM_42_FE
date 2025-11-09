@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chromium } from 'playwright';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
 
 interface StrengthReportCard {
   title: string;
@@ -135,14 +136,28 @@ export async function POST(req: NextRequest) {
     </html>
     `;
 
-    const browser = await chromium.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    // Vercel 환경에서는 Chromium 사용, 로컬에서는 일반 Puppeteer 사용
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    const browser = await puppeteer.launch({
+      args: isProduction
+        ? chromium.args
+        : ['--no-sandbox', '--disable-setuid-sandbox'],
+      defaultViewport: chromium.defaultViewport,
+      executablePath: isProduction
+        ? await chromium.executablePath()
+        : process.platform === 'win32'
+          ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+          : process.platform === 'darwin'
+            ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+            : '/usr/bin/google-chrome',
+      headless: chromium.headless,
     });
+
     const page = await browser.newPage();
 
-    await page.setViewportSize({ width: 1920, height: 1080 });
-    await page.setContent(html, { waitUntil: 'networkidle' });
+    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
 
     const pdf = await page.pdf({
       format: 'A4',
