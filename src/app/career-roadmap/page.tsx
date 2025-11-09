@@ -1,58 +1,77 @@
-'use client';
-
-import { useEffect, useState, useCallback } from 'react';
-import { getUserData } from '@/lib/auth';
-import { useRoadmapStore } from '@/stores/roadmapStore';
-import UserCheckList from '@/components/features/roadmap/UserCheckList';
-import Footer from '@/components/layout/Footer';
-import { getRoadMap } from '@/lib/api/jobApi';
+import { cookies } from 'next/headers';
+import CareerRoadmapClient from './_components/CareerRoadmapClient';
 import { RoadMapResponse } from '@/types/roadmap';
-export default function CareerRoadmap() {
-  const [userName, setUserName] = useState<string>('');
-  const [roadmapData, setRoadmapData] = useState<RoadMapResponse | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { hasRoadmap, setHasRoadmap } = useRoadmapStore();
 
-  const fetchRoadmapData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await getRoadMap();
-      setRoadmapData(data);
-      setHasRoadmap(true);
-    } catch (err) {
-      console.error('로드맵 데이터 가져오기 실패:', err);
-      setHasRoadmap(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setHasRoadmap]);
+async function fetchRoadmapData(): Promise<{
+  roadmapData: RoadMapResponse | null;
+  userName: string | null;
+  hasRoadmap: boolean;
+}> {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get('accessToken')?.value;
 
-  useEffect(() => {
-    const userData = getUserData();
-    if (userData?.name) {
-      setUserName(userData.name);
-      // 로그인한 사용자의 경우 로드맵 데이터 가져오기
-      fetchRoadmapData();
-    } else {
-      setIsLoading(false);
+  if (!accessToken || !backendUrl) {
+    return { roadmapData: null, userName: null, hasRoadmap: false };
+  }
+
+  try {
+    // 로드맵 데이터 가져오기
+    const roadmapResponse = await fetch(`${backendUrl}/roadmap`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store', // 항상 최신 로드맵 데이터
+    });
+
+    let roadmapData = null;
+    let hasRoadmap = false;
+
+    if (roadmapResponse.ok) {
+      const roadmapResult = await roadmapResponse.json();
+      if (roadmapResult.result === 'SUCCESS' && roadmapResult.data) {
+        roadmapData = roadmapResult.data;
+        hasRoadmap = true;
+      }
     }
-  }, [fetchRoadmapData]);
+
+    // 사용자 정보 가져오기
+    const userResponse = await fetch(`${backendUrl}/v1/member`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    let userName = null;
+    if (userResponse.ok) {
+      const userResult = await userResponse.json();
+      if (userResult.result === 'SUCCESS' && userResult.data?.name) {
+        userName = userResult.data.name;
+      }
+    }
+
+    return {
+      roadmapData,
+      userName,
+      hasRoadmap,
+    };
+  } catch (error) {
+    console.error('Error fetching roadmap data:', error);
+    return { roadmapData: null, userName: null, hasRoadmap: false };
+  }
+}
+
+export default async function CareerRoadmap() {
+  const { roadmapData, userName, hasRoadmap } = await fetchRoadmapData();
 
   return (
-    <div>
-      <section className="w-full px-4 py-8 min-h-[calc(100vh-200px)] flex flex-col justify-center">
-        <div className="max-w-[1200px] mx-auto w-full">
-          {/* 로그인 여부와 관계없이 UserCheckList 사용 */}
-          <UserCheckList
-            userName={userName}
-            hasRoadmap={hasRoadmap}
-            roadmapData={roadmapData}
-            onRoadmapUpdate={fetchRoadmapData}
-            isLoading={isLoading}
-          />
-        </div>
-      </section>
-      <Footer />
-    </div>
+    <CareerRoadmapClient
+      initialRoadmapData={roadmapData}
+      initialUserName={userName}
+      initialHasRoadmap={hasRoadmap}
+    />
   );
 }
