@@ -1,4 +1,5 @@
 'use client';
+
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -115,6 +116,8 @@ export default function AICoachRoadmapSection() {
                     width={160}
                     height={160}
                     className="w-auto h-20 md:h-50 object-contain"
+                    priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
                   />
                 </div>
               </div>
@@ -122,9 +125,9 @@ export default function AICoachRoadmapSection() {
           </div>
 
           {/* 우측 로드맵 카드 */}
-          <div className="lg:w-1/3 lg:self-start">
+          <div className="w-full lg:w-1/3 lg:self-start aspect-[445/652] lg:aspect-auto lg:h-[600px]">
             <RoadmapBackground
-              className="w-full flex-shrink-0"
+              className="w-full h-full flex-shrink-0"
               overlayBlur={!userName}
             >
               <RoadmapHeader
@@ -134,11 +137,8 @@ export default function AICoachRoadmapSection() {
               />
 
               {/* 로드맵 차트 또는 로그인 안내 */}
-              <div
-                className="relative w-full"
-                style={{ aspectRatio: '445 / 652' }}
-              >
-                <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative flex-1 mt-4 h-full">
+                <div className="flex h-full w-full items-center justify-center">
                   {!userName ? (
                     <div className="text-center bg-white/40 rounded-2xl px-3 py-2 flex items-center gap-3 ">
                       <p className="text-black text-xl opacity-90">
