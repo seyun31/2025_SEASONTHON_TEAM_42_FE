@@ -23,20 +23,13 @@ export default function CareerRoadmapClient({
   const [roadmapData, setRoadmapData] = useState<RoadMapResponse | null>(
     initialRoadmapData
   );
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { hasRoadmap, setHasRoadmap } = useRoadmapStore();
 
   useEffect(() => {
     // 초기 hasRoadmap 상태 설정
     setHasRoadmap(initialHasRoadmap);
   }, [initialHasRoadmap, setHasRoadmap]);
-
-  useEffect(() => {
-    const userData = getUserData();
-    if (userData?.name) {
-      setUserName(userData.name);
-    }
-  }, []);
 
   const fetchRoadmapData = useCallback(async () => {
     try {
@@ -51,6 +44,16 @@ export default function CareerRoadmapClient({
       setIsLoading(false);
     }
   }, [setHasRoadmap]);
+
+  useEffect(() => {
+    const userData = getUserData();
+    if (userData?.name) {
+      setUserName(userData.name);
+    }
+
+    // 클라이언트에서 최신 로드맵 데이터 가져오기
+    fetchRoadmapData();
+  }, [fetchRoadmapData]);
 
   return (
     <div>
