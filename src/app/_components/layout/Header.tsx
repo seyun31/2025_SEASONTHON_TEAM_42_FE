@@ -89,8 +89,7 @@ export default function Header() {
     };
 
     loadUserProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // 컴포넌트 마운트 시 한 번만 실행 - pathname 의존성 제거
+  }, [pathname]); // pathname 변경 시마다 사용자 정보 다시 로드
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);

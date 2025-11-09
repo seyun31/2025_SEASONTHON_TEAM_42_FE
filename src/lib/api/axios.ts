@@ -46,7 +46,11 @@ axiosInstance.interceptors.response.use(
           .catch((err) => {
             console.log('[Axios] refresh 실패 → logout');
             if (typeof window !== 'undefined') {
-              window.location.href = '/';
+              // ai-chat 페이지에서는 리다이렉트하지 않고 에러 컴포넌트 표시
+              const currentPath = window.location.pathname;
+              if (!currentPath.startsWith('/ai-chat/')) {
+                window.location.href = '/';
+              }
             }
             throw err;
           })
@@ -124,7 +128,11 @@ backendApi.interceptors.response.use(
           .catch((err) => {
             console.log('[BackendApi] refresh 실패 → logout');
             if (typeof window !== 'undefined') {
-              window.location.href = '/';
+              // ai-chat 페이지에서는 리다이렉트하지 않고 에러 컴포넌트 표시
+              const currentPath = window.location.pathname;
+              if (!currentPath.startsWith('/ai-chat/')) {
+                window.location.href = '/';
+              }
             }
             throw err;
           })

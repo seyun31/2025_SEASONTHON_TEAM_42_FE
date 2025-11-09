@@ -74,7 +74,11 @@ export async function fetchWithAuth(
       console.warn('토큰 재발급 실패 - 세션이 만료되었습니다.');
       // 클라이언트 사이드에서만 리다이렉트
       if (typeof window !== 'undefined') {
-        window.location.href = '/';
+        // ai-chat 페이지에서는 리다이렉트하지 않고 에러 컴포넌트 표시
+        const currentPath = window.location.pathname;
+        if (!currentPath.startsWith('/ai-chat/')) {
+          window.location.href = '/';
+        }
       }
     }
 

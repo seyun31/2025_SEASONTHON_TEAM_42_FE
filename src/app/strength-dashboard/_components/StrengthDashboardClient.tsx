@@ -40,12 +40,16 @@ export default function StrengthDashboardClient({
   const [selectedReports, setSelectedReports] = useState<Set<number>>(
     new Set()
   );
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const user = getUserData();
     if (user) {
       setUserData(user);
     }
+
+    // 클라이언트에서 최신 강점 리포트 데이터 가져오기
+    fetchStrengthReports();
   }, []);
 
   // 외부 클릭 감지로 다운로드 모드 닫기
@@ -71,6 +75,7 @@ export default function StrengthDashboardClient({
   }, [isDownloadMode]);
 
   const fetchStrengthReports = async () => {
+    setIsLoading(true);
     try {
       const { data } = await api.get<{
         result: string;
@@ -88,6 +93,8 @@ export default function StrengthDashboardClient({
     } catch (error) {
       console.error('Error fetching strength reports:', error);
       setStrengthReports([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -197,6 +204,24 @@ export default function StrengthDashboardClient({
     ];
     return icons[index % icons.length];
   };
+
+  // 로딩 중일 때
+  if (isLoading) {
+    return (
+      <div className="w-full h-[80vh] flex flex-col items-center justify-center text-center px-4">
+        <Image
+          src="/assets/Icons/loading-star-2.png"
+          alt="강점 리포트 불러오는 중"
+          width={328}
+          height={293}
+          className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+        />
+        <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+          강점 리포트 불러오는 중
+        </p>
+      </div>
+    );
+  }
 
   const noReport = !strengthReports || strengthReports.length === 0;
 
