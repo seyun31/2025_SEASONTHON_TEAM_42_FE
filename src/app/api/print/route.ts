@@ -136,62 +136,31 @@ export async function POST(req: NextRequest) {
     </html>
     `;
 
-    // Vercel 환경에서는 Chromium 사용, 로컬에서는 일반 Puppeteer 사용
-    const isProduction = process.env.NODE_ENV === 'production';
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
 
-    let browser;
-    try {
-      browser = await puppeteer.launch({
-        args: isProduction
-          ? [
-              ...chromium.args,
-              '--disable-gpu',
-              '--disable-dev-shm-usage',
-              '--disable-setuid-sandbox',
-              '--no-first-run',
-              '--no-zygote',
-              '--single-process',
-            ]
-          : ['--no-sandbox', '--disable-setuid-sandbox'],
-        defaultViewport: chromium.defaultViewport,
-        executablePath: isProduction
-          ? await chromium.executablePath()
-          : process.platform === 'win32'
-            ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-            : process.platform === 'darwin'
-              ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-              : '/usr/bin/google-chrome',
-        headless: chromium.headless,
-      });
+    const page = await browser.newPage();
+    await page.setContent(html, {
+      waitUntil: 'domcontentloaded',
+    });
 
-      const page = await browser.newPage();
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+    });
 
-      await page.setViewport({ width: 1920, height: 1080 });
-      await page.setContent(html, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30000,
-      });
+    await browser.close();
 
-      const pdf = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        timeout: 30000,
-      });
-
-      await browser.close();
-
-      return new NextResponse(new Uint8Array(pdf), {
-        headers: {
-          'Content-Type': 'application/pdf',
-          'Content-Disposition': 'attachment; filename=report.pdf',
-        },
-      });
-    } catch (browserError) {
-      if (browser) {
-        await browser.close().catch(() => {});
-      }
-      throw browserError;
-    }
+    return new NextResponse(pdf, {
+      headers: {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename=report.pdf',
+      },
+    });
   } catch (error) {
     console.error('PDF generation error:', error);
     return NextResponse.json(
