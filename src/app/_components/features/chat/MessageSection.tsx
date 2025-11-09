@@ -28,6 +28,7 @@ interface Occupation {
 interface MessageSectionProps {
   messages: ChatMessage[];
   showStartButton?: boolean;
+  startButtonText?: string;
   showQuestionOptions?: boolean;
   currentQuestionOptions?: string[];
   selectedOptions?: string[];
@@ -44,6 +45,8 @@ interface MessageSectionProps {
   onGenerateStrengthReport?: () => void;
   onJobInputClick?: () => void;
   onNavigateToStrengthReport?: () => void;
+  onNewRoadmapButtonClick?: () => void;
+  onUserRoadmapButtonClick?: () => void;
   hasStrengthReports?: boolean;
   children?: React.ReactNode;
 }
@@ -51,6 +54,7 @@ interface MessageSectionProps {
 export default function MessageSection({
   messages,
   showStartButton = false,
+  startButtonText = '시작하기',
   showQuestionOptions = false,
   currentQuestionOptions = [],
   selectedOptions = [],
@@ -67,6 +71,8 @@ export default function MessageSection({
   onGenerateStrengthReport,
   onJobInputClick,
   onNavigateToStrengthReport,
+  onNewRoadmapButtonClick,
+  onUserRoadmapButtonClick,
   hasStrengthReports = false,
   children,
 }: MessageSectionProps) {
@@ -124,6 +130,69 @@ export default function MessageSection({
   };
 
   const groupedMessages = groupStrengthReports(messages);
+
+  // newRoadmapButton과 historyOptions 중복 제거
+  const deduplicatedMessages = groupedMessages.filter((message, index, arr) => {
+    // historyOptions 중복 제거 (첫 번째만 유지)
+    if (message.componentType === 'historyOptions') {
+      const firstIndex = arr.findIndex(
+        (msg) => msg.componentType === 'historyOptions'
+      );
+      return index === firstIndex;
+    }
+
+    // newRoadmapButton 중복 제거 (AI 쪽 1개, 사용자 쪽 1개만 유지)
+    if (message.componentType === 'newRoadmapButton') {
+      // 사용자 쪽 버튼인지 확인
+      const isUserSide =
+        message.componentData &&
+        typeof message.componentData === 'object' &&
+        'isUserSide' in message.componentData &&
+        message.componentData.isUserSide === true;
+
+      if (isUserSide) {
+        // 사용자 쪽 버튼: AI 쪽 버튼이 있는지 확인
+        const hasAiButton = arr.some((msg) => {
+          if (msg.componentType !== 'newRoadmapButton') return false;
+          const msgIsUserSide =
+            msg.componentData &&
+            typeof msg.componentData === 'object' &&
+            'isUserSide' in msg.componentData &&
+            msg.componentData.isUserSide === true;
+          return !msgIsUserSide; // AI 쪽 버튼 (isUserSide가 false 또는 undefined)
+        });
+
+        // AI 쪽 버튼이 없으면 사용자 쪽 버튼도 표시하지 않음
+        if (!hasAiButton) return false;
+
+        // AI 쪽 버튼이 있으면 첫 번째 사용자 쪽 버튼만 표시
+        const firstUserSideIndex = arr.findIndex((msg) => {
+          if (msg.componentType !== 'newRoadmapButton') return false;
+          const msgIsUserSide =
+            msg.componentData &&
+            typeof msg.componentData === 'object' &&
+            'isUserSide' in msg.componentData &&
+            msg.componentData.isUserSide === true;
+          return msgIsUserSide;
+        });
+        return index === firstUserSideIndex;
+      } else {
+        // AI 쪽 버튼: 첫 번째만 표시
+        const firstAiSideIndex = arr.findIndex((msg) => {
+          if (msg.componentType !== 'newRoadmapButton') return false;
+          const msgIsUserSide =
+            msg.componentData &&
+            typeof msg.componentData === 'object' &&
+            'isUserSide' in msg.componentData &&
+            msg.componentData.isUserSide === true;
+          return !msgIsUserSide;
+        });
+        return index === firstAiSideIndex;
+      }
+    }
+
+    return true;
+  });
 
   const renderJobCards = (componentData: unknown): React.ReactNode => {
     const jobData = componentData as {
@@ -215,13 +284,13 @@ export default function MessageSection({
 
   useEffect(() => {
     scrollToBottom();
-  }, [groupedMessages]);
+  }, [deduplicatedMessages]);
 
   return (
     // <div className="max-w-[1200px] mx-auto">
     <div className="w-full h-[70vh] xs:h-[65vh] md:h-[69.81vh] lg:h-[65vh] overflow-y-auto scrollbar-hide mx-auto mt-[0.3vh] mb-[20vh] xs:mb-[22vh] md:mb-[25vh] lg:mb-[25vh] flex flex-col gap-2 xs:gap-3 md:gap-4 lg:gap-4 px-4 md:px-8 xl:px-0">
       {/* 채팅 히스토리 */}
-      {groupedMessages.map((message, index) => {
+      {deduplicatedMessages.map((message, index) => {
         // 컴포넌트 타입 메시지 처리
         if (message.type === 'component') {
           return (
@@ -312,6 +381,40 @@ export default function MessageSection({
                   </div>
                 </div>
               )}
+
+              {message.componentType === 'newRoadmapButton' && (
+                <>
+                  {message.componentData &&
+                  typeof message.componentData === 'object' &&
+                  'isUserSide' in message.componentData &&
+                  message.componentData.isUserSide === true ? (
+                    // 사용자 쪽 버튼
+                    <div className="flex justify-end">
+                      <div
+                        className={`max-w-[80vw] xs:max-w-[70vw] md:max-w-[40vw] lg:max-w-[30.21vw] rounded-[16px] xs:rounded-[20px] md:rounded-[24px] lg:rounded-[24px] pt-4 xs:pt-5 md:pt-6 lg:pt-6 pb-4 xs:pb-5 md:pb-6 lg:pb-6 pl-3 xs:pl-4 md:pl-5 lg:pl-5 pr-3 xs:pr-4 md:pr-5 lg:pr-5`}
+                        style={{ backgroundColor: '#9FC2FF66' }}
+                      >
+                        <button
+                          onClick={onUserRoadmapButtonClick}
+                          className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] w-full max-w-[70vw] xs:max-w-[60vw] md:max-w-[35vw] lg:max-w-[30vw] px-3 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white text-sm xs:text-base md:text-base lg:text-base"
+                        >
+                          🆕 커리어 로드맵 새로 받기
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    // AI 쪽 버튼 (왼쪽, 초록색)
+                    <div className="flex justify-start ml-12 xs:ml-11 md:ml-10 lg:ml-[52px]">
+                      <button
+                        onClick={onNewRoadmapButtonClick}
+                        className="flex items-center justify-center rounded-[100px] px-4 xs:px-5 md:px-6 lg:px-6 py-3 xs:py-3 md:py-3 lg:py-3 cursor-pointer transition-colors bg-primary-90 text-white text-sm xs:text-base md:text-base lg:text-base font-medium hover:bg-primary-80"
+                      >
+                        🆕 커리어 로드맵 새로 받기
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           );
         }
@@ -335,7 +438,7 @@ export default function MessageSection({
       })}
 
       {/* 강점 리포트 생성하기 버튼 섹션 */}
-      {groupedMessages.some(
+      {deduplicatedMessages.some(
         (msg) => msg.componentType === 'strengthReportButton'
       ) && (
         <div className="text-center md:mt-40 mt-30 mb-8">
@@ -352,7 +455,7 @@ export default function MessageSection({
       )}
 
       {/* 강점 리포트 페이지 이동 버튼 섹션 */}
-      {groupedMessages.some(
+      {deduplicatedMessages.some(
         (msg) => msg.componentType === 'strengthReportPageButton'
       ) && (
         <div className="text-center md:mt-30 mt-20 mb-8">
@@ -369,7 +472,7 @@ export default function MessageSection({
       )}
 
       {/* 직업 입력 버튼 섹션 */}
-      {groupedMessages.some(
+      {deduplicatedMessages.some(
         (msg) => msg.componentType === 'jobInputButton'
       ) && (
         <div className="flex justify-end">
@@ -387,7 +490,7 @@ export default function MessageSection({
         </div>
       )}
 
-      {/* 시작하기 버튼 */}
+      {/* 시작하기 버튼 (사용자 쪽에 표시) */}
       {showStartButton && (
         <div className="flex justify-end">
           <div
@@ -398,7 +501,7 @@ export default function MessageSection({
               onClick={onStartClick}
               className="flex items-center justify-center border-2 border-secondary4 rounded-[100px] w-full max-w-[70vw] xs:max-w-[60vw] md:max-w-[35vw] lg:max-w-[30vw] px-3 xs:px-4 md:px-4 lg:px-4 py-2 xs:py-2 md:py-2 lg:py-2 cursor-pointer transition-colors text-chat-message-option bg-secondary4 text-white text-sm xs:text-base md:text-base lg:text-base"
             >
-              시작하기
+              {startButtonText}
             </button>
           </div>
         </div>

@@ -29,6 +29,10 @@ interface LoadingData {
   loadingType: 'strengthReport' | 'jobRecommendation';
 }
 
+interface NewRoadmapButtonData {
+  isUserSide?: boolean;
+}
+
 export interface ChatMessage {
   id: string;
   type: 'bot' | 'user' | 'component';
@@ -45,12 +49,14 @@ export interface ChatMessage {
     | 'historyOptions'
     | 'strengthReportButton'
     | 'strengthReportPageButton'
-    | 'jobInputButton';
+    | 'jobInputButton'
+    | 'newRoadmapButton';
   componentData?:
     | StrengthReportData
     | JobRecommendations
     | StrengthReportData[]
     | LoadingData
+    | NewRoadmapButtonData
     | null
     | Record<string, never>;
 }
@@ -75,12 +81,14 @@ export interface ChatHistoryContextType {
       | 'historyOptions'
       | 'strengthReportButton'
       | 'strengthReportPageButton'
-      | 'jobInputButton',
+      | 'jobInputButton'
+      | 'newRoadmapButton',
     componentData?:
       | StrengthReportData
       | JobRecommendations
       | StrengthReportData[]
       | LoadingData
+      | NewRoadmapButtonData
       | null
       | Record<string, never>
   ) => void;
@@ -163,12 +171,14 @@ export const ChatHistoryProvider: React.FC<ChatHistoryProviderProps> = ({
       | 'historyOptions'
       | 'strengthReportButton'
       | 'strengthReportPageButton'
-      | 'jobInputButton',
+      | 'jobInputButton'
+      | 'newRoadmapButton',
     componentData?:
       | StrengthReportData
       | JobRecommendations
       | StrengthReportData[]
       | LoadingData
+      | NewRoadmapButtonData
       | null
       | Record<string, never>
   ) => {

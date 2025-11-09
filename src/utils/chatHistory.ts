@@ -177,6 +177,15 @@ export const loadPreviousConversation = async ({
 
           setStrengthReports(reports);
 
+          // occupation 질문 메시지 추가
+          addBotMessage(
+            `이제 ${userName}만의 강점 리포트를 만들어볼게요! 📝\n이 리포트는 ${userName}이 가진 경험 속 강점을 한눈에 보여주고,\n나중에 기업에 제출할 때 '나를 소개하는 문서'로도 활용할 수 있어요 💪\n\n제2의 직업을 정하셨다면 '준비하는 직업'을 입력,\n아직 고민 중이라면 '없음'이라고 입력해주세요!`
+          );
+
+          // occupation 답변 추가
+          const occupation = strengthHistoryData.data.occupation || '없음';
+          addUserMessage(occupation);
+
           // 강점 리포트 완료 메시지 추가
           const expertType = generateExpertType(reports[0].strength);
           addBotMessage(

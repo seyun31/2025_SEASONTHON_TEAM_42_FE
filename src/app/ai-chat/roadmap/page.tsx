@@ -14,8 +14,9 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { createAiChatRoadmapFlow } from '@/data/ai-chat-roadmap-list';
 import MessageItem from '@/components/ui/MessageItem';
 import { UserResponse } from '@/types/user';
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { api } from '@/lib/api/axios';
+import RestartConfirmModal from '@/components/features/chat/RestartConfirmModal';
+import { AxiosError } from 'axios';
 
 interface RoadmapStep {
   period: string;
@@ -31,6 +32,17 @@ interface RoadmapResponse {
   result: string;
   data: {
     steps: RoadmapStep[];
+  };
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+interface CertificationResponse {
+  result: string;
+  data: {
+    certificationList: string[];
   };
   error?: {
     code: string;
@@ -61,8 +73,11 @@ function AIChatRoadmapContent() {
     isCompleted,
     addBotMessage,
     addUserMessage,
+    addComponentMessage,
+    removeMessagesByType,
     nextStep,
     completeChat,
+    resetChat,
   } = useChatHistory();
 
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
@@ -81,19 +96,71 @@ function AIChatRoadmapContent() {
       }>;
     }>;
   } | null>(null);
+  const [hasExistingRoadmap, setHasExistingRoadmap] = useState<boolean>(false);
+  const [roadmapChecked, setRoadmapChecked] = useState<boolean>(false);
+  const [showRestartModal, setShowRestartModal] = useState<boolean>(false);
+  const [dynamicOptions, setDynamicOptions] = useState<string[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const [firstQuestionAnswer, setFirstQuestionAnswer] = useState<string>('');
+  const [optionsFetched, setOptionsFetched] = useState(false);
 
-  // 초기 intro 메시지 추가 (사용자 데이터 로딩 후)
+  // 기존 로드맵 확인 함수
+  const checkExistingRoadmapHandler = useCallback(async () => {
+    try {
+      const { data } = await api.get<RoadmapResponse>('/api/roadmap/recommend');
+
+      if (data.result === 'SUCCESS' && data.data?.steps?.length > 0) {
+        // 기존 로드맵이 있는 경우 - 환영 메시지와 버튼 표시
+        setHasExistingRoadmap(true);
+
+        // 기존 newRoadmapButton 메시지 모두 제거 (중복 방지)
+        removeMessagesByType('newRoadmapButton');
+
+        addBotMessage(
+          `안녕하세요 ${userName} 반가워요 🙌\n다시 오셨네요!\n무엇을 도와드릴까요?`,
+          0
+        );
+        // 커리어 로드맵 새로 받기 버튼 추가 (AI side만)
+        addComponentMessage('newRoadmapButton', { isUserSide: false });
+      } else {
+        // 기존 로드맵이 없는 경우
+        setHasExistingRoadmap(false);
+      }
+    } catch (error) {
+      setHasExistingRoadmap(false);
+    } finally {
+      setRoadmapChecked(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userName]);
+
+  // 페이지 로드 시 기존 로드맵 확인
   useEffect(() => {
-    if (messages.length === 0 && !userLoading && userData) {
+    if (!userLoading && userData && !roadmapChecked) {
+      checkExistingRoadmapHandler();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLoading, userData, roadmapChecked]);
+
+  // 초기 intro 메시지 표시 (기존 로드맵이 없는 경우에만)
+  useEffect(() => {
+    if (
+      messages.length === 0 &&
+      !userLoading &&
+      userData &&
+      roadmapChecked &&
+      !hasExistingRoadmap
+    ) {
       addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
       setShowCurrentQuestion(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     messages.length,
     userLoading,
     userData,
-    aiChatFlow.intro.messages,
-    addBotMessage,
+    roadmapChecked,
+    hasExistingRoadmap,
   ]);
 
   // 현재 단계에 따른 질문 표시
@@ -166,6 +233,62 @@ function AIChatRoadmapContent() {
     }
   }, [isCompleted, roadmapData, fetchRoadmapRecommendations]);
 
+  // 2번째 질문 (step 2)에서 자격증 옵션 조회
+  useEffect(() => {
+    const currentQuestion = aiChatFlow.questions.find(
+      (q) => q.step === currentStep
+    );
+
+    if (
+      currentQuestion &&
+      currentQuestion.step === 2 &&
+      firstQuestionAnswer &&
+      !isLoadingOptions &&
+      !optionsFetched
+    ) {
+      const fetchCertificationOptions = async () => {
+        setIsLoadingOptions(true);
+
+        try {
+          console.log('[Roadmap] 자격증 옵션 조회 시작:', {
+            occupation: firstQuestionAnswer,
+          });
+
+          const { data } = await api.post<CertificationResponse>(
+            '/api/roadmap/certification',
+            {
+              occupation: firstQuestionAnswer,
+            }
+          );
+
+          if (data.result === 'SUCCESS' && data.data?.certificationList) {
+            setDynamicOptions(data.data.certificationList);
+          } else {
+            setDynamicOptions([]);
+          }
+        } catch (error) {
+          console.error('[Roadmap] 자격증 옵션 조회 실패:', error);
+          if (error instanceof AxiosError) {
+            console.error('[Roadmap] Axios 에러 상세:', error.response?.data);
+          }
+          // 에러 시 빈 배열 유지 (text input 사용)
+          setDynamicOptions([]);
+        } finally {
+          setIsLoadingOptions(false);
+          setOptionsFetched(true);
+        }
+      };
+
+      fetchCertificationOptions();
+    }
+  }, [
+    currentStep,
+    aiChatFlow.questions,
+    firstQuestionAnswer,
+    isLoadingOptions,
+    optionsFetched,
+  ]);
+
   const getCurrentQuestion = () => {
     if (currentStep === 0) return null;
     return aiChatFlow.questions.find((q) => q.step === currentStep);
@@ -193,6 +316,11 @@ function AIChatRoadmapContent() {
 
     if (userResponse || selectedOptions.length > 0) {
       addUserMessage(userResponse, currentQuestion?.id, selectedOptions);
+
+      // 첫 번째 질문의 답변 저장 (occupation)
+      if (currentQuestion?.id === 1 && userResponse) {
+        setFirstQuestionAnswer(userResponse);
+      }
 
       // 세션 스토리지에 답변 저장
       if (currentQuestion?.id && userResponse) {
@@ -236,6 +364,12 @@ function AIChatRoadmapContent() {
     // 상태 초기화
     setSelectedOptions([]);
     setTextInput('');
+
+    // 2번 질문으로 넘어갈 때 동적 옵션 초기화
+    if (currentQuestion?.id === 1) {
+      setDynamicOptions([]);
+      setOptionsFetched(false);
+    }
   };
 
   const handleSkipClick = async () => {
@@ -256,6 +390,21 @@ function AIChatRoadmapContent() {
   };
 
   const handleStartClick = () => {
+    // 기존 로드맵이 없으면 바로 시작
+    startNewRoadmap();
+  };
+
+  const handleNewRoadmapButtonClick = () => {
+    // AI 쪽 버튼 클릭 -> 사용자 쪽에 보라색 버튼 추가
+    addComponentMessage('newRoadmapButton', { isUserSide: true });
+  };
+
+  const handleUserRoadmapButtonClick = () => {
+    // 사용자 쪽 버튼 클릭 -> 모달 표시
+    setShowRestartModal(true);
+  };
+
+  const startNewRoadmap = () => {
     addUserMessage('시작하기');
 
     // 로드맵 세션 스토리지 초기화
@@ -272,18 +421,69 @@ function AIChatRoadmapContent() {
     setShowCurrentQuestion(true);
   };
 
+  const handleRestartConfirm = () => {
+    setShowRestartModal(false);
+
+    // 상태 초기화
+    resetChat();
+    setSelectedOptions([]);
+    setTextInput('');
+    setRoadmapData(null);
+    setHasExistingRoadmap(false);
+    setDynamicOptions([]);
+    setFirstQuestionAnswer('');
+    setOptionsFetched(false);
+
+    // 세션 스토리지 초기화
+    sessionStorage.setItem(
+      'roadmapAnswers',
+      JSON.stringify({
+        career: '',
+        experience: '',
+        period: '',
+      })
+    );
+
+    // 대화 시작
+    setTimeout(() => {
+      addBotMessage(aiChatFlow.intro.messages.join('\n'), 0);
+      setShowCurrentQuestion(true);
+    }, 100);
+  };
+
+  const handleRestartCancel = () => {
+    setShowRestartModal(false);
+  };
+
   const currentQuestion = getCurrentQuestion();
-  const showStartButton = currentStep === 0 && messages.length > 0;
-  const currentOptions = currentQuestion?.options || [];
+  const showStartButton =
+    currentStep === 0 && messages.length > 0 && !hasExistingRoadmap;
+  const startButtonText = '시작하기';
+
+  // 2번 질문이면 동적 옵션 사용, 아니면 기본 옵션 사용
+  const currentOptions =
+    currentQuestion?.step === 2 && dynamicOptions.length > 0
+      ? dynamicOptions
+      : currentQuestion?.options || [];
+
   const showQuestionOptions =
     currentQuestion && currentOptions && currentOptions.length > 0;
 
   // 로딩 상태 처리
   if (userLoading) {
     return (
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-        <div className="text-center">
-          <p className="text-chat-message">사용자 정보를 불러오는 중...</p>
+      <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/assets/Icons/character_running.webp"
+            alt="loading"
+            width={235}
+            height={304}
+            className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+          />
+          <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+            로드맵 채팅 정보 불러오는중
+          </p>
         </div>
       </div>
     );
@@ -320,6 +520,7 @@ function AIChatRoadmapContent() {
         <MessageSection
           messages={messages}
           showStartButton={showStartButton}
+          startButtonText={startButtonText}
           showQuestionOptions={showQuestionOptions || false}
           currentQuestionOptions={currentOptions}
           selectedOptions={selectedOptions}
@@ -328,20 +529,25 @@ function AIChatRoadmapContent() {
           onOptionClick={handleOptionClick}
           onCompleteClick={handleCompleteClick}
           onSkipClick={handleSkipClick}
+          onNewRoadmapButtonClick={handleNewRoadmapButtonClick}
+          onUserRoadmapButtonClick={handleUserRoadmapButtonClick}
         >
           {/* 완료된 경우 결과 표시 */}
           {isCompleted &&
             (isLoadingRecommendations ? (
-              <div className="text-center p-4 flex flex-col items-center gap-4">
-                <DotLottieReact
-                  src="https://lottie.host/b520eba8-53ae-4860-9a96-79419625c186/zQolKAd3tn.lottie"
-                  loop
-                  autoplay
-                  style={{
-                    width: '300px',
-                    height: '300px',
-                  }}
-                />
+              <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                  <Image
+                    src="/assets/Icons/character_cheer.png"
+                    alt="loading"
+                    width={235}
+                    height={304}
+                    className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+                  />
+                  <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+                    로드맵 생성중
+                  </p>
+                </div>
               </div>
             ) : (
               <div>
@@ -363,8 +569,7 @@ function AIChatRoadmapContent() {
                   />
                 )}
 
-                <div className="flex items-start gap-[1.5vw] xs:gap-[1.5vw] md:gap-[0vw] lg:gap-[0vw] mt-2">
-                  <div className="flex-shrink-0 w-[8vw] h-[6vh] xs:w-[6vw] xs:h-[5.5vh] md:w-[3.5vw] md:h-[5vh] lg:w-[2.71vw] lg:h-[4.81vh]" />
+                <div className="flex justify-start ml-12 xs:ml-11 md:ml-10 lg:ml-[52px] mt-2">
                   <div
                     className="flex items-center justify-center w-[22vh] max-w-[280px] h-[8vh] max-h-[55px] xs:w-[25vh] xs:max-w-[280px] xs:h-[5.5vh] xs:max-h-[50px] md:w-[18vh] md:max-w-[180px] md:h-[5.5vh] md:max-h-[50px] lg:w-[20vh] lg:max-w-[200px] lg:h-[6.7vh] lg:max-h-[60px] border-2 rounded-[12px] cursor-pointer text-chat-message bg-primary-90 text-white"
                     onClick={() => router.push('/career-roadmap')}
@@ -395,6 +600,24 @@ function AIChatRoadmapContent() {
           />
         </div>
       </div>
+
+      {/* 로드맵 재생성 확인 모달 */}
+      {showRestartModal && (
+        <RestartConfirmModal
+          onConfirm={handleRestartConfirm}
+          onCancel={handleRestartCancel}
+          message={
+            <>
+              <div>커리어 로드맵을 새로 받으면</div>
+              <div className="text-primary-90">
+                기존 커리어 로드맵은 모두 지워져요.
+              </div>
+              <div>새로 받을까요?</div>
+            </>
+          }
+          confirmText="새로 받기"
+        />
+      )}
     </>
   );
 }
