@@ -1,8 +1,0 @@
-{
-  "functions": {
-    "api/print": {
-      "memory": 3008,
-      "maxDuration": 60
-    }
-  }
-}

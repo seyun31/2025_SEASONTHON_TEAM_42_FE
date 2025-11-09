@@ -21,29 +21,34 @@ export default function DeleteConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 bg-[#11111166] flex items-center justify-center z-50"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-2xl p-6 mx-4 max-w-sm w-full shadow-xl">
-        {/* 텍스트 메시지 */}
-        <div className="text-center mb-6">
-          <p className="text-black text-base mb-2">
-            삭제하게 되면 다시 불러올 수 없어요.
-          </p>
-          <p className="text-black text-base">삭제할까요?</p>
-        </div>
-
-        {/* 버튼들 */}
-        <div className="flex gap-3">
+      <div
+        className="bg-white border-4 border-[#C7D6CC] flex flex-col justify-center items-center mx-4"
+        style={{
+          maxWidth: '480px',
+          width: '100%',
+          height: '200px',
+          borderRadius: '32px',
+          boxShadow: '0px 10px 20px 0px #11111126',
+        }}
+      >
+        <p className="text-center text-black font-pretendard font-medium text-[18px] leading-[150%] mb-6 whitespace-pre-line px-4">
+          삭제하게 되면 다시 불러올 수 없어요.{'\n'}삭제할까요?
+        </p>
+        <div className="flex gap-3 justify-center">
           <button
+            type="button"
+            className="px-6 py-3 bg-[#FF4D4D] text-white rounded-[12px] font-medium text-[16px] cursor-pointer"
             onClick={onConfirm}
-            className="flex-1 py-3 px-4 bg-red-500 hover:bg-red-600 text-white rounded-xl text-base font-medium transition-colors"
           >
             삭제
           </button>
           <button
+            type="button"
+            className="px-6 py-3 bg-[#C7D6CC80] text-gray-50 rounded-[12px] font-medium text-[16px] cursor-pointer"
             onClick={onClose}
-            className="flex-1 py-3 px-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl text-base font-medium transition-colors"
           >
             취소
           </button>
