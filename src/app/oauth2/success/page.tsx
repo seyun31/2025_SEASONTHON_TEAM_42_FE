@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Image from 'next/image';
 import Footer from '@/components/layout/Footer';
 
 interface UserData {
@@ -103,9 +104,19 @@ export default function OAuth2SuccessPage() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        {/* <p className="mt-4 text-gray-600 text-lg font-medium">로그인 중...</p> */}
+      <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/assets/Icons/character_running.webp"
+            alt="loading"
+            width={328}
+            height={293}
+            className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+          />
+          <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+            로그인중
+          </p>
+        </div>
       </div>
     );
   }
@@ -129,11 +140,19 @@ export default function OAuth2SuccessPage() {
 
   // 성공 시에는 바로 리다이렉트되므로 이 화면은 표시되지 않음
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      <p className="mt-4 text-gray-600 text-lg font-medium">
-        {/* 메인 페이지로 이동 중... */}
-      </p>
+    <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Image
+          src="/assets/Icons/character_running.webp"
+          alt="loading"
+          width={328}
+          height={293}
+          className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+        />
+        <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+          로그인중
+        </p>
+      </div>
       <Footer />
     </div>
   );

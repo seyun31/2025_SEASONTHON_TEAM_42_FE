@@ -787,10 +787,17 @@ export default function UserCheckList({
   // 로딩 중일 때
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[600px] py-12">
-        <div className="text-center bg-white/40 rounded-2xl px-6 py-4">
-          <p className="text-black text-lg md:text-xl font-medium">
-            로드맵을 불러오는 중...
+      <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/assets/Icons/character_running.webp"
+            alt="loading"
+            width={328}
+            height={293}
+            className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+          />
+          <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+            로드맵 불러오는중
           </p>
         </div>
       </div>

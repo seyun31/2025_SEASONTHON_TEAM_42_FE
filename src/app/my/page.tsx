@@ -107,8 +107,17 @@ export default function My() {
             </h3>
 
             {isLoading ? (
-              <div className="flex justify-center items-center h-[538px]">
-                <p className="text-gray-60">북마크된 직업을 불러오는 중...</p>
+              <div className="flex flex-col gap-4 justify-center items-center h-[538px]">
+                <Image
+                  src="/assets/Icons/loading-star-2.png"
+                  alt="loading"
+                  width={296}
+                  height={327}
+                  className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+                />
+                <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+                  저장된 직업 카드 불러오는중
+                </p>
               </div>
             ) : bookmarkedJobs.length > 0 ? (
               <div className="flex gap-4 justify-center flex-wrap">

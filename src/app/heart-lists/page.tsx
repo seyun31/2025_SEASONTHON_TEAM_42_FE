@@ -3,6 +3,7 @@
 import Footer from '@/components/layout/Footer';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
+import Image from 'next/image';
 import JobCard from '@/components/features/job/JobCard';
 import EducationCard from '@/components/features/job/EducationCard';
 import { JobSummary, EducationSummary } from '@/types/job';
@@ -375,8 +376,19 @@ function HeartListsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {tab === 'jobs' ? (
               isLoading ? (
-                <div className="text-center py-16 w-full md:col-span-2">
-                  <p className="text-gray-50 text-lg">로딩 중...</p>
+                <div className="col-span-full flex items-center justify-center min-h-[600px]">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <Image
+                      src="/assets/Icons/character_running.webp"
+                      alt="loading"
+                      width={328}
+                      height={293}
+                      className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+                    />
+                    <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+                      관심 목록 불러오는중
+                    </p>
+                  </div>
                 </div>
               ) : jobHistory.length > 0 ? (
                 jobHistory.map((job) => {
@@ -405,8 +417,19 @@ function HeartListsContent() {
               )
             ) : tab === 'education' ? (
               isLoading ? (
-                <div className="text-center py-16 w-full md:col-span-2">
-                  <p className="text-gray-50 text-lg">로딩 중...</p>
+                <div className="col-span-full flex items-center justify-center min-h-[600px]">
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <Image
+                      src="/assets/Icons/character_running.webp"
+                      alt="loading"
+                      width={328}
+                      height={293}
+                      className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+                    />
+                    <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+                      관심 목록 불러오는중
+                    </p>
+                  </div>
                 </div>
               ) : educationHistory.length > 0 ? (
                 educationHistory.map((education) => {

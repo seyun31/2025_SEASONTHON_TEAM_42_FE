@@ -213,9 +213,19 @@ export default function EditPage() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        {/* <p className="mt-4 text-gray-600 text-lg font-medium">로딩 중...</p> */}
+      <div className="fixed inset-0 bg-white/60 backdrop-blur-lg z-40 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Image
+            src="/assets/Icons/loading-star-2.png"
+            alt="loading"
+            width={296}
+            height={327}
+            className="mb-8 md:mb-16 w-[200px] h-auto md:w-[328px]"
+          />
+          <p className="text-2xl md:text-3xl font-semibold text-gray-50">
+            프로필 정보 불러오는중
+          </p>
+        </div>
       </div>
     );
   }
@@ -318,7 +328,7 @@ export default function EditPage() {
           </div>
 
           {/* 취소, 수정완료 버튼 */}
-          <div className="flex gap-4 w-[26.8vw]">
+          <div className="flex gap-4 w-[25.8vw]">
             <div className="flex-1">
               <button
                 onClick={handleCancel}
