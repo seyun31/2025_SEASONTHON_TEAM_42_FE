@@ -16,7 +16,7 @@ import {
 import { PiStarThin } from 'react-icons/pi';
 import { HiStar } from 'react-icons/hi';
 import { IoMdMore } from 'react-icons/io';
-import { showSuccess, showError, showInfo } from '@/utils/alert';
+import { showSuccess, showError } from '@/utils/alert';
 import {
   toggleRoadMapAction,
   updateRoadmapAction,
