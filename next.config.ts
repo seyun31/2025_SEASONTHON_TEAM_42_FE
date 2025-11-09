@@ -16,34 +16,8 @@ const withPlugins = require('next-compose-plugins');
 const nextConfig: NextConfig = {
   // Next.js 15에서는 appDir이 기본값이므로 제거
   images: {
-    // 이미지 최적화 완전 비활성화
+    // 이미 최적화된 webp 이미지 사용
     unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'img1.kakaocdn.net',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'img1.kakaocdn.net',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 't1.kakaocdn.net',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 't1.kakaocdn.net',
-        port: '',
-        pathname: '/**',
-      },
-    ],
   },
   async headers() {
     return [

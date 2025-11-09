@@ -172,6 +172,7 @@ interface EducationCardProps {
   isBookmarked?: boolean;
   isOpen?: boolean;
   onToggle?: (educationId: string) => void;
+  priority?: boolean; // 첫 번째 카드 여부
 }
 
 export default function EducationCard({
@@ -180,6 +181,7 @@ export default function EducationCard({
   isBookmarked = false,
   isOpen = false,
   onToggle,
+  priority = false,
 }: EducationCardProps) {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isBookmark, setIsBookmark] = useState(isBookmarked);
@@ -332,6 +334,9 @@ export default function EducationCard({
     </div>
   );
 
+  // 이미지 lazy loading을 위한 상태
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   return (
     <div
       className={styles.card(isExpanded, isAnimating)}
@@ -340,12 +345,17 @@ export default function EducationCard({
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* 상단 이미지 */}
-      <div
-        className="relative flex-shrink-0 rounded-lg md:rounded-xl transition-all duration-700 ease-in-out w-full h-[120px] md:h-[200px]"
-        style={{
-          background: `url(${education.imageUrl || '/default-profile.png'}) lightgray 50% / cover no-repeat`,
-        }}
-      >
+      <div className="relative flex-shrink-0 rounded-lg md:rounded-xl transition-all duration-700 ease-in-out w-full h-[120px] md:h-[200px] bg-gray-200">
+        <img
+          src={education.imageUrl || '/default-profile.png'}
+          alt={education.title || '교육 이미지'}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
+          className="absolute inset-0 w-full h-full object-cover rounded-lg md:rounded-xl"
+          onLoad={() => setImageLoaded(true)}
+          style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
+        />
         {/* Compact 오버레이 */}
         <div
           className={`absolute bottom-0 left-0 right-0 py-2 md:py-4 px-3 md:px-6 transition-all duration-500 ease-in-out transform ${
