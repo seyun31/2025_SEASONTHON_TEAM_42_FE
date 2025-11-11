@@ -65,6 +65,7 @@ const PrintableStrengthReport = React.forwardRef<
       {cards.map((card, index) => (
         <div
           key={index}
+          data-card-id={card.title}
           className="avoid-break border-2 border-[#C7D6CC] rounded-3xl p-6 mb-6 bg-white"
         >
           {/* 카드 헤더 */}

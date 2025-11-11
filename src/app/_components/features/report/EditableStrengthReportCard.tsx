@@ -120,7 +120,7 @@ export default function StrengthReportCard({
   };
   return (
     <>
-      <div>
+      <div className="report-card" data-report-id={strengthReportId}>
         <div className="relative max-w-[1000px]">
           {/* 선택 아이콘 - 데스크탑 */}
           {showSelectionIcon && (

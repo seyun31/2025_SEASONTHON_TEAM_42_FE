@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { getUserData } from '@/lib/auth';
 import EditableStrengthReportCard from '@/app/_components/features/report/EditableStrengthReportCard';
-import PrintableStrengthReport from '@/app/_components/features/report/PrintableStrengthReport';
 import Image from 'next/image';
 import { api } from '@/lib/api/axios';
 import { ArrowDownToLine } from 'lucide-react';
@@ -44,7 +43,6 @@ export default function StrengthDashboardClient({
     new Set()
   );
   const [isLoading, setIsLoading] = useState(true);
-  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const user = getUserData();
@@ -113,97 +111,151 @@ export default function StrengthDashboardClient({
     }
 
     try {
-      const element = printRef.current;
-      if (!element) {
-        throw new Error('인쇄할 요소를 찾을 수 없습니다.');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      // 선택된 카드 노드들 가져오기
+      const allCardNodes = Array.from(
+        document.querySelectorAll('.report-card')
+      ) as HTMLElement[];
+
+      const selectedCardNodes = allCardNodes.filter((node) => {
+        const reportId = node.getAttribute('data-report-id');
+        return reportId && selectedReports.has(Number(reportId));
+      });
+
+      // 2개씩 페이지 분할
+      const chunkSize = 2;
+      const chunks: HTMLElement[][] = [];
+      for (let i = 0; i < selectedCardNodes.length; i += chunkSize) {
+        chunks.push(selectedCardNodes.slice(i, i + chunkSize));
       }
 
-      // 모든 이미지가 로드될 때까지 대기
-      const images = element.getElementsByTagName('img');
-      const imagePromises = Array.from(images).map((img) => {
-        if (img.complete) return Promise.resolve();
-        return new Promise<void>((resolve, reject) => {
-          img.onload = () => resolve();
-          img.onerror = () => reject();
-          // 타임아웃 추가
-          setTimeout(() => resolve(), 100);
+      const userName = userData?.name || initialUserName || '사용자';
+
+      for (let pageIndex = 0; pageIndex < chunks.length; pageIndex++) {
+        const pageCards = chunks[pageIndex];
+
+        // 페이지 전용 컨테이너 생성
+        const page = document.createElement('div');
+        page.style.width = '794px'; // A4 px width
+        page.style.minHeight = '1123px'; // A4 height
+        page.style.padding = '80px 40px 40px 40px'; // 상단 여백 증가
+        page.style.background = 'white';
+        page.style.position = 'absolute';
+        page.style.top = '-99999px';
+        page.style.left = '-99999px';
+        page.style.display = 'flex';
+        page.style.flexDirection = 'column';
+        page.style.gap = '24px';
+
+        document.body.appendChild(page);
+
+        // 헤더 추가 (첫 페이지만)
+        if (pageIndex === 0) {
+          const header = document.createElement('div');
+          header.style.display = 'flex';
+          header.style.justifyContent = 'space-between';
+          header.style.alignItems = 'center';
+          header.style.marginBottom = '8px';
+
+          const title = document.createElement('h1');
+          title.style.fontSize = '28px';
+          title.style.fontWeight = 'bold';
+          title.style.margin = '0';
+          title.innerHTML = `${userName}님의 <span style="color: #00AD38;">강점 리포트</span>`;
+
+          const logo = document.createElement('img');
+          logo.src = '/assets/logos/name-logo.svg';
+          logo.alt = '로고';
+          logo.width = 76;
+          logo.height = 36;
+          logo.style.marginTop = '30px';
+          logo.style.marginRight = '8px';
+
+          header.appendChild(title);
+          header.appendChild(logo);
+          page.appendChild(header);
+        }
+
+        // 카드 복사해서 추가
+        pageCards.forEach((cardNode) => {
+          const clonedCard = cardNode.cloneNode(true) as HTMLElement;
+
+          // 선택 아이콘 제거
+          const selectionIcon = clonedCard.querySelector(
+            'button[style*="top: -20px"]'
+          );
+          if (selectionIcon) {
+            selectionIcon.remove();
+          }
+
+          // 수정/삭제 버튼 제거
+          const editButtons = clonedCard.querySelectorAll('button');
+          editButtons.forEach((btn) => {
+            if (
+              btn.textContent?.includes('수정') ||
+              btn.textContent?.includes('삭제') ||
+              btn.textContent?.includes('저장') ||
+              btn.textContent?.includes('취소')
+            ) {
+              btn.remove();
+            }
+          });
+
+          page.appendChild(clonedCard);
         });
-      });
-      await Promise.all(imagePromises);
 
-      // 약간의 딜레이를 주어 렌더링 완료 대기
-      await new Promise((resolve) => setTimeout(resolve, 200));
-
-      // html2canvas로 HTML을 캔버스로 변환
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        imageTimeout: 0,
-      });
-
-      // 캔버스 크기 검증
-      if (canvas.width === 0 || canvas.height === 0) {
-        throw new Error('캔버스 크기가 유효하지 않습니다.');
-      }
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-
-      // A4 사이즈 (mm): 210 x 297
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      // 여백 설정
-      const margin = 10;
-      const contentWidth = pageWidth - margin * 2;
-      const contentHeight = (canvas.height * contentWidth) / canvas.width;
-
-      let heightLeft = contentHeight;
-      let yPosition = margin;
-
-      // 첫 페이지 추가
-      pdf.addImage(
-        imgData,
-        'JPEG',
-        margin,
-        yPosition,
-        contentWidth,
-        contentHeight
-      );
-      heightLeft -= pageHeight - margin * 2;
-
-      // 페이지가 넘어가면 추가 페이지 생성
-      while (heightLeft > 0) {
-        yPosition = heightLeft - contentHeight + margin;
-        pdf.addPage();
-        pdf.addImage(
-          imgData,
-          'JPEG',
-          margin,
-          yPosition,
-          contentWidth,
-          contentHeight
+        // 이미지 로드 대기
+        const images = page.getElementsByTagName('img');
+        await Promise.all(
+          Array.from(images).map(
+            (img) =>
+              new Promise<void>((resolve) => {
+                if (img.complete) {
+                  resolve();
+                } else {
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                  setTimeout(() => resolve(), 100);
+                }
+              })
+          )
         );
-        heightLeft -= pageHeight - margin * 2;
+
+        // 약간의 딜레이
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // 캡처
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          imageTimeout: 0,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+        // 임시 DOM 삭제
+        document.body.removeChild(page);
       }
 
       // 파일명 생성
-      const userName = userData?.name || initialUserName || '사용자';
       const now = new Date();
       const year = String(now.getFullYear()).slice(2);
       const month = String(now.getMonth() + 1).padStart(2, '0');
       const day = String(now.getDate()).padStart(2, '0');
       const dateStr = `${year}${month}${day}`;
 
-      // PDF 다운로드
       pdf.save(`${userName}_강점리포트_${dateStr}.pdf`);
 
       showSuccess('PDF 다운로드가 완료되었어요');
@@ -343,27 +395,6 @@ export default function StrengthDashboardClient({
               </div>
             ))}
         </div>
-      </div>
-
-      {/* 숨겨진 인쇄용 컴포넌트 */}
-      <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-        <PrintableStrengthReport
-          ref={printRef}
-          cards={strengthReports
-            .filter((report) => selectedReports.has(report.strengthReportId))
-            .map((report) => ({
-              title: report.strength,
-              experience: report.experience,
-              keywords: report.keyword,
-              jobs: [report.appeal],
-              iconType: getIconType(
-                strengthReports.findIndex(
-                  (r) => r.strengthReportId === report.strengthReportId
-                )
-              ),
-            }))}
-          userName={userData?.name || initialUserName || '사용자'}
-        />
       </div>
     </div>
   );
