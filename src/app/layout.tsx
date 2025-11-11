@@ -29,22 +29,24 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="ko">
       <head>
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+        {gaId && (
           <>
             <script
               async
-              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-            />
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            ></script>
             <script
               dangerouslySetInnerHTML={{
                 __html: `
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
                   gtag('js', new Date());
-                  gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+                  gtag('config', '${gaId}');
                 `,
               }}
             />
