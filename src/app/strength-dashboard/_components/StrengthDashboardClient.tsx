@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { getUserData } from '@/lib/auth';
 import EditableStrengthReportCard from '@/app/_components/features/report/EditableStrengthReportCard';
 import Image from 'next/image';
@@ -109,63 +111,154 @@ export default function StrengthDashboardClient({
     }
 
     try {
-      // 선택된 리포트들의 데이터 수집
-      const selectedReportsData = strengthReports
-        .filter((report) => selectedReports.has(report.strengthReportId))
-        .map((report) => ({
-          title: report.strength,
-          experience: report.experience,
-          keywords: report.keyword,
-          jobs: [report.appeal],
-          iconType: getIconType(
-            strengthReports.findIndex(
-              (r) => r.strengthReportId === report.strengthReportId
-            )
-          ),
-        }));
+      const pdf = new jsPDF('p', 'mm', 'a4');
 
-      // 사용자 이름 확인
-      const userName = userData?.name || initialUserName || '사용자';
+      // 선택된 카드 노드들 가져오기
+      const allCardNodes = Array.from(
+        document.querySelectorAll('.report-card')
+      ) as HTMLElement[];
 
-      // API 호출
-      const response = await fetch('/api/print', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          cards: selectedReportsData,
-          userName: userName,
-        }),
+      const selectedCardNodes = allCardNodes.filter((node) => {
+        const reportId = node.getAttribute('data-report-id');
+        return reportId && selectedReports.has(Number(reportId));
       });
 
-      if (!response.ok) {
-        throw new Error('PDF 생성에 실패했습니다.');
+      // 2개씩 페이지 분할
+      const chunkSize = 2;
+      const chunks: HTMLElement[][] = [];
+      for (let i = 0; i < selectedCardNodes.length; i += chunkSize) {
+        chunks.push(selectedCardNodes.slice(i, i + chunkSize));
       }
 
-      // PDF 다운로드
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      const userName = userData?.name || initialUserName || '사용자';
 
-      // 파일명 생성: 사용자이름_강점리포트_YYMMDD.pdf
+      for (let pageIndex = 0; pageIndex < chunks.length; pageIndex++) {
+        const pageCards = chunks[pageIndex];
+
+        // 페이지 전용 컨테이너 생성
+        const page = document.createElement('div');
+        page.style.width = '794px'; // A4 px width
+        page.style.minHeight = '1123px'; // A4 height
+        page.style.padding = '80px 40px 40px 40px'; // 상단 여백 증가
+        page.style.background = 'white';
+        page.style.position = 'absolute';
+        page.style.top = '-99999px';
+        page.style.left = '-99999px';
+        page.style.display = 'flex';
+        page.style.flexDirection = 'column';
+        page.style.gap = '24px';
+
+        document.body.appendChild(page);
+
+        // 헤더 추가 (첫 페이지만)
+        if (pageIndex === 0) {
+          const header = document.createElement('div');
+          header.style.display = 'flex';
+          header.style.justifyContent = 'space-between';
+          header.style.alignItems = 'center';
+          header.style.marginBottom = '8px';
+
+          const title = document.createElement('h1');
+          title.style.fontSize = '28px';
+          title.style.fontWeight = 'bold';
+          title.style.margin = '0';
+          title.innerHTML = `${userName}님의 <span style="color: #00AD38;">강점 리포트</span>`;
+
+          const logo = document.createElement('img');
+          logo.src = '/assets/logos/name-logo.svg';
+          logo.alt = '로고';
+          logo.width = 76;
+          logo.height = 36;
+          logo.style.marginTop = '30px';
+          logo.style.marginRight = '8px';
+
+          header.appendChild(title);
+          header.appendChild(logo);
+          page.appendChild(header);
+        }
+
+        // 카드 복사해서 추가
+        pageCards.forEach((cardNode) => {
+          const clonedCard = cardNode.cloneNode(true) as HTMLElement;
+
+          // 선택 아이콘 제거
+          const selectionIcon = clonedCard.querySelector(
+            'button[style*="top: -20px"]'
+          );
+          if (selectionIcon) {
+            selectionIcon.remove();
+          }
+
+          // 수정/삭제 버튼 제거
+          const editButtons = clonedCard.querySelectorAll('button');
+          editButtons.forEach((btn) => {
+            if (
+              btn.textContent?.includes('수정') ||
+              btn.textContent?.includes('삭제') ||
+              btn.textContent?.includes('저장') ||
+              btn.textContent?.includes('취소')
+            ) {
+              btn.remove();
+            }
+          });
+
+          page.appendChild(clonedCard);
+        });
+
+        // 이미지 로드 대기
+        const images = page.getElementsByTagName('img');
+        await Promise.all(
+          Array.from(images).map(
+            (img) =>
+              new Promise<void>((resolve) => {
+                if (img.complete) {
+                  resolve();
+                } else {
+                  img.onload = () => resolve();
+                  img.onerror = () => resolve();
+                  setTimeout(() => resolve(), 100);
+                }
+              })
+          )
+        );
+
+        // 약간의 딜레이
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        // 캡처
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+          imageTimeout: 0,
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (pageIndex > 0) {
+          pdf.addPage();
+        }
+
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+
+        // 임시 DOM 삭제
+        document.body.removeChild(page);
+      }
+
+      // 파일명 생성
       const now = new Date();
-      const year = String(now.getFullYear()).slice(2); // YY
-      const month = String(now.getMonth() + 1).padStart(2, '0'); // MM
-      const day = String(now.getDate()).padStart(2, '0'); // DD
+      const year = String(now.getFullYear()).slice(2);
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
       const dateStr = `${year}${month}${day}`;
 
-      a.download = `${userName}_강점리포트_${dateStr}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      pdf.save(`${userName}_강점리포트_${dateStr}.pdf`);
 
-      // PDF 다운로드 완료 알림
       showSuccess('PDF 다운로드가 완료되었어요');
-
-      // 다운로드 모드 종료 및 선택 초기화
       setIsDownloadMode(false);
       setSelectedReports(new Set());
     } catch (error) {
